@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    // "strictNullChecks": true,
+    "allowJs": true,
+    "target": "es2016",
+    "outFile": "build.js"
+  },
+
+  "include": [
+    "./src/**/*"
+  ],
+
+  "exclude": [
+    "./src/_references.ts"
+  ],
+}
