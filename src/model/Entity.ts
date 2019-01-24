@@ -4,6 +4,7 @@ abstract class Entity {
 	protected _name: string;
 	protected _location: number[][]; //x,y pairs
 	protected _active: boolean;
+	protected _ascii: string;
 
 	//game has a list of ALL ENTITIES. Each entitity has a set of xy locations. Iterate over list of entities, placing each letter to respective bucket. 
 	//make an update loop function that does this, reset each bucket to empty at start of loop.
@@ -12,6 +13,7 @@ abstract class Entity {
 		this._name = name;
 		this._location = [];
 		this._active = false;
+		// this._ascii = '';
 	}
 
 	get name(): string {
@@ -36,5 +38,13 @@ abstract class Entity {
 
 	set active(active: boolean) {
 		this._active = active;
+	}
+
+	get ascii(): string {
+		return this._ascii;
+	}
+
+	set ascii(ascii: string) {
+		this._ascii = ascii;
 	}
 }

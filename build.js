@@ -52,7 +52,6 @@ class Tile {
     }
 }
 /// <reference path="../_references.ts" />
-//rect only
 class TileMap {
     constructor(width, height) {
         this._width = width;
@@ -165,6 +164,7 @@ class Entity {
         this._name = name;
         this._location = [];
         this._active = false;
+        // this._ascii = '';
     }
     get name() {
         return this._name;
@@ -183,6 +183,12 @@ class Entity {
     }
     set active(active) {
         this._active = active;
+    }
+    get ascii() {
+        return this._ascii;
+    }
+    set ascii(ascii) {
+        this._ascii = ascii;
     }
 }
 /// <reference path="../_references.ts" />
@@ -316,95 +322,140 @@ class Game {
     }
 }
 /// <reference path="../_references.ts" />
-let game;
-let font;
-let padding;
-let marginY, marginX;
-let COLORS;
-function preload() {
-    font = loadFont("./assets/fonts/Blackwood_Castle.ttf");
-    game = new Game();
-}
-function setup() {
-    createCanvas(1000, 1000);
-    padding = 30;
-    marginY = 50;
-    marginX = 10;
-    COLORS = {
-        player: color(156, 218, 237),
-        selected: color(239, 255, 177),
-        active: color(120, 120, 120),
-        empty: color(255, 255, 255),
+var s = function (sketch) {
+    let game;
+    let font;
+    let padding;
+    let marginY, marginX;
+    let COLORS;
+    let bolded;
+    sketch.preload = function () {
+        // customFont = sketch.loadFont("./assets/fonts/Blackwood_Castle.ttf");
+        xml = sketch.loadXML('./assets/art/ascii-art.xml');
+        game = new Game();
     };
-}
-function draw() {
-    background(255);
-    displayTiles();
-}
-function displayTiles() {
-    for (let x = 0; x < game.tileMap.width; x++) {
-        for (let y = 0; y < game.tileMap.height; y++) {
-            let tile = game.tileMap.tiles[x][y];
-            setColor(tile);
-            fill(tile.getTopColor());
-            noStroke();
-            rectMode(CENTER);
-            rect(marginX + x * padding, marginY + y * padding, padding, padding, 5);
-            //uncomment below to bold all entities in maze
-            // showEntities(tile);
-            if (tile.getTopLetter() == null) {
-                tile.addLetter(" ");
+    sketch.setup = function () {
+        let canvas = sketch.createCanvas(1000, 1000);
+        canvas.parent('word-search');
+        padding = 30;
+        marginY = 10;
+        marginX = 10;
+        bolded = false;
+        COLORS = {
+            player: sketch.color(156, 218, 237),
+            // selected: sketch.color(255,255,255),
+            selected: sketch.color(239, 255, 177),
+            active: sketch.color(120, 120, 120),
+            empty: sketch.color(255, 255, 255),
+        };
+        sketch.resize();
+    };
+    sketch.testXML = function () {
+        let text = xml.getChildren()[1].DOM.textContent;
+        document.getElementById("art").innerHTML = "<pre>" + text + "</pre>";
+    };
+    sketch.draw = function () {
+        sketch.background(255);
+        sketch.displayTiles();
+    };
+    sketch.displayTiles = function () {
+        for (let x = 0; x < game.tileMap.width; x++) {
+            for (let y = 0; y < game.tileMap.height; y++) {
+                let tile = game.tileMap.tiles[x][y];
+                sketch.setColor(tile);
+                sketch.fill(tile.getTopColor());
+                // if (game.selected.includes(tile)) {
+                // 	sketch.stroke(0);
+                // } else {
+                sketch.noStroke();
+                // 		}
+                sketch.rectMode(sketch.CENTER);
+                // fill(240,230,120);
+                sketch.rect(marginX + x * padding, marginY + y * padding, padding, padding, 5);
+                //uncomment below to bold all entities in maze
+                if (bolded) {
+                    sketch.showEntities(tile);
+                }
+                if (tile.getTopLetter() == null) {
+                    tile.addLetter(" ");
+                }
+                sketch.fill(0);
+                sketch.noStroke();
+                // sketch.textFont(customFont);
+                sketch.textFont("Courier");
+                sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                sketch.text(tile.getTopLetter().toUpperCase(), marginX + x * padding, marginY + y * padding);
             }
-            fill(0);
-            // textFont("Courier");
-            textFont("Comic Sans");
-            textAlign(CENTER, CENTER);
-            text(tile.getTopLetter().toUpperCase(), marginX + x * padding, marginY + y * padding);
         }
-    }
-}
-function showEntities(tile) {
-    if (tile.entities.length > 1) {
-        textStyle(BOLD);
-    }
-    else {
-        textStyle(NORMAL);
-    }
-}
-function setColor(tile) {
-    if (game.selected.includes(tile)) {
-        tile.addColor(COLORS.selected);
-    }
-    else if (tile.entities.includes(game.player)) {
-        tile.addColor(COLORS.player);
-        if (tile.entities.length > 2) {
-            fill(0);
-            textFont("Courier");
-            textAlign(CENTER, CENTER);
-            text("You found a " + tile.entities[1].name + "! " + "Health: " + tile.entities[1].health + ", Attack: " + tile.entities[1].attackDamage + "\n", 700, 50);
-        }
-    }
-    else {
-        tile.addColor(COLORS.empty);
-    }
-}
-function keyPressed() {
-    if (keyCode === ENTER) {
-        game.move(game.player, game.selected);
-    }
-}
-function mousePressed() {
-    if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1) * padding &&
-        mouseY >= marginY - padding && mouseY <= marginY + (game.tileMap.height + 1) * padding) {
-        let x = Math.round(map(mouseX, marginX, marginX + (game.tileMap.width + 1) * padding, 0, game.tileMap.width + 1));
-        let y = Math.round(map(mouseY, marginY, marginY + (game.tileMap.height + 1) * padding, 0, game.tileMap.height + 1));
-        let tile = game.tileMap.tiles[x][y];
-        if (!game.selected.includes(tile)) {
-            game.selected.push(tile);
+    };
+    sketch.showEntities = function (tile) {
+        if (tile.entities.length > 1) {
+            sketch.textStyle(sketch.BOLD);
         }
         else {
-            let index = game.selected.indexOf(tile);
-            game.selected.splice(index, 1);
+            sketch.textStyle(sketch.NORMAL);
         }
-    }
-}
+    };
+    sketch.setColor = function (tile) {
+        if (game.selected.includes(tile)) {
+            tile.addColor(COLORS.selected);
+        }
+        else if (tile.entities.includes(game.player)) {
+            tile.addColor(COLORS.player);
+            if (tile.entities.length > 2) {
+                sketch.fill(0);
+                sketch.textFont("Courier");
+                sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                sketch.testXML();
+                document.getElementById("entity-menu").style.visibility = "visible";
+            }
+        }
+        else {
+            tile.addColor(COLORS.empty);
+            // document.getElementById("entity-menu").style.visibility = "hidden";
+        }
+    };
+    sketch.keyPressed = function () {
+        if (sketch.keyCode === sketch.ENTER) {
+            game.move(game.player, game.selected);
+        }
+        console.log(sketch.keyCode);
+        if (sketch.keyCode === 66) { //keyCode 66 = "b"
+            bolded = !bolded;
+        }
+    };
+    sketch.mouseDragged = function () {
+        let mouseX = sketch.mouseX;
+        let mouseY = sketch.mouseY;
+        if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1) * padding &&
+            mouseY >= marginY - padding && mouseY <= marginY + (game.tileMap.height + 1) * padding) {
+            let x = Math.round(sketch.map(mouseX, marginX, marginX + (game.tileMap.width + 1) * padding, 0, game.tileMap.width + 1));
+            let y = Math.round(sketch.map(mouseY, marginY, marginY + (game.tileMap.height + 1) * padding, 0, game.tileMap.height + 1));
+            let tile = game.tileMap.tiles[x][y];
+            if (!game.selected.includes(tile)) {
+                game.selected.push(tile);
+            }
+        }
+    };
+    sketch.mousePressed = function () {
+        let mouseX = sketch.mouseX;
+        let mouseY = sketch.mouseY;
+        if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1) * padding &&
+            mouseY >= marginY - padding && mouseY <= marginY + (game.tileMap.height + 1) * padding) {
+            let x = Math.round(sketch.map(mouseX, marginX, marginX + (game.tileMap.width + 1) * padding, 0, game.tileMap.width + 1));
+            let y = Math.round(sketch.map(mouseY, marginY, marginY + (game.tileMap.height + 1) * padding, 0, game.tileMap.height + 1));
+            let tile = game.tileMap.tiles[x][y];
+            if (!game.selected.includes(tile)) {
+                game.selected.push(tile);
+            }
+            else {
+                let index = game.selected.indexOf(tile);
+                game.selected.splice(index, 1);
+            }
+        }
+    };
+    sketch.resize = function () {
+        sketch.resizeCanvas(game.tileMap.width * padding + marginX, game.tileMap.height * padding + marginY);
+    };
+};
+let wordSearch = new p5(s);

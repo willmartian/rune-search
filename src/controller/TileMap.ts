@@ -1,6 +1,5 @@
 /// <reference path="../_references.ts" />
 
-//rect only
 class TileMap {
 	private _tiles: Tile[][];
 	private _entities: Entity[];
