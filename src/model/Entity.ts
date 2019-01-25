@@ -3,8 +3,8 @@
 abstract class Entity {
 	protected _name: string;
 	protected _location: number[][]; //x,y pairs
-	protected _active: boolean;
-	protected _ascii: string;
+	protected _active: boolean; //not currently in use
+	protected _ascii: string; //not currently in use
 
 	//game has a list of ALL ENTITIES. Each entitity has a set of xy locations. Iterate over list of entities, placing each letter to respective bucket. 
 	//make an update loop function that does this, reset each bucket to empty at start of loop.

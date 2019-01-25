@@ -23,15 +23,16 @@ var s = function(sketch) {
 		marginX = 10;
 		bolded = false;
 		COLORS = {
-			player: sketch.color(156, 218, 237),
+			player: sketch.color(0, 0, 0),
 			// selected: sketch.color(255,255,255),
-			selected: sketch.color(239,255,177),
+			selected: sketch.color(160,160,160),
 			active: sketch.color(120,120,120),
 			empty: sketch.color(255,255,255),
 		}
 		sketch.resize();
 	};
 
+	//temp function, TODO
 	sketch.testXML = function() {
 		let text = xml.getChildren()[0].DOM.textContent;
 		document.getElementById("art").innerHTML = "<pre>"+text+"</pre>";
@@ -55,18 +56,27 @@ var s = function(sketch) {
 		  		sketch.noStroke();
 		  // 		}
 		  		sketch.rectMode(sketch.CENTER);
-		  		// fill(240,230,120);
 		  		sketch.rect(marginX + x*padding, marginY + y*padding, padding, padding, 5); 
 
-		  		//uncomment below to bold all entities in maze
-		  		if (bolded) {
-		  			sketch.showEntities(tile);
-		  		}
+		  		
+		  		
 		  		
 		  		if (tile.getTopLetter() == null) {
 		  			tile.addLetter(" ");
 		  		}
-		  		sketch.fill(0);
+
+		  		if (tile.entities.includes(game.player)) {
+		  			sketch.fill(255);
+		  			sketch.textStyle(sketch.BOLD);
+		  		} else {
+		  			sketch.fill(0);
+		  			sketch.textStyle(sketch.NORMAL);
+		  		}
+
+		  		if (bolded) {
+		  			sketch.showEntities(tile);
+		  		}
+		  		
 		  		sketch.noStroke();
 		  		// sketch.textFont(customFont);
 		  		sketch.textFont("Courier");
@@ -90,14 +100,11 @@ var s = function(sketch) {
 		} else if (tile.entities.includes(game.player)) {
 			tile.addColor(COLORS.player);
 			if (tile.entities.length > 2) {
-				sketch.fill(0);
-				sketch.textFont("Courier");
-				sketch.textAlign(sketch.CENTER, sketch.CENTER);
 				sketch.testXML();
+				//this doesnt belong here, TODO
 				document.getElementById("entity-menu").style.visibility = "visible";
 			}
 		} else {
-			
 			tile.addColor(COLORS.empty);
 			// document.getElementById("entity-menu").style.visibility = "hidden";
 		}
