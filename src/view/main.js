@@ -49,17 +49,36 @@ let seed = function(sketch) {
 		  		let tile = game.tileMap.tiles[x][y];
 		  		sketch.displayTile(tile, x, y);
 		  		game.checkPlayerCollision(tile);
-		  	}
+			}
 		}
 	};
 
 	// Displays the rectangle and text of a Tile.
 	sketch.displayTile = function(tile, x, y) {
+		let offset = sketch.offsetMap(x, y);
+		let xOff = offset[0];
+		let yOff = offset[1];
+
   		sketch.setRectStyle(tile);
-  		sketch.rect(marginX + x*padding, marginY + y*padding, padding, padding, 5); //5 is the roundess/radius of the corners
+  		sketch.rect(marginX + x*padding + xOff, marginY + y*padding + yOff, padding, padding, 5); //5 is the roundess/radius of the corners
 
   		sketch.setTextStyle(tile);
-  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding, marginY + y*padding);
+  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding + xOff, marginY + y*padding + yOff);
+  	}
+
+	sketch.offsetMap = function(x, y) {
+		let theta = (sketch.frameCount + x + y)/10;
+		let coord = [Math.cos(theta) * 5, Math.sin(theta) * 5];
+		//return coord;
+		return [0, 0];
+	}
+
+	sketch.showEntities = function(tile) {
+		if (tile.entities.length > 1) {
+			sketch.textStyle(sketch.BOLD);
+		} else {
+			sketch.textStyle(sketch.NORMAL);
+		}
 	};
 
 	sketch.setTextStyle = function(tile) {
@@ -107,19 +126,6 @@ let seed = function(sketch) {
 		}
 	};
 
-	// sketch.checkPlayerCollision = function(tile) {
-	// 	if (tile.entities.includes(game.player) && tile.entities.length > 2) {
-	// 		let text = xml.getChild("goblin").getChild("art").DOM.textContent;
-	// 		document.getElementById("art").innerHTML = "<pre>"+text+"</pre>";
-	// 		document.getElementById("entity-menu").style.visibility = "visible";	
-	// 		for (let entity of tile.entities) {
-	// 			entity.collideWithPlayer(game.player);
-	// 		}
-	
-	// 	}
-		
-	// }
-
 	sketch.keyPressed = function() {
 		if (sketch.keyCode === sketch.ENTER) {
 			game.move(game.player, game.selected);
@@ -130,14 +136,27 @@ let seed = function(sketch) {
 		}
 	};
 
+	sketch.screenCoordToTile = function(screenX, screenY) {
+		let coord = sketch.screenCoordSubmapper(screenX, screenY);
+		let offset = sketch.offsetMap(coord[0], coord[1]);
+		screenX -= offset[0];
+		screenY -= offset[1];
+		return sketch.screenCoordSubmapper(screenX, screenY);
+	}
+
+	sketch.screenCoordSubmapper = function(screenX, screenY) {
+		let x = Math.round(sketch.map(screenX, marginX, marginX + (game.tileMap.width + 1)*padding, 0, game.tileMap.width + 1));
+		let y = Math.round(sketch.map(screenY, marginY, marginY + (game.tileMap.height + 1)*padding, 0, game.tileMap.height + 1));
+		return [x, y];
+	}
+
 	sketch.mouseDragged = function() {
 		let mouseX = sketch.mouseX;
 		let mouseY = sketch.mouseY;
-		if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1)*padding &&
-				mouseY >= marginY - padding && mouseY <= marginY + (game.tileMap.height + 1)*padding) {
-			let x = Math.round(sketch.map(mouseX, marginX, marginX + (game.tileMap.width + 1)*padding, 0, game.tileMap.width + 1));
-			let y = Math.round(sketch.map(mouseY, marginY, marginY + (game.tileMap.height + 1)*padding, 0, game.tileMap.height + 1));
-			
+		let coord = sketch.screenCoordToTile(mouseX, mouseY);
+		let x = coord[0];
+		let y = coord[1];
+		if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
 			let tile = game.tileMap.tiles[x][y];
 			if (!game.selected.includes(tile)) {
 				game.selected.push(tile);
@@ -149,11 +168,10 @@ let seed = function(sketch) {
 	sketch.mousePressed = function() { 
 		let mouseX = sketch.mouseX;
 		let mouseY = sketch.mouseY;
-		if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1)*padding &&
-				mouseY >= marginY - padding && mouseY <= marginY + (game.tileMap.height + 1)*padding) {
-			let x = Math.round(sketch.map(mouseX, marginX, marginX + (game.tileMap.width + 1)*padding, 0, game.tileMap.width + 1));
-			let y = Math.round(sketch.map(mouseY, marginY, marginY + (game.tileMap.height + 1)*padding, 0, game.tileMap.height + 1));
-			
+		let coord = sketch.screenCoordToTile(mouseX, mouseY);
+		let x = coord[0];
+		let y = coord[1];
+		if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
 			let tile = game.tileMap.tiles[x][y];
 			if (!game.selected.includes(tile)) {
 				game.selected.push(tile);
