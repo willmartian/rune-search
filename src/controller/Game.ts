@@ -4,16 +4,33 @@ class Game {
 	private _tileMap: TileMap;
 	private _player: Player;
 	private _selected: Tile[];
+	private _colliding: Entity[];
 
 
 	constructor() {
 		this._selected = [];
+
 		//createWorld
 		this._tileMap = new TileMap(15,15);
+
 		//createEntities
 		this._player = new Player("Hero");
 		this._tileMap.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin()]);
+		this._colliding = [];
+	}
 
+	checkPlayerCollision = function(tile) {
+		if (tile.entities.includes(game.player) && tile.entities.length > 2) {
+			this._colliding = tile.entities;
+			for (let entity of this._colliding) {
+				entity.collideWithPlayer(game.player);
+			}
+		}
+		
+	}
+
+	get colliding(): Entity[] {
+		return this._colliding;
 	}
 
 	get tileMap(): TileMap {
@@ -33,7 +50,6 @@ class Game {
 	}
 
 	move(entity: Entity, newLocation: Tile[]): boolean {
-		
 		//check length of intended location
 		if (entity.name.length != newLocation.length) {
 			return false;
@@ -59,16 +75,12 @@ class Game {
 		//if all conditions were met, move to new location
 		let oldLocation: Tile[] = this._tileMap.getEntityTiles(entity);
 		for (let i = 0; i < newLocation.length; i++) {
-
 			oldLocation[i].removeEntity(entity);
 			let oldLetter: string = oldLocation[i].getTopLetter();
 			oldLocation[i].removeLetter(oldLetter);
-			let oldColor: number[] = oldLocation[i].getTopColor();
-			oldLocation[i].removeColor(oldColor);
 
 			newLocation[i].addEntity(entity);
-			newLocation[i].addLetter(oldLetter);
-			newLocation[i].addColor(oldColor);	
+			newLocation[i].addLetter(oldLetter);	
 		}
 
 		entity.location = [];

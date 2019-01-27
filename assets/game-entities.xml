@@ -1,7 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ascii-art>
+<game-entities>
+  <player>
+    <name>Hero</name>
+    <description>A hero.</description>
+    <art>
+<![CDATA[              _,,,,_
+           .(((()()()(
+           ())()()))())
+          ((,.""-,(()())
+          \ @ ) @  )/)()
+          .'-. -   (C))
+          (  (_. ` .))
+          \ .___.   .'
+         __`.____.' \_____
+       /(  " /))_\.-'  (  `\
+      / ( _  o/(o "  _ \   `.
+     (  /. . o)/o       (    \
+    /   ( . o/(o .  "  .)\    )
+   (   )( _ o)\o  _   . )(    )
+   (   (.' o)/o    `.   )/   /
+    \ ( . "o((o .  . ` _/   )
+     (/)____o)/o______(c`-.)
+      |)_|__[H]___|___(//)'
+      (   )  : \  )    `''
+      (_)  (  )    \ (_ )
+      (      .   (      )
+     (  ( )   (\  /  )  )
+      (    (   (       )
+      (  ( ) ./ \ ( .( )
+       (     )  (     )
+       |"^"")    ("^"")
+       |    /    \    |
+       ),,,,)    |,,,,/
+       /,,,,(    ),,,,(
+    .-',,,,,)    /,,,,\
+   ((((_).-'    (_)())))]]>
+    </art>
+  </player>
 	<goblin>
+    <name>Boof</name>
+    <description>A cutie. (etc)</description>
+    <art>
 	<![CDATA[
              ,      ,
             /(.-""-.)\
@@ -14,8 +54,12 @@
          ___\ \|--|/ /___
        /`    \      /    `\
       /       '----'       \]]>
-  	</goblin>
-    <orc>
+  	</art>
+  </goblin>
+  <orc>
+    <name>Johnny Rocket</name>
+    <description>example example example</description>
+    <art>
     <![CDATA[
                            __.--|~|--.__                             ,,;/;
                          /~     | |    ;~\                        ,;;;/;;'
@@ -59,5 +103,14 @@
          |                   \ ;      \             |   _.-~
          |                    |        |            |  /  |
           |                   |         |           | /'  |]]>
-    </orc>
-</ascii-art>
+    </art>
+  </orc>
+  <key>
+    <name>Keyton</name>
+    <description>example example example2</description>
+    <art>
+    <![CDATA[
+<3]]>
+    </art>
+  </key>
+</game-entities>

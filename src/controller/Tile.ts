@@ -4,12 +4,10 @@ class Tile {
 	//Data structure representing a piece of the word search
 	private _letters: string[];
 	private _entities: Entity[];
-	private _colors: number[][];
 
 	constructor() {
 		this._entities = [];
 		this._letters = [];
-		this._colors = [];
 	}
 
 	get letters(): string[] {
@@ -48,26 +46,5 @@ class Tile {
 	removeEntity(entity: Entity): void {
 		let index = this._entities.indexOf(entity);
 		this._entities.splice(index, 1);
-	}
-
-	get colors(): number[][] {
-		return this._colors;
-	}
-
-	set colors(colors: number[][]) {
-		this._colors = colors;
-	}
-
-	addColor(color: number[]): void {
-		this._colors.push(color);
-	}
-
-	removeColor(color: number[]): void {
-		let index = this._colors.indexOf(color);
-		this._colors.splice(index, 1);
-	}
-
-	getTopColor(): number[] {
-		return this._colors[this._colors.length - 1];
 	}
 }

@@ -7,6 +7,7 @@ abstract class Character extends Entity {
 
 	constructor(name: string) {
 		super(name);
+		this._inventory = [];
 	}
 
 	attack(enemy: Character): void {
@@ -15,5 +16,17 @@ abstract class Character extends Entity {
 
 	addItem(item: Item): void {
 		this._inventory.push(item);
+	}
+
+	collideWithPlayer(player: Player): void {
+		while (this._health > 0 && player._health > 0) {
+			player.attack(this);
+			this.attack(player);
+			console.log("enemy battled");
+		}
+	}
+
+	get inventory() : Item[] {
+		return this._inventory;
 	}
 }

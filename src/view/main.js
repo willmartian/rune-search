@@ -1,21 +1,28 @@
 /// <reference path="../_references.ts" />
+let game;
+let xml;
+let playerMenu;
+let entityMenu;
 
-var s = function(sketch) {
-
-	let game;
+let seed = function(sketch) {
 	let font;
 	let padding;
 	let marginY, marginX;
 	let COLORS;
 	let bolded;
 
+	// Runs first.
 	sketch.preload = function() {
-		// customFont = sketch.loadFont("./assets/fonts/Blackwood_Castle.ttf");
-		xml = sketch.loadXML('./assets/art/ascii-art.xml');
+		// customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
+		xml = sketch.loadXML('./assets/game-entities.xml');
 		game = new Game();
 	};
 
+	// Runs once after preload().
 	sketch.setup = function() {
+		playerMenu = new PlayerMenu();
+		entityMenu = new EntityMenu();
+
 		let canvas = sketch.createCanvas(1000,1000);
 		canvas.parent('word-search');
 		padding = 30;
@@ -24,69 +31,75 @@ var s = function(sketch) {
 		bolded = false;
 		COLORS = {
 			player: sketch.color(0, 0, 0),
-			// selected: sketch.color(255,255,255),
 			selected: sketch.color(160,160,160),
-			active: sketch.color(120,120,120),
+			active: sketch.color(120,0,120),
 			empty: sketch.color(255,255,255),
 		}
 		sketch.resize();
 	};
 
-	//temp function, TODO
-	sketch.testXML = function() {
-		let text = xml.getChildren()[0].DOM.textContent;
-		document.getElementById("art").innerHTML = "<pre>"+text+"</pre>";
-	}
-
+	//main loop of the application
 	sketch.draw = function() {
-		sketch.background(255);
-		sketch.displayTiles();
-	};
+		playerMenu.update();
+		entityMenu.update();
 
-	sketch.displayTiles = function() {
+		sketch.background(255);
 		for (let x = 0; x < game.tileMap.width; x++) {
 		  	for (let y = 0; y < game.tileMap.height; y++) {
-
 		  		let tile = game.tileMap.tiles[x][y];
-				sketch.setColor(tile);
-				sketch.fill(tile.getTopColor());
-				// if (game.selected.includes(tile)) {
-				// 	sketch.stroke(0);
-				// } else {
-		  		sketch.noStroke();
-		  // 		}
-		  		sketch.rectMode(sketch.CENTER);
-		  		sketch.rect(marginX + x*padding, marginY + y*padding, padding, padding, 5); 
-
-		  		
-		  		
-		  		
-		  		if (tile.getTopLetter() == null) {
-		  			tile.addLetter(" ");
-		  		}
-
-		  		if (tile.entities.includes(game.player)) {
-		  			sketch.fill(255);
-		  			sketch.textStyle(sketch.BOLD);
-		  		} else {
-		  			sketch.fill(0);
-		  			sketch.textStyle(sketch.NORMAL);
-		  		}
-
-		  		if (bolded) {
-		  			sketch.showEntities(tile);
-		  		}
-		  		
-		  		sketch.noStroke();
-		  		// sketch.textFont(customFont);
-		  		sketch.textFont("Courier");
-		  		sketch.textAlign(sketch.CENTER, sketch.CENTER);
-		  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding, marginY + y*padding);
+		  		sketch.displayTile(tile, x, y);
+		  		game.checkPlayerCollision(tile);
 		  	}
 		}
 	};
 
-	sketch.showEntities = function(tile) {
+	// Displays the rectangle and text of a Tile.
+	sketch.displayTile = function(tile, x, y) {
+  		sketch.setRectStyle(tile);
+  		sketch.rect(marginX + x*padding, marginY + y*padding, padding, padding, 5); //5 is the roundess/radius of the corners
+
+  		sketch.setTextStyle(tile);
+  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding, marginY + y*padding);
+	};
+
+	sketch.setTextStyle = function(tile) {
+		sketch.noStroke();
+		sketch.textSize(16);
+		// sketch.textFont(customFont);
+		sketch.textFont("Courier");
+		sketch.textAlign(sketch.CENTER, sketch.CENTER);
+		
+		if (tile.getTopLetter() == null) {
+		  	tile.addLetter(" ");
+  		}
+
+  		if (tile.entities.includes(game.player)) {
+  			sketch.fill(255);
+  			sketch.textStyle(sketch.BOLD);
+  		} else {
+  			sketch.fill(0);
+  			sketch.textStyle(sketch.NORMAL);
+  		}
+
+  		if (bolded) {
+  			sketch.showAllEntities(tile);
+  		}
+	}
+
+	sketch.setRectStyle = function(tile) {
+		sketch.rectMode(sketch.CENTER);
+		sketch.noStroke();
+		if (game.selected.includes(tile)) {
+			sketch.fill(COLORS.selected);
+		} else if (tile.entities.includes(game.player)) {
+			sketch.fill(COLORS.player);
+			
+		} else {
+			sketch.fill(COLORS.empty);
+		}
+	};
+
+	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
 			sketch.textStyle(sketch.BOLD);
 		} else {
@@ -94,27 +107,24 @@ var s = function(sketch) {
 		}
 	};
 
-	sketch.setColor = function(tile) {
-		if (game.selected.includes(tile)) {
-			tile.addColor(COLORS.selected);
-		} else if (tile.entities.includes(game.player)) {
-			tile.addColor(COLORS.player);
-			if (tile.entities.length > 2) {
-				sketch.testXML();
-				//this doesnt belong here, TODO
-				document.getElementById("entity-menu").style.visibility = "visible";
-			}
-		} else {
-			tile.addColor(COLORS.empty);
-			// document.getElementById("entity-menu").style.visibility = "hidden";
-		}
-	};
+	// sketch.checkPlayerCollision = function(tile) {
+	// 	if (tile.entities.includes(game.player) && tile.entities.length > 2) {
+	// 		let text = xml.getChild("goblin").getChild("art").DOM.textContent;
+	// 		document.getElementById("art").innerHTML = "<pre>"+text+"</pre>";
+	// 		document.getElementById("entity-menu").style.visibility = "visible";	
+	// 		for (let entity of tile.entities) {
+	// 			entity.collideWithPlayer(game.player);
+	// 		}
+	
+	// 	}
+		
+	// }
 
 	sketch.keyPressed = function() {
 		if (sketch.keyCode === sketch.ENTER) {
 			game.move(game.player, game.selected);
 		}
-		console.log(sketch.keyCode);
+
 		if (sketch.keyCode === 66) { //keyCode 66 = "b"
 			bolded = !bolded;
 		}
@@ -135,7 +145,8 @@ var s = function(sketch) {
 		}
 	}
 
-	sketch.mousePressed = function() {
+	// Repeat of mouseDragged, but for individual presses.
+	sketch.mousePressed = function() { 
 		let mouseX = sketch.mouseX;
 		let mouseY = sketch.mouseY;
 		if (mouseX >= marginX - padding && mouseX <= marginX + (game.tileMap.width + 1)*padding &&
@@ -153,10 +164,11 @@ var s = function(sketch) {
 		}
 	}
 
+	// Resizes canvas to match wordsearch length.
 	sketch.resize = function() {
 		sketch.resizeCanvas(game.tileMap.width*padding + marginX, game.tileMap.height*padding + marginY);
 	};
 
 };
 
-let wordSearch = new p5(s);
+let main = new p5(seed);
