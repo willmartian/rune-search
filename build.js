@@ -146,8 +146,6 @@ class Entity {
         this._location = [];
         this._active = false;
     }
-    //override this default method method
-    collideWithPlayer(player) { }
     get name() {
         return this._name;
     }
@@ -174,6 +172,9 @@ class Ground extends Entity {
         console.log(randomLetter);
         super(randomLetter);
     }
+    playerCollision() {
+        this.name = " ";
+    }
 }
 Ground.alphabet = "abcdefghijklmnopqrstuvwxyz".split('');
 /// <reference path="../_references.ts" />
@@ -188,15 +189,31 @@ class Character extends Entity {
     addItem(item) {
         this._inventory.push(item);
     }
-    collideWithPlayer(player) {
-        while (this._health > 0 && player._health > 0) {
-            player.attack(this);
-            this.attack(player);
+    die() { }
+    playerCollision() {
+        while (this._health > 0 && game.player.health > 0) {
+            game.player.attack(this);
+            this.attack(game.player);
             console.log("enemy battled");
+        }
+        if (game.player.health == 0) {
+            game.player.die();
         }
     }
     get inventory() {
         return this._inventory;
+    }
+    get health() {
+        return this._health;
+    }
+    set health(health) {
+        this._health = health;
+    }
+    get attackDamage() {
+        return this._attackDamage;
+    }
+    set attackDamage(attackDamage) {
+        this._attackDamage;
     }
 }
 /// <reference path="../_references.ts" />
@@ -208,6 +225,10 @@ class Player extends Character {
         super._active = true;
         this._party = [];
     }
+    // die(): void {
+    // 	this.name = "DEAD";
+    // }
+    playerCollision() { }
 }
 /// <reference path="../_references.ts" />
 class Goblin extends Character {
@@ -222,17 +243,24 @@ class Item extends Entity {
     constructor(name) {
         super(name);
     }
-    collideWithPlayer(player) {
-        if (!player.inventory.includes(this)) {
-            player.addItem(this);
+    playerCollision() {
+        if (!game.player.inventory.includes(this)) {
+            game.player.addItem(this);
             console.log(this.name + " added to inventory!");
         }
     }
 }
 /// <reference path="../_references.ts" />
-class Door extends Item {
+class Door extends Entity {
     constructor() {
         super("Door");
+    }
+    playerCollision() {
+        for (let item of game.player.inventory) {
+            if (item.name == "Key") {
+                game.newLevel();
+            }
+        }
     }
 }
 /// <reference path="../_references.ts" />
@@ -259,7 +287,7 @@ class Game {
             if (tile.entities.includes(game.player) && tile.entities.length > 2) {
                 this._colliding = tile.entities;
                 for (let entity of this._colliding) {
-                    entity.collideWithPlayer(game.player);
+                    entity.playerCollision();
                 }
             }
         };
@@ -276,6 +304,11 @@ class Game {
     }
     get tileMap() {
         return this._tileMap;
+    }
+    newLevel() {
+        let level = new TileMap(15, 15);
+        level.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
+        this._tileMap = level;
     }
     get player() {
         return this._player;
@@ -324,6 +357,14 @@ class Game {
         return true;
     }
 }
+/// <reference path="../_references.ts" />
+class Rat extends Character {
+    constructor() {
+        super("Rat");
+        super._health = 1;
+        super._attackDamage = 2;
+    }
+}
 class EntityMenu {
     constructor() {
         this.element = document.getElementById("entity-menu");
@@ -365,7 +406,15 @@ class PlayerMenu {
         let art = xml.getChild("player").getChild("art").DOM.textContent;
         artContainer.innerHTML = "<pre>" + art + "</pre>";
     }
-    update() { }
+    setInfo() {
+        let infoContainer = document.getElementById("player-info");
+        let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage;
+        infoContainer.innerHTML = "<p>" + info + "</p>";
+    }
+    update() {
+        this.setArt();
+        this.setInfo();
+    }
 }
 /// <reference path="../_references.ts" />
 let game;
@@ -428,7 +477,8 @@ let seed = function (sketch) {
     sketch.offsetMap = function (x, y) {
         let theta = (sketch.frameCount + x + y) / 10;
         let coord = [Math.cos(theta) * 5, Math.sin(theta) * 5];
-        //return coord;
+        //uncomment to animate
+        // return coord; 
         return [0, 0];
     };
     sketch.showEntities = function (tile) {
@@ -481,16 +531,6 @@ let seed = function (sketch) {
             sketch.textStyle(sketch.NORMAL);
         }
     };
-    // sketch.checkPlayerCollision = function(tile) {
-    // 	if (tile.entities.includes(game.player) && tile.entities.length > 2) {
-    // 		let text = xml.getChild("goblin").getChild("art").DOM.textContent;
-    // 		document.getElementById("art").innerHTML = "<pre>"+text+"</pre>";
-    // 		document.getElementById("entity-menu").style.visibility = "visible";	
-    // 		for (let entity of tile.entities) {
-    // 			entity.collideWithPlayer(game.player);
-    // 		}
-    // 	}
-    // }
     sketch.keyPressed = function () {
         if (sketch.keyCode === sketch.ENTER) {
             game.move(game.player, game.selected);

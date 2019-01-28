@@ -18,15 +18,36 @@ abstract class Character extends Entity {
 		this._inventory.push(item);
 	}
 
-	collideWithPlayer(player: Player): void {
-		while (this._health > 0 && player._health > 0) {
-			player.attack(this);
-			this.attack(player);
+	die(): void {}
+
+	playerCollision(): void {
+		while (this._health > 0 && game.player.health > 0) {
+			game.player.attack(this);
+			this.attack(game.player);
 			console.log("enemy battled");
+		}
+		if (game.player.health == 0) {
+			game.player.die();
 		}
 	}
 
-	get inventory() : Item[] {
+	get inventory(): Item[] {
 		return this._inventory;
+	}
+
+	get health(): number {
+		return this._health;
+	}
+
+	set health(health: number) {
+		this._health = health;
+	}
+
+	get attackDamage(): number {
+		return this._attackDamage;
+	}
+
+	set attackDamage(attackDamage: number) {
+		this._attackDamage;
 	}
 }

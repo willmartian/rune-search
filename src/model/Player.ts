@@ -10,4 +10,10 @@ class Player extends Character {
 		super._active = true;
 		this._party = [];
 	}
+
+	// die(): void {
+	// 	this.name = "DEAD";
+	// }
+	
+	playerCollision() {}
 }

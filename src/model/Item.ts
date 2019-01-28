@@ -5,9 +5,9 @@ abstract class Item extends Entity {
 		super(name);
 	}
 
-	collideWithPlayer(player: Player): void {
-		if (!player.inventory.includes(this)) {
-			player.addItem(this);
+	playerCollision(): void {
+		if (!game.player.inventory.includes(this)) {
+			game.player.addItem(this);
 			console.log(this.name + " added to inventory!");
 		}		
 	}

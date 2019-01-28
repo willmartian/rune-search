@@ -12,7 +12,7 @@ abstract class Entity {
 	}
 
 	//override this default method method
-	collideWithPlayer(player: Player): void {}
+	abstract playerCollision(): void;
 
 	get name(): string {
 		return this._name;

@@ -69,7 +69,8 @@ let seed = function(sketch) {
 	sketch.offsetMap = function(x, y) {
 		let theta = (sketch.frameCount + x + y)/10;
 		let coord = [Math.cos(theta) * 5, Math.sin(theta) * 5];
-		//return coord;
+		//uncomment to animate
+		// return coord; 
 		return [0, 0];
 	}
 

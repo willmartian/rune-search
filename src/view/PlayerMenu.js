@@ -11,6 +11,15 @@ class PlayerMenu {
 		artContainer.innerHTML = "<pre>" + art + "</pre>";
 	}
 
-	update() {}
+	setInfo() {
+		let infoContainer = document.getElementById("player-info");
+		let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage;
+		infoContainer.innerHTML = "<p>" + info + "</p>";
+	}
+
+	update() {
+		this.setArt();
+		this.setInfo();
+	}
 }
 

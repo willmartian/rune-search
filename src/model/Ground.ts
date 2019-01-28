@@ -8,4 +8,8 @@ class Ground extends Entity {
 		console.log(randomLetter);
 		super(randomLetter);
 	}
+
+	playerCollision() {
+		this.name = " ";
+	}
 }

@@ -41,6 +41,7 @@ h1 {
 }
 
 #player-menu {
+  /*width: 33%;*/
   padding: 1em;
   margin: 0;
   display: inline;
@@ -58,6 +59,7 @@ h1 {
 }
 
 #entity-menu {
+  /*width: 33%;*/
   margin: 0;
   display: inline;
   /* This centers our sketch horizontally. */

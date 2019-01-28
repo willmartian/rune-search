@@ -23,7 +23,7 @@ class Game {
 		if (tile.entities.includes(game.player) && tile.entities.length > 2) {
 			this._colliding = tile.entities;
 			for (let entity of this._colliding) {
-				entity.collideWithPlayer(game.player);
+				entity.playerCollision();
 			}
 		}
 		
@@ -35,6 +35,12 @@ class Game {
 
 	get tileMap(): TileMap {
 		return this._tileMap;
+	}
+
+	newLevel(): void {
+		let level: TileMap = new TileMap(15,15);
+		level.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin()]);
+		this._tileMap = level;
 	}
 
 	get player(): Player {
