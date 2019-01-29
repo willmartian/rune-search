@@ -18,7 +18,7 @@ class PlayerMenu {
 	}
 
 	update() {
-		this.setArt();
+		// this.setArt();
 		this.setInfo();
 	}
 }

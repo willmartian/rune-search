@@ -9,7 +9,7 @@ class Ground extends Entity {
 		super(randomLetter);
 	}
 
-	playerCollision() {
+	playerCollision(): void {
 		this.name = " ";
 	}
 }

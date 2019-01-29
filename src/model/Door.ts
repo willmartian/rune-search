@@ -8,6 +8,7 @@ class Door extends Entity {
 	playerCollision(): void {
 		for (let item of game.player.inventory) {
 			if (item.name == "Key") {
+				//remove key from inventory, TODO
 				game.newLevel();
 			}
 		}

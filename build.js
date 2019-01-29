@@ -189,16 +189,23 @@ class Character extends Entity {
     addItem(item) {
         this._inventory.push(item);
     }
+    //TODO
     die() { }
     playerCollision() {
-        while (this._health > 0 && game.player.health > 0) {
+        while (this.isAlive() && game.player.isAlive()) {
             game.player.attack(this);
             this.attack(game.player);
             console.log("enemy battled");
         }
-        if (game.player.health == 0) {
+        if (game.player.isDead()) {
             game.player.die();
         }
+    }
+    isDead() {
+        return !(this._health > 0);
+    }
+    isAlive() {
+        return (this._health > 0);
     }
     get inventory() {
         return this._inventory;
@@ -231,14 +238,6 @@ class Player extends Character {
     playerCollision() { }
 }
 /// <reference path="../_references.ts" />
-class Goblin extends Character {
-    constructor() {
-        super("Goblin");
-        super._health = 6;
-        super._attackDamage = 2;
-    }
-}
-/// <reference path="../_references.ts" />
 class Item extends Entity {
     constructor(name) {
         super(name);
@@ -258,15 +257,10 @@ class Door extends Entity {
     playerCollision() {
         for (let item of game.player.inventory) {
             if (item.name == "Key") {
+                //remove key from inventory, TODO
                 game.newLevel();
             }
         }
-    }
-}
-/// <reference path="../_references.ts" />
-class Key extends Item {
-    constructor() {
-        super("Key");
     }
 }
 /// <reference path="./controller/Game.ts" />
@@ -358,11 +352,25 @@ class Game {
     }
 }
 /// <reference path="../_references.ts" />
+class Goblin extends Character {
+    constructor() {
+        super("Goblin");
+        super._health = 6;
+        super._attackDamage = 2;
+    }
+}
+/// <reference path="../_references.ts" />
 class Rat extends Character {
     constructor() {
         super("Rat");
         super._health = 1;
         super._attackDamage = 2;
+    }
+}
+/// <reference path="../_references.ts" />
+class Key extends Item {
+    constructor() {
+        super("Key");
     }
 }
 class EntityMenu {
@@ -412,7 +420,7 @@ class PlayerMenu {
         infoContainer.innerHTML = "<p>" + info + "</p>";
     }
     update() {
-        this.setArt();
+        // this.setArt();
         this.setInfo();
     }
 }
