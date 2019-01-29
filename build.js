@@ -230,11 +230,19 @@ class Player extends Character {
     // }
     playerCollision() { }
 }
-/// <reference path="../_references.ts" />
+/// <reference path="../../_references.ts" />
 class Goblin extends Character {
     constructor() {
         super("Goblin");
         super._health = 6;
+        super._attackDamage = 2;
+    }
+}
+/// <reference path="../../_references.ts" />
+class Rat extends Character {
+    constructor() {
+        super("Rat");
+        super._health = 1;
         super._attackDamage = 2;
     }
 }
@@ -263,7 +271,7 @@ class Door extends Entity {
         }
     }
 }
-/// <reference path="../_references.ts" />
+/// <reference path="../../_references.ts" />
 class Key extends Item {
     constructor() {
         super("Key");
@@ -276,10 +284,11 @@ class Key extends Item {
 /// <reference path="./model/Ground.ts" />
 /// <reference path="./model/Character.ts" />
 /// <reference path="./model/Player.ts" />
-/// <reference path="./model/Goblin.ts" />
+/// <reference path="./model/enemies/Goblin.ts" />
+/// <reference path="./model/enemies/Rat.ts" />
 /// <reference path="./model/Item.ts" />
 /// <reference path="./model/Door.ts" />
-/// <reference path="./model/Key.ts" />
+/// <reference path="./model/items/Key.ts" />
 /// <reference path="../_references.ts" />
 class Game {
     constructor() {
@@ -355,14 +364,6 @@ class Game {
         }
         this._selected = [];
         return true;
-    }
-}
-/// <reference path="../_references.ts" />
-class Rat extends Character {
-    constructor() {
-        super("Rat");
-        super._health = 1;
-        super._attackDamage = 2;
     }
 }
 class EntityMenu {

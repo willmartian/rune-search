@@ -8,10 +8,11 @@
 
 /// <reference path="./model/Character.ts" />
 /// <reference path="./model/Player.ts" />
-/// <reference path="./model/Goblin.ts" />
+/// <reference path="./model/enemies/Goblin.ts" />
+/// <reference path="./model/enemies/Rat.ts" />
 
 /// <reference path="./model/Item.ts" />
 /// <reference path="./model/Door.ts" />
-/// <reference path="./model/Key.ts" />
+/// <reference path="./model/items/Key.ts" />
 
 
