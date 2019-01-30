@@ -50,7 +50,7 @@ class TileMap {
 		if (xStep == 0) {
 			directions = [-1, 1];
 		}
-		let yStep: number = directions[Math.floor((Math.random() * 3))];
+		let yStep: number = directions[Math.floor((Math.random() * directions.length))];
 		return [x, y, xStep, yStep];
 	}
 

@@ -82,6 +82,7 @@ class TileMap {
     }
     insertEntity(entity) {
         let posDir = this.randomPosDir();
+        console.log(posDir);
         let x = posDir[0], y = posDir[1], xStep = posDir[2], yStep = posDir[3];
         let path = [];
         let i;
