@@ -27,6 +27,10 @@ class Tile {
 		this._letters.splice(index, 1);
 	}
 
+	changeLetter(index: number, newLetter: string) {
+		this._letters[index] = newLetter;
+	}
+
 	getTopLetter(): string {
 		return this._letters[this._letters.length - 1];
 	}

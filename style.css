@@ -1,9 +1,4 @@
 /*@font-face {
-font-family: "Blackwood";
-src: url("assets/fonts/Blackwood_Castle.ttf");
-}*/
-
-@font-face {
     font-family: 'FixedsysExcelsior';
     font-style: normal;
     font-weight: 400;
@@ -14,7 +9,7 @@ src: url("assets/fonts/Blackwood_Castle.ttf");
          url('./assets/fonts/fsex300-webfont.svg#FixedsysExcelsior301Regular') format('svg');
     -webkit-font-smoothing: aliased;
     font-smooth: never;
-}
+}*/
 
 * {
   font-family: "Courier", monospace;
@@ -34,6 +29,7 @@ h1 {
 }
 
 #game {
+  width: 100%;
   font-weight: 100;
   display: flex;
   justify-content: center;
@@ -41,33 +37,32 @@ h1 {
 }
 
 #player-menu {
-  /*width: 33%;*/
+  width: 33%;
+  float: left;
   padding: 1em;
   margin: 0;
-  display: inline;
+  display: flex;
   justify-content: center;
   align-items: center;
-  /*background: rgb(250,230,230);*/
+/*   background: rgb(250,230,230); */
 }
 
 #word-search {
   margin: 0;
   display: inline;
-  justify-content: center;
-  align-items: center;
-  /*background: rgb(230,250,230);*/
 }
 
 #entity-menu {
-  /*width: 33%;*/
+  float: right;
+  width: 33%;
   margin: 0;
-  display: inline;
+  display: flex;
   /* This centers our sketch horizontally. */
   justify-content: center;
 
   /* This centers our sketch vertically. */
   align-items: center;
-  /*background: rgb(230,230,250);*/
+/*   background: rgb(230,230,250); */
 }
 
 pre {

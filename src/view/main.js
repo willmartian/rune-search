@@ -2,7 +2,7 @@
 let game;
 let xml;
 let playerMenu;
-let entityMenu;
+let collisionMenu;
 
 let seed = function(sketch) {
 	let font;
@@ -21,7 +21,7 @@ let seed = function(sketch) {
 	// Runs once after preload().
 	sketch.setup = function() {
 		playerMenu = new PlayerMenu();
-		entityMenu = new EntityMenu();
+		collisionMenu = new CollisionMenu();
 
 		let canvas = sketch.createCanvas(1000,1000);
 		canvas.parent('word-search');
@@ -41,7 +41,7 @@ let seed = function(sketch) {
 	//main loop of the application
 	sketch.draw = function() {
 		playerMenu.update();
-		entityMenu.update();
+		collisionMenu.update();
 
 		sketch.background(255);
 		for (let x = 0; x < game.tileMap.width; x++) {

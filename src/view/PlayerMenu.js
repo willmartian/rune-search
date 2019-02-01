@@ -2,24 +2,36 @@ class PlayerMenu {
 
 	constructor() {
 		this.element = document.getElementById("player-menu");
-		this.setArt();
 	}
 
-	setArt() {
+	getData() {
+		let data;
+		let name = game.player.name.toLowerCase();
+		data = xml.getChild(name);
+		if (!data) {
+			data = xml.getChild("default");
+		}
+		return data;
+	}
+
+	setArt(data) {
 		let artContainer = document.getElementById("player-art");
-		let art = xml.getChild("player").getChild("art").DOM.textContent;
+		let art = data.getChild("art").DOM.textContent;
 		artContainer.innerHTML = "<pre>" + art + "</pre>";
 	}
 
-	setInfo() {
+	setInfo(data) {
 		let infoContainer = document.getElementById("player-info");
 		let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage;
 		infoContainer.innerHTML = "<p>" + info + "</p>";
 	}
 
 	update() {
-		// this.setArt();
-		this.setInfo();
+		let data = this.getData();
+		if (data != null) {
+			this.setArt(data);
+			this.setInfo(data);
+		}
 	}
 }
 
