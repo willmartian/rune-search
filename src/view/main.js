@@ -131,9 +131,17 @@ let seed = function(sketch) {
 		if (sketch.keyCode === sketch.ENTER) {
 			game.move(game.player, game.selected);
 		}
-
+		console.log(sketch.keyCode);
 		if (sketch.keyCode === 66) { //keyCode 66 = "b"
 			bolded = !bolded;
+		} else if (sketch.keyCode === 38) { //down arrow
+			game.headshift(game.player, -1);
+		} else if (sketch.keyCode === 40) { //up arrow
+			game.headshift(game.player, 1);
+		} else if (sketch.keyCode == 37) { //left arrow
+			game.rotateDir(game.player, true);
+		} else if (sketch.keyCode == 39) { //right arrow
+			game.rotateDir(game.player, false);
 		}
 	};
 

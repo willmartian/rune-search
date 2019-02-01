@@ -4,6 +4,8 @@ abstract class Entity {
 	protected _name: string;
 	protected _location: number[][]; //x,y pairs
 	protected _active: boolean;
+	protected _head: number[]; //x,y
+	protected _dir: number[]; //xstep,ystep - head's x + dir's x = next x coord
 
 	constructor(name: string) {
 		this._name = name;
@@ -22,12 +24,37 @@ abstract class Entity {
 		this._name = name;
 	}
 
+	get length(): number {
+		return this._name.length;
+	}
+
 	get location(): number[][] {
 		return this._location;
 	}
 
 	set location(location: number[][]) {
 		this._location = location;
+		if (location.length < 2) {
+			return;
+		}
+		this._head = location[0];
+		this._dir = [location[1][0] - this._head[0], location[1][1] - this._head[1]];
+	}
+
+	get head(): number[] {
+		return this._head;
+	}
+
+	set head(head: number[]) {
+		this._head = head;
+	}
+
+	get dir(): number[] {
+		return this._dir;
+	}
+
+	set dir(dir: number[]) {
+		this._dir = dir;
 	}
 
 	get active(): boolean {
@@ -37,4 +64,5 @@ abstract class Entity {
 	set active(active: boolean) {
 		this._active = active;
 	}
+
 }
