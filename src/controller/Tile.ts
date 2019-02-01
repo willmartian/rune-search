@@ -29,6 +29,10 @@ class Tile {
 
 	removeTopLetter(): void {
 		this._letters = this._letters.splice(this._letters.length - 1);
+  } 
+   
+	changeLetter(index: number, newLetter: string) {
+		this._letters[index] = newLetter;
 	}
 
 	getTopLetter(): string {
