@@ -156,12 +156,14 @@ class TileMap {
 
 	getEntityTiles(entity: Entity): Tile[] {
 		let entityTiles: Tile[] = new Array<Tile>();
-		for (let i = 0; i < entity.location.length; i++) {
-			let x: number = entity.location[i][0];
-			let y: number = entity.location[i][1];
-			entityTiles.push(this._tiles[x][y]); 
+		for (let x = 0; x < this._width; x++) {
+			for (let y = 0; y < this._height; y++) {
+				let curr = this.getTile(x, y);
+				if (curr.containsEntity(entity)) {
+					entityTiles.push(curr);
+				}
+			}
 		}
-
 		return entityTiles;
 	}
 }

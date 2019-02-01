@@ -17,6 +17,9 @@ class Tile {
         let index = this._letters.indexOf(letter);
         this._letters.splice(index, 1);
     }
+    removeTopLetter() {
+        this._letters = this._letters.splice(this._letters.length - 1);
+    }
     getTopLetter() {
         return this._letters[this._letters.length - 1];
     }
@@ -29,9 +32,15 @@ class Tile {
     addEntity(entity) {
         this._entities.push(entity);
     }
+    containsEntity(entity) {
+        return this._entities.indexOf(entity) != -1;
+    }
     removeEntity(entity) {
-        let index = this._entities.indexOf(entity);
-        this._entities.splice(index, 1);
+        for (let i = 0; i < this._entities.length; i++) {
+            if (this._entities[i] == entity) {
+                this._entities.splice(i, 1);
+            }
+        }
     }
 }
 /// <reference path="../_references.ts" />
@@ -169,10 +178,13 @@ class TileMap {
     }
     getEntityTiles(entity) {
         let entityTiles = new Array();
-        for (let i = 0; i < entity.location.length; i++) {
-            let x = entity.location[i][0];
-            let y = entity.location[i][1];
-            entityTiles.push(this._tiles[x][y]);
+        for (let x = 0; x < this._width; x++) {
+            for (let y = 0; y < this._height; y++) {
+                let curr = this.getTile(x, y);
+                if (curr.containsEntity(entity)) {
+                    entityTiles.push(curr);
+                }
+            }
         }
         return entityTiles;
     }
@@ -428,7 +440,7 @@ class Game {
         for (let i = 0; i < newLocation.length; i++) {
             oldLocation[i].removeEntity(entity);
             let oldLetter = oldLocation[i].getTopLetter();
-            oldLocation[i].removeLetter(oldLetter);
+            oldLocation[i].removeTopLetter();
             newLocation[i].addEntity(entity);
             newLocation[i].addLetter(entity.name.charAt(i));
         }

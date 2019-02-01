@@ -83,7 +83,7 @@ class Game {
 		for (let i = 0; i < newLocation.length; i++) {
 			oldLocation[i].removeEntity(entity);
 			let oldLetter: string = oldLocation[i].getTopLetter();
-			oldLocation[i].removeLetter(oldLetter);
+			oldLocation[i].removeTopLetter();
 
 			newLocation[i].addEntity(entity);
 			newLocation[i].addLetter(entity.name.charAt(i));

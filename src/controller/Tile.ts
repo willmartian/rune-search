@@ -27,6 +27,10 @@ class Tile {
 		this._letters.splice(index, 1);
 	}
 
+	removeTopLetter(): void {
+		this._letters = this._letters.splice(this._letters.length - 1);
+	}
+
 	getTopLetter(): string {
 		return this._letters[this._letters.length - 1];
 	}
@@ -43,8 +47,15 @@ class Tile {
 		this._entities.push(entity);
 	}
 
+	containsEntity(entity: Entity): boolean {
+		return this._entities.indexOf(entity) != -1;
+	}
+
 	removeEntity(entity: Entity): void {
-		let index = this._entities.indexOf(entity);
-		this._entities.splice(index, 1);
+		for (let i = 0; i < this._entities.length; i++) {
+			if (this._entities[i] == entity) {
+				this._entities.splice(i, 1);
+			}
+		}
 	}
 }
