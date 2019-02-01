@@ -10,6 +10,8 @@ class Ground extends Entity {
 	}
 
 	playerCollision(): void {
-		this.name = " ";
+		// this.name = " ";
+		// let tile = game.tileMap.tiles[this.location[0][0]][this.location[0][1]];
+		// tile.changeLetter(tile.letters.length-2, this.name);
 	}
 }

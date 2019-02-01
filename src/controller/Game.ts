@@ -19,6 +19,7 @@ class Game {
 		this._colliding = [];
 	}
 
+	//Only adding one entity to colliding, TODO
 	checkPlayerCollision = function(tile) {
 		if (tile.entities.includes(game.player) && tile.entities.length > 2) {
 			this._colliding = tile.entities;
@@ -28,6 +29,14 @@ class Game {
 		}
 		
 	}
+
+	// getCollisionTiles(): Tile[] {
+	// 	let tiles: Tile[];
+	// 	for (let entity of this._colliding) {
+	// 		this._tileMap.getEntityTiles(entity).concat(tiles);
+	// 	}
+	// 	return tiles;
+	// }
 
 	get colliding(): Entity[] {
 		return this._colliding;
@@ -40,6 +49,7 @@ class Game {
 	newLevel(): void {
 		let level: TileMap = new TileMap(15,15);
 		level.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin()]);
+		this._colliding = [];
 		this._tileMap = level;
 	}
 

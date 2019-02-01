@@ -1,12 +1,17 @@
-class EntityMenu {
+class CollisionMenu {
 	constructor() {
 		this.element = document.getElementById("entity-menu");
 	}
 
 	getData() {
+		let data;
 		if (game.colliding.length > 0) {
-			let name = game.colliding[game.colliding.length - 2].name.toLowerCase();
-			return xml.getChild(name);
+			let name = game.colliding[game.colliding.length - 2].constructor.name.toLowerCase();
+			data = xml.getChild(name);
+			if (!data) {
+				data = xml.getChild("default");
+			}
+			return data;
 		}
 		return null;
 	}
