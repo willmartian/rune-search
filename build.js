@@ -230,11 +230,17 @@ class Entity {
     set head(head) {
         this._head = head;
     }
+    get tail() {
+        return [this._head[0] + this.length * this._dir[0], this._head[1] + this.length * this._dir[1]];
+    }
     get dir() {
         return this._dir;
     }
     set dir(dir) {
         this._dir = dir;
+    }
+    get reverseDir() {
+        return [this._dir[0] * -1, this._dir[1] * -1];
     }
     get active() {
         return this._active;

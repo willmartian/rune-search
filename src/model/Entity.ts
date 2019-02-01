@@ -58,12 +58,20 @@ abstract class Entity {
 		this._head = head;
 	}
 
+	get tail(): number[] {
+		return [this._head[0] + this.length * this._dir[0], this._head[1] + this.length * this._dir[1]]
+	}
+
 	get dir(): number[] {
 		return this._dir;
 	}
 
 	set dir(dir: number[]) {
 		this._dir = dir;
+	}
+
+	get reverseDir() {
+		return [this._dir[0] * -1, this._dir[1] * -1];
 	}
 
 	get active(): boolean {
