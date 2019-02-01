@@ -204,6 +204,14 @@ class Entity {
         this._head = location[0];
         this._dir = [location[1][0] - this._head[0], location[1][1] - this._head[1]];
     }
+    locationIncludes(x, y) {
+        for (let i = 0; i < this._location.length; i++) {
+            if (this._location[i][0] == x && this._location[i][1] == y) {
+                return true;
+            }
+        }
+        return false;
+    }
     get head() {
         return this._head;
     }
@@ -522,6 +530,7 @@ let seed = function (sketch) {
     let marginY, marginX;
     let COLORS;
     let bolded;
+    let locationTest;
     // Runs first.
     sketch.preload = function () {
         // customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
@@ -538,6 +547,7 @@ let seed = function (sketch) {
         marginY = 10;
         marginX = 10;
         bolded = false;
+        locationTest = false;
         COLORS = {
             player: sketch.color(0, 0, 0),
             selected: sketch.color(160, 160, 160),
@@ -613,6 +623,12 @@ let seed = function (sketch) {
         }
         else if (tile.entities.includes(game.player)) {
             sketch.fill(COLORS.player);
+            if (locationTest) {
+                let loc = game.tileMap.getTileLocation(tile);
+                if (game.player.locationIncludes(loc[0], loc[1])) {
+                    sketch.stroke(sketch.color(0, 255, 255));
+                }
+            }
         }
         else {
             sketch.fill(COLORS.empty);
@@ -634,6 +650,9 @@ let seed = function (sketch) {
         if (sketch.keyCode === 66) { //keyCode 66 = "b"
             bolded = !bolded;
         }
+        else if (sketch.keyCode == 76) { //keyCode 74 = "l"
+            locationTest = !locationTest;
+        }
         else if (sketch.keyCode === 38) { //down arrow
             game.headshift(game.player, -1);
         }
@@ -641,10 +660,10 @@ let seed = function (sketch) {
             game.headshift(game.player, 1);
         }
         else if (sketch.keyCode == 37) { //left arrow
-            game.rotateDir(game.player, false);
+            game.rotateDir(game.player, true);
         }
         else if (sketch.keyCode == 39) { //right arrow
-            game.rotateDir(game.player, true);
+            game.rotateDir(game.player, false);
         }
     };
     sketch.screenCoordToTile = function (screenX, screenY) {

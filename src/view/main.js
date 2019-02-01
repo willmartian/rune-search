@@ -10,6 +10,7 @@ let seed = function(sketch) {
 	let marginY, marginX;
 	let COLORS;
 	let bolded;
+	let locationTest;
 
 	// Runs first.
 	sketch.preload = function() {
@@ -29,6 +30,7 @@ let seed = function(sketch) {
 		marginY = 10;
 		marginX = 10;
 		bolded = false;
+		locationTest = false;
 		COLORS = {
 			player: sketch.color(0, 0, 0),
 			selected: sketch.color(160,160,160),
@@ -113,7 +115,12 @@ let seed = function(sketch) {
 			sketch.fill(COLORS.selected);
 		} else if (tile.entities.includes(game.player)) {
 			sketch.fill(COLORS.player);
-			
+			if (locationTest) {
+				let loc = game.tileMap.getTileLocation(tile);
+				if (game.player.locationIncludes(loc[0], loc[1])) {
+					sketch.stroke(sketch.color(0, 255, 255));
+				}
+			}
 		} else {
 			sketch.fill(COLORS.empty);
 		}
@@ -134,6 +141,8 @@ let seed = function(sketch) {
 		console.log(sketch.keyCode);
 		if (sketch.keyCode === 66) { //keyCode 66 = "b"
 			bolded = !bolded;
+		} else if (sketch.keyCode == 76) { //keyCode 74 = "l"
+			locationTest = !locationTest;
 		} else if (sketch.keyCode === 38) { //down arrow
 			game.headshift(game.player, -1);
 		} else if (sketch.keyCode === 40) { //up arrow

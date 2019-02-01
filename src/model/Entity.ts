@@ -41,6 +41,15 @@ abstract class Entity {
 		this._dir = [location[1][0] - this._head[0], location[1][1] - this._head[1]];
 	}
 
+	locationIncludes(x: number, y: number) {
+		for (let i = 0; i < this._location.length; i++) {
+			if (this._location[i][0] == x && this._location[i][1] == y) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	get head(): number[] {
 		return this._head;
 	}
