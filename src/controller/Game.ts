@@ -92,7 +92,6 @@ class Game {
 		let oldLocation: Tile[] = this._tileMap.getEntityTiles(entity);
 		for (let i = 0; i < newLocation.length; i++) {
 			oldLocation[i].removeEntity(entity);
-			let oldLetter: string = oldLocation[i].getTopLetter();
 			oldLocation[i].removeTopLetter();
 
 			newLocation[i].addEntity(entity);

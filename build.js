@@ -18,7 +18,9 @@ class Tile {
         this._letters.splice(index, 1);
     }
     removeTopLetter() {
-        this._letters = this._letters.splice(this._letters.length - 1);
+        console.log(this._letters);
+        this._letters.pop();
+        console.log(this._letters);
     }
     changeLetter(index, newLetter) {
         this._letters[index] = newLetter;
@@ -320,6 +322,7 @@ class Player extends Character {
         super._attackDamage = 1;
         super._active = true;
         this._party = [];
+        this._mana = new Manager();
     }
     // die(): void {
     // 	this.name = "DEAD";
@@ -459,7 +462,6 @@ class Game {
         let oldLocation = this._tileMap.getEntityTiles(entity);
         for (let i = 0; i < newLocation.length; i++) {
             oldLocation[i].removeEntity(entity);
-            let oldLetter = oldLocation[i].getTopLetter();
             oldLocation[i].removeTopLetter();
             newLocation[i].addEntity(entity);
             newLocation[i].addLetter(entity.name.charAt(i));

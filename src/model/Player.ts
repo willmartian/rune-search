@@ -10,6 +10,7 @@ class Player extends Character {
 		super._attackDamage = 1;
 		super._active = true;
 		this._party = [];
+		this._mana = new Manager();
 	}
 
 	// die(): void {
