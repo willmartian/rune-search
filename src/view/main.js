@@ -40,7 +40,7 @@ let seed = function(sketch) {
 
 	//main loop of the application
 	sketch.draw = function() {
-		playerMenu.update();
+		// playerMenu.update();
 		collisionMenu.update();
 
 		sketch.background(255);
@@ -135,6 +135,8 @@ let seed = function(sketch) {
 		if (sketch.keyCode === 66) { //keyCode 66 = "b"
 			bolded = !bolded;
 		}
+
+		return false
 	};
 
 	sketch.screenCoordToTile = function(screenX, screenY) {

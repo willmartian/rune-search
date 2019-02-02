@@ -427,6 +427,7 @@ class CollisionMenu {
 class PlayerMenu {
     constructor() {
         this.element = document.getElementById("player-menu");
+        this.update();
     }
     getData() {
         let data;
@@ -492,7 +493,7 @@ let seed = function (sketch) {
     };
     //main loop of the application
     sketch.draw = function () {
-        playerMenu.update();
+        // playerMenu.update();
         collisionMenu.update();
         sketch.background(255);
         for (let x = 0; x < game.tileMap.width; x++) {
