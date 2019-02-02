@@ -2,6 +2,7 @@
 
 class Player extends Character {
 	protected _party: Character[];
+	protected _mana: Manager;
 
 	constructor(name: string) {
 		super(name);
@@ -9,6 +10,7 @@ class Player extends Character {
 		super._attackDamage = 1;
 		super._active = true;
 		this._party = [];
+		this._mana = new Manager();
 	}
 
 	// die(): void {

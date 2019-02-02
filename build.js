@@ -18,7 +18,9 @@ class Tile {
         this._letters.splice(index, 1);
     }
     removeTopLetter() {
-        this._letters = this._letters.splice(this._letters.length - 1);
+        console.log(this._letters);
+        this._letters.pop();
+        console.log(this._letters);
     }
     changeLetter(index, newLetter) {
         this._letters[index] = newLetter;
@@ -320,6 +322,7 @@ class Player extends Character {
         super._attackDamage = 1;
         super._active = true;
         this._party = [];
+        this._mana = new Manager();
     }
     // die(): void {
     // 	this.name = "DEAD";
@@ -459,7 +462,6 @@ class Game {
         let oldLocation = this._tileMap.getEntityTiles(entity);
         for (let i = 0; i < newLocation.length; i++) {
             oldLocation[i].removeEntity(entity);
-            let oldLetter = oldLocation[i].getTopLetter();
             oldLocation[i].removeTopLetter();
             newLocation[i].addEntity(entity);
             newLocation[i].addLetter(entity.name.charAt(i));
@@ -498,6 +500,79 @@ class Game {
     rotateDir(entity, clockwise) {
         let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
         return this.changeDir(entity, newdir);
+    }
+}
+/// <reference path="../_references.ts" />
+class Manager {
+    constructor() {
+        this._a = 0;
+        this._e = 0;
+        this._i = 0;
+        this._o = 0;
+        this._u = 0;
+    }
+    get a() {
+        return this._a;
+    }
+    set a(x) {
+        this._a = x;
+    }
+    get e() {
+        return this._e;
+    }
+    set e(x) {
+        this._e = x;
+    }
+    get i() {
+        return this._i;
+    }
+    set i(x) {
+        this._i = x;
+    }
+    get o() {
+        return this._o;
+    }
+    set o(x) {
+        this._o = x;
+    }
+    get u() {
+        return this._a;
+    }
+    set u(x) {
+        this._u = x;
+    }
+    getAmount(which) {
+        switch (which.toLowerCase()) {
+            case "a":
+                return this._a;
+            case "e":
+                return this._e;
+            case "i":
+                return this._i;
+            case "o":
+                return this._o;
+            case "u":
+                return this._u;
+        }
+    }
+    setAmount(which, x) {
+        switch (which.toLowerCase()) {
+            case "a":
+                this._a = x;
+                break;
+            case "e":
+                this._e = x;
+                break;
+            case "i":
+                this._i = x;
+                break;
+            case "o":
+                this._o = x;
+                break;
+            case "u":
+                this._u = x;
+                break;
+        }
     }
 }
 class CollisionMenu {
