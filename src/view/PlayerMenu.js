@@ -2,6 +2,7 @@ class PlayerMenu {
 
 	constructor() {
 		this.element = document.getElementById("player-menu");
+		this.update();
 	}
 
 	getData() {

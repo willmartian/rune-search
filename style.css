@@ -68,4 +68,18 @@ h1 {
 pre {
   background-color: transparent;
   border: 0px;
+  /*animation-duration: 3s;
+  animation-name: breathe;
+  animation-direction: alternate-reverse;
+  animation-iteration-count: infinite;*/
+}
+
+@keyframes breathe {
+  from {
+    font-size: 100%;
+  }
+
+  to {
+    font-size: 110%;
+  }
 }
