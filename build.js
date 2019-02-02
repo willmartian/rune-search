@@ -17,10 +17,11 @@ class Tile {
         let index = this._letters.indexOf(letter);
         this._letters.splice(index, 1);
     }
+    removeLetterAtIndex(index) {
+        this._letters.splice(index, 1);
+    }
     removeTopLetter() {
-        console.log(this._letters);
         this._letters.pop();
-        console.log(this._letters);
     }
     changeLetter(index, newLetter) {
         this._letters[index] = newLetter;
@@ -46,6 +47,9 @@ class Tile {
                 this._entities.splice(i, 1);
             }
         }
+    }
+    entityIndex(entity) {
+        return this._entities.indexOf(entity);
     }
 }
 /// <reference path="../_references.ts" />
@@ -461,8 +465,9 @@ class Game {
         //if all conditions were met, move to new location
         let oldLocation = this._tileMap.getEntityTiles(entity);
         for (let i = 0; i < newLocation.length; i++) {
+            let index = oldLocation[i].entityIndex(entity);
             oldLocation[i].removeEntity(entity);
-            oldLocation[i].removeTopLetter();
+            oldLocation[i].removeLetterAtIndex(index);
             newLocation[i].addEntity(entity);
             newLocation[i].addLetter(entity.name.charAt(i));
         }

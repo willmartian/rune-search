@@ -27,11 +27,13 @@ class Tile {
 		this._letters.splice(index, 1);
 	}
 
+	removeLetterAtIndex(index: number): void {
+		this._letters.splice(index, 1);
+	}
+
 	removeTopLetter(): void {
-		console.log(this._letters);
 		this._letters.pop();
-		console.log(this._letters);
-  } 
+  	} 
    
 	changeLetter(index: number, newLetter: string) {
 		this._letters[index] = newLetter;
@@ -63,5 +65,9 @@ class Tile {
 				this._entities.splice(i, 1);
 			}
 		}
+	}
+
+	entityIndex(entity: Entity): number {
+		return this._entities.indexOf(entity);
 	}
 }
