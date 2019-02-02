@@ -2,6 +2,7 @@
 
 class Player extends Character {
 	protected _party: Character[];
+	protected _mana: Manager;
 
 	constructor(name: string) {
 		super(name);
