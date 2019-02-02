@@ -17,6 +17,9 @@ class Tile {
         let index = this._letters.indexOf(letter);
         this._letters.splice(index, 1);
     }
+    removeTopLetter() {
+        this._letters = this._letters.splice(this._letters.length - 1);
+    }
     changeLetter(index, newLetter) {
         this._letters[index] = newLetter;
     }
@@ -32,9 +35,15 @@ class Tile {
     addEntity(entity) {
         this._entities.push(entity);
     }
+    containsEntity(entity) {
+        return this._entities.indexOf(entity) != -1;
+    }
     removeEntity(entity) {
-        let index = this._entities.indexOf(entity);
-        this._entities.splice(index, 1);
+        for (let i = 0; i < this._entities.length; i++) {
+            if (this._entities[i] == entity) {
+                this._entities.splice(i, 1);
+            }
+        }
     }
 }
 /// <reference path="../_references.ts" />
@@ -75,13 +84,36 @@ class TileMap {
         if (xStep == 0) {
             directions = [-1, 1];
         }
-        let yStep = directions[Math.floor((Math.random() * 3))];
+        let yStep = directions[Math.floor((Math.random() * directions.length))];
         return [x, y, xStep, yStep];
+    }
+    rotateDir(dir, clockwise) {
+        let cos45 = 0.70710678118;
+        let sin45 = 0.70710678118;
+        let x = dir[0];
+        let y = dir[1];
+        if (clockwise) {
+            return [Math.round(x * cos45 + y * sin45), Math.round(y * cos45 - x * sin45)];
+        }
+        else {
+            return [Math.round(x * cos45 - y * sin45), Math.round(x * sin45 + y * cos45)];
+        }
     }
     insertEntities(entities) {
         for (let i = 0; i < entities.length; i++) {
             this.insertEntity(entities[i]);
         }
+    }
+    line(head, dir, length) {
+        let locations = [];
+        let x = head[0];
+        let y = head[1];
+        for (let i = 0; i < length; i++) {
+            locations.push([x, y]);
+            x += dir[0];
+            y += dir[1];
+        }
+        return locations;
     }
     insertEntity(entity) {
         let posDir = this.randomPosDir();
@@ -109,13 +141,14 @@ class TileMap {
         }
         //If so, add entity to tile.
         if (i == entity.name.length) {
-            entity.location = [];
+            let currLocation = [];
             for (let location of path) {
-                entity.location.push(location);
+                currLocation.push(location);
                 let x = location[0];
                 let y = location[1];
                 this._tiles[x][y].addEntity(entity);
             }
+            entity.location = currLocation;
             this._entities.push(entity);
             return true;
         }
@@ -132,12 +165,29 @@ class TileMap {
             }
         }
     }
+    getTile(x, y) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+            console.log("out of bounds....");
+            return null;
+        }
+        return this._tiles[x][y];
+    }
+    getTiles(points) {
+        let result = [];
+        for (let i = 0; i < points.length; i++) {
+            result.push(this.getTile(points[i][0], points[i][1]));
+        }
+        return result;
+    }
     getEntityTiles(entity) {
         let entityTiles = new Array();
-        for (let i = 0; i < entity.location.length; i++) {
-            let x = entity.location[i][0];
-            let y = entity.location[i][1];
-            entityTiles.push(this._tiles[x][y]);
+        for (let x = 0; x < this._width; x++) {
+            for (let y = 0; y < this._height; y++) {
+                let curr = this.getTile(x, y);
+                if (curr.containsEntity(entity)) {
+                    entityTiles.push(curr);
+                }
+            }
         }
         return entityTiles;
     }
@@ -155,11 +205,45 @@ class Entity {
     set name(name) {
         this._name = name;
     }
+    get length() {
+        return this._name.length;
+    }
     get location() {
         return this._location;
     }
     set location(location) {
         this._location = location;
+        if (location.length < 2) {
+            return;
+        }
+        this._head = location[0];
+        this._dir = [location[1][0] - this._head[0], location[1][1] - this._head[1]];
+    }
+    locationIncludes(x, y) {
+        for (let i = 0; i < this._location.length; i++) {
+            if (this._location[i][0] == x && this._location[i][1] == y) {
+                return true;
+            }
+        }
+        return false;
+    }
+    get head() {
+        return this._head;
+    }
+    set head(head) {
+        this._head = head;
+    }
+    get tail() {
+        return [this._head[0] + this.length * this._dir[0], this._head[1] + this.length * this._dir[1]];
+    }
+    get dir() {
+        return this._dir;
+    }
+    set dir(dir) {
+        this._dir = dir;
+    }
+    get reverseDir() {
+        return [this._dir[0] * -1, this._dir[1] * -1];
     }
     get active() {
         return this._active;
@@ -376,16 +460,44 @@ class Game {
         for (let i = 0; i < newLocation.length; i++) {
             oldLocation[i].removeEntity(entity);
             let oldLetter = oldLocation[i].getTopLetter();
-            oldLocation[i].removeLetter(oldLetter);
+            oldLocation[i].removeTopLetter();
             newLocation[i].addEntity(entity);
-            newLocation[i].addLetter(oldLetter);
+            newLocation[i].addLetter(entity.name.charAt(i));
         }
-        entity.location = [];
+        let curLocation = [];
         for (let i = 0; i < newLocation.length; i++) {
-            entity.location.push(this._tileMap.getTileLocation(newLocation[i]));
+            curLocation.push(this._tileMap.getTileLocation(newLocation[i]));
         }
+        entity.location = curLocation;
         this._selected = [];
         return true;
+    }
+    headshift(entity, mul) {
+        let newHead = entity.head;
+        newHead[0] += mul * entity.dir[0];
+        newHead[1] += mul * entity.dir[1];
+        let line = this._tileMap.getTiles(this._tileMap.line(newHead, entity.dir, entity.length));
+        if (line.indexOf(null) == -1 && game.move(entity, line)) {
+            entity.head = newHead;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    changeDir(entity, dir) {
+        let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
+        if (line.indexOf(null) == -1 && game.move(entity, line)) {
+            entity.dir = dir;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    rotateDir(entity, clockwise) {
+        let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
+        return this.changeDir(entity, newdir);
     }
 }
 class CollisionMenu {
@@ -466,6 +578,7 @@ let seed = function (sketch) {
     let marginY, marginX;
     let COLORS;
     let bolded;
+    let locationTest;
     // Runs first.
     sketch.preload = function () {
         // customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
@@ -482,6 +595,7 @@ let seed = function (sketch) {
         marginY = 10;
         marginX = 10;
         bolded = false;
+        locationTest = false;
         COLORS = {
             player: sketch.color(0, 0, 0),
             selected: sketch.color(160, 160, 160),
@@ -557,6 +671,12 @@ let seed = function (sketch) {
         }
         else if (tile.entities.includes(game.player)) {
             sketch.fill(COLORS.player);
+            if (locationTest) {
+                let loc = game.tileMap.getTileLocation(tile);
+                if (game.player.locationIncludes(loc[0], loc[1])) {
+                    sketch.stroke(sketch.color(0, 255, 255));
+                }
+            }
         }
         else {
             sketch.fill(COLORS.empty);
@@ -574,8 +694,24 @@ let seed = function (sketch) {
         if (sketch.keyCode === sketch.ENTER) {
             game.move(game.player, game.selected);
         }
+        console.log(sketch.keyCode);
         if (sketch.keyCode === 66) { //keyCode 66 = "b"
             bolded = !bolded;
+        }
+        else if (sketch.keyCode == 76) { //keyCode 74 = "l"
+            locationTest = !locationTest;
+        }
+        else if (sketch.keyCode === 38) { //down arrow
+            game.headshift(game.player, -1);
+        }
+        else if (sketch.keyCode === 40) { //up arrow
+            game.headshift(game.player, 1);
+        }
+        else if (sketch.keyCode == 37) { //left arrow
+            game.rotateDir(game.player, true);
+        }
+        else if (sketch.keyCode == 39) { //right arrow
+            game.rotateDir(game.player, false);
         }
     };
     sketch.screenCoordToTile = function (screenX, screenY) {
