@@ -93,17 +93,46 @@ class Game {
 		for (let i = 0; i < newLocation.length; i++) {
 			oldLocation[i].removeEntity(entity);
 			let oldLetter: string = oldLocation[i].getTopLetter();
-			oldLocation[i].removeLetter(oldLetter);
+			oldLocation[i].removeTopLetter();
 
 			newLocation[i].addEntity(entity);
-			newLocation[i].addLetter(oldLetter);	
+			newLocation[i].addLetter(entity.name.charAt(i));
 		}
 
-		entity.location = [];
+		let curLocation = [];
 		for (let i = 0; i < newLocation.length; i++) {
-			entity.location.push(this._tileMap.getTileLocation(newLocation[i]));
+			curLocation.push(this._tileMap.getTileLocation(newLocation[i]));
 		}
+		entity.location = curLocation;
 		this._selected = [];
 		return true;
+	}
+
+	headshift(entity: Entity, mul: number): boolean {
+		let newHead = entity.head;
+		newHead[0] += mul * entity.dir[0];
+		newHead[1] += mul * entity.dir[1];
+		let line = this._tileMap.getTiles(this._tileMap.line(newHead, entity.dir, entity.length));
+		if (line.indexOf(null) == -1 && game.move(entity, line)) {
+			entity.head = newHead;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	changeDir(entity: Entity, dir: number[]): boolean {
+		let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
+		if (line.indexOf(null) == -1 && game.move(entity, line)) {
+			entity.dir = dir;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	rotateDir(entity: Entity, clockwise: boolean): boolean {
+		let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
+		return this.changeDir(entity, newdir);
 	}
 }
