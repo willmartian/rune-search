@@ -573,6 +573,7 @@ let game;
 let xml;
 let playerMenu;
 let collisionMenu;
+let music;
 let seed = function (sketch) {
     let font;
     let padding;
@@ -585,9 +586,11 @@ let seed = function (sketch) {
         // customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
         xml = sketch.loadXML('./assets/game-entities.xml');
         game = new Game();
+        music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
     };
     // Runs once after preload().
     sketch.setup = function () {
+        music.play();
         playerMenu = new PlayerMenu();
         collisionMenu = new CollisionMenu();
         let canvas = sketch.createCanvas(1000, 1000);
@@ -695,7 +698,6 @@ let seed = function (sketch) {
         if (sketch.keyCode === sketch.ENTER) {
             game.move(game.player, game.selected);
         }
-        console.log(sketch.keyCode);
         if (sketch.keyCode === 66) { //keyCode 66 = "b"
             bolded = !bolded;
         }
@@ -714,6 +716,7 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 39) { //right arrow
             game.rotateDir(game.player, false);
         }
+        return false;
     };
     sketch.screenCoordToTile = function (screenX, screenY) {
         let coord = sketch.screenCoordSubmapper(screenX, screenY);

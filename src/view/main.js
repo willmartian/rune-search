@@ -3,6 +3,7 @@ let game;
 let xml;
 let playerMenu;
 let collisionMenu;
+let music;
 
 let seed = function(sketch) {
 	let font;
@@ -17,10 +18,12 @@ let seed = function(sketch) {
 		// customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
 		xml = sketch.loadXML('./assets/game-entities.xml');
 		game = new Game();
+		music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
 	};
 
 	// Runs once after preload().
 	sketch.setup = function() {
+		music.play();
 		playerMenu = new PlayerMenu();
 		collisionMenu = new CollisionMenu();
 
@@ -138,7 +141,6 @@ let seed = function(sketch) {
 		if (sketch.keyCode === sketch.ENTER) {
 			game.move(game.player, game.selected);
 		}
-		console.log(sketch.keyCode);
 		if (sketch.keyCode === 66) { //keyCode 66 = "b"
 			bolded = !bolded;
 		} else if (sketch.keyCode == 76) { //keyCode 74 = "l"
