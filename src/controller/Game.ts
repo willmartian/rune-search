@@ -91,8 +91,9 @@ class Game {
 		//if all conditions were met, move to new location
 		let oldLocation: Tile[] = this._tileMap.getEntityTiles(entity);
 		for (let i = 0; i < newLocation.length; i++) {
+			let index = oldLocation[i].entityIndex(entity);
 			oldLocation[i].removeEntity(entity);
-			oldLocation[i].removeTopLetter();
+			oldLocation[i].removeLetterAtIndex(index);
 
 			newLocation[i].addEntity(entity);
 			newLocation[i].addLetter(entity.name.charAt(i));
