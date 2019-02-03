@@ -132,7 +132,8 @@ class TileMap {
                 let tile = this._tiles[x][y];
                 if (tile.entities.length == 1 ||
                     tile.getTopLetter() == entity.name.charAt(i)) {
-                    tile.addLetter(entity.name.charAt(i));
+                    // tile.addLetter(entity.name.charAt(i));
+                    tile.changeLetter(tile.entities.length - 1, entity.name.charAt(i));
                     path.push([x, y]);
                     x += xStep;
                     y += yStep;
