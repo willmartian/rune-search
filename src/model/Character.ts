@@ -61,4 +61,15 @@ abstract class Character extends Entity {
 	set attackDamage(attackDamage: number) {
 		this._attackDamage;
 	}
+
+	inventoryToString(): string {
+		let s: string = "Inventory: ";
+		if (this._inventory.length > 0) {
+			s += this._inventory[0].name;
+			for (let i = 1; i < this._inventory.length; i++) {
+				s += ", " + this._inventory[i].name;
+			}
+		}
+		return s;
+	}
 }

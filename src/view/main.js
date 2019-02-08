@@ -16,7 +16,7 @@ let seed = function(sketch) {
 
 	// Runs first.
 	sketch.preload = function() {
-		// customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
+		// customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
 		xml = sketch.loadXML('./assets/game-entities.xml');
 		music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
 		game = new Game();

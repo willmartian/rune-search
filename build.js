@@ -331,6 +331,16 @@ class Character extends Entity {
     set attackDamage(attackDamage) {
         this._attackDamage;
     }
+    inventoryToString() {
+        let s = "Inventory: ";
+        if (this._inventory.length > 0) {
+            s += this._inventory[0].name;
+            for (let i = 1; i < this._inventory.length; i++) {
+                s += ", " + this._inventory[i].name;
+            }
+        }
+        return s;
+    }
 }
 /// <reference path="../_references.ts" />
 class Player extends Character {
@@ -716,7 +726,8 @@ class PlayerMenu {
     }
     setInfo(data) {
         let infoContainer = document.getElementById("player-info");
-        let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage + ", " + game.player.mana.toString();
+        let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
+            + game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
         infoContainer.innerHTML = "<p>" + info + "</p>";
     }
     update() {
@@ -743,7 +754,7 @@ let seed = function (sketch) {
     let locationTest;
     // Runs first.
     sketch.preload = function () {
-        // customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
+        // customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
         xml = sketch.loadXML('./assets/game-entities.xml');
         music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
         game = new Game();

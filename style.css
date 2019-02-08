@@ -1,7 +1,8 @@
 /*@font-face {
-    font-family: 'FixedsysExcelsior';
+    font-family: 'Erika Ormig';
     font-style: normal;
     font-weight: 400;
+    src: url('./assets/fonts/Erika_Ormig.ttf');
     src: url('./assets/fonts/fsex300-webfont.eot');
     src: url('./assets/fonts/fsex300-webfont.eot?#iefix') format('embedded-opentype'),
          url('./assets/fonts/fsex300-webfont.woff') format('woff'),
@@ -13,7 +14,7 @@
 
 * {
   font-family: "Courier", monospace;
-  /*font-family: "FixedsysExcelsior", monospace;*/
+  /*font-family: "Erika Ormig", monospace;*/
 }
 
 html, body {
