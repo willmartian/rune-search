@@ -70,4 +70,14 @@ class Tile {
 	entityIndex(entity: Entity): number {
 		return this._entities.indexOf(entity);
 	}
+
+	getVowels(): string[] {
+		let vowels: string[] = [];
+		for (let letter of this._letters) {
+			if ("aieou".includes(letter.toLowerCase())) {
+				vowels.push(letter);
+			}
+		}
+		return vowels;
+	}
 }

@@ -20,23 +20,19 @@ class Game {
 	}
 
 	//Only adding one entity to colliding, TODO
-	checkPlayerCollision = function(tile) {
-		if (tile.entities.includes(game.player) && tile.entities.length > 2) {
-			this._colliding = tile.entities;
-			for (let entity of this._colliding) {
-				entity.playerCollision();
+	checkCollisions(entity: Entity): void {
+		let tiles: Tile[] = this._tileMap.getEntityTiles(entity);
+		let colliding: Entity[] = [];
+		for (let tile of tiles) {
+			for (let otherEntity of tile.entities) {
+				if (!colliding.includes(otherEntity) && entity !== otherEntity) {//&& otherEntity.constructor.name !== "Ground") {
+					colliding.push(otherEntity);
+					otherEntity.playerCollision();
+				}
 			}
 		}
-		
+		this._colliding = colliding;
 	}
-
-	// getCollisionTiles(): Tile[] {
-	// 	let tiles: Tile[];
-	// 	for (let entity of this._colliding) {
-	// 		this._tileMap.getEntityTiles(entity).concat(tiles);
-	// 	}
-	// 	return tiles;
-	// }
 
 	get colliding(): Entity[] {
 		return this._colliding;
@@ -63,6 +59,19 @@ class Game {
 
 	set selected(tiles: Tile[]) {
 		this._selected = tiles;
+	}
+
+	updatePlayerMana(tiles: Tile[]) {
+		for (let tile of tiles) {
+			let vowels: string[] = tile.getVowels();
+			for (let vowel of vowels) {
+				game.player.mana.increase(vowel, 1);
+			}
+		}
+		//temporary hacky solution: removes the e and o added from "HERO". TODO
+		game.player.mana.decrease("e", 1);
+		game.player.mana.decrease("o", 1);
+		console.log(game.player.mana.toString());
 	}
 
 	move(entity: Entity, newLocation: Tile[]): boolean {
@@ -104,7 +113,12 @@ class Game {
 			curLocation.push(this._tileMap.getTileLocation(newLocation[i]));
 		}
 		entity.location = curLocation;
+
 		this._selected = [];
+
+		if (entity == this._player) {
+			this.updatePlayerMana(newLocation);
+		}
 		return true;
 	}
 

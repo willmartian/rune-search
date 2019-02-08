@@ -10,29 +10,32 @@ let seed = function(sketch) {
 	let padding;
 	let marginY, marginX;
 	let COLORS;
-	let bolded;
+	let showEntities;
+	let showMana;
 	let locationTest;
 
 	// Runs first.
 	sketch.preload = function() {
-		// customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
+		// customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
 		xml = sketch.loadXML('./assets/game-entities.xml');
-		game = new Game();
 		music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
+		game = new Game();
 	};
 
 	// Runs once after preload().
 	sketch.setup = function() {
-		music.play();
+		music.loop();
 		playerMenu = new PlayerMenu();
 		collisionMenu = new CollisionMenu();
 
 		let canvas = sketch.createCanvas(1000,1000);
+		sketch.noLoop();
 		canvas.parent('word-search');
 		padding = 30;
 		marginY = 10;
 		marginX = 10;
-		bolded = false;
+		showEntities = false;
+		showMana = false;
 		locationTest = false;
 		COLORS = {
 			player: sketch.color(0, 0, 0),
@@ -45,17 +48,16 @@ let seed = function(sketch) {
 
 	//main loop of the application
 	sketch.draw = function() {
-		// playerMenu.update();
-		collisionMenu.update();
-
 		sketch.background(255);
+		game.checkCollisions(game.player);
 		for (let x = 0; x < game.tileMap.width; x++) {
 		  	for (let y = 0; y < game.tileMap.height; y++) {
 		  		let tile = game.tileMap.tiles[x][y];
 		  		sketch.displayTile(tile, x, y);
-		  		game.checkPlayerCollision(tile);
 			}
 		}
+		collisionMenu.update();
+		playerMenu.update();
 	};
 
 	// Displays the rectangle and text of a Tile.
@@ -74,18 +76,9 @@ let seed = function(sketch) {
 	sketch.offsetMap = function(x, y) {
 		let theta = (sketch.frameCount + x + y)/10;
 		let coord = [Math.cos(theta) * 5, Math.sin(theta) * 5];
-		//uncomment to animate
-		// return coord; 
+		// return coord; //uncomment to animate
 		return [0, 0];
 	}
-
-	sketch.showEntities = function(tile) {
-		if (tile.entities.length > 1) {
-			sketch.textStyle(sketch.BOLD);
-		} else {
-			sketch.textStyle(sketch.NORMAL);
-		}
-	};
 
 	sketch.setTextStyle = function(tile) {
 		sketch.noStroke();
@@ -106,9 +99,15 @@ let seed = function(sketch) {
   			sketch.textStyle(sketch.NORMAL);
   		}
 
-  		if (bolded) {
+  		sketch.showColliding(tile);
+
+  		if (showEntities) {
   			sketch.showAllEntities(tile);
+  		} else if (showMana) {
+  			sketch.showAllMana(tile);
   		}
+
+
 	}
 
 	sketch.setRectStyle = function(tile) {
@@ -129,8 +128,26 @@ let seed = function(sketch) {
 		}
 	};
 
+	sketch.showColliding = function(tile) {
+		for (let entity of tile.entities) {
+			if (game.colliding.includes(entity)) {
+				sketch.textStyle(sketch.BOLD);
+				return;
+			}
+		}
+		sketch.textStyle(sketch.NORMAL);
+	};
+
 	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
+			sketch.textStyle(sketch.BOLD);
+		} else {
+			sketch.textStyle(sketch.NORMAL);
+		}
+	};
+
+	sketch.showAllMana = function(tile) {
+		if (tile.getVowels().length > 0) {
 			sketch.textStyle(sketch.BOLD);
 		} else {
 			sketch.textStyle(sketch.NORMAL);
@@ -141,8 +158,10 @@ let seed = function(sketch) {
 		if (sketch.keyCode === sketch.ENTER) {
 			game.move(game.player, game.selected);
 		}
-		if (sketch.keyCode === 66) { //keyCode 66 = "b"
-			bolded = !bolded;
+		if (sketch.key == "e") { //keyCode 66 = "b"
+			showEntities = !showEntities;
+		} else if (sketch.key == "v") { //keyCode 74 = "l"
+			showMana = !showMana;
 		} else if (sketch.keyCode == 76) { //keyCode 74 = "l"
 			locationTest = !locationTest;
 		} else if (sketch.keyCode === 38) { //down arrow
@@ -155,6 +174,7 @@ let seed = function(sketch) {
 			game.rotateDir(game.player, false);
 		}
 
+		sketch.draw();
 		return false
 	};
 
@@ -184,6 +204,7 @@ let seed = function(sketch) {
 				game.selected.push(tile);
 			}
 		}
+		sketch.draw();
 	}
 
 	// Repeat of mouseDragged, but for individual presses.
@@ -202,6 +223,7 @@ let seed = function(sketch) {
 				game.selected.splice(index, 1);
 			}
 		}
+		sketch.draw();
 	}
 
 	// Resizes canvas to match wordsearch length.
