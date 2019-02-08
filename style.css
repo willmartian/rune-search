@@ -52,7 +52,7 @@ h1 {
   display: inline;
 }
 
-#entity-menu {
+#collision-menu {
   float: right;
   width: 33%;
   margin: 0;
@@ -68,18 +68,20 @@ h1 {
 pre {
   background-color: transparent;
   border: 0px;
-  /*animation-duration: 3s;
+  animation-duration: 1s;
   animation-name: breathe;
   animation-direction: alternate-reverse;
-  animation-iteration-count: infinite;*/
+  animation-iteration-count: infinite;
 }
 
 @keyframes breathe {
   from {
-    font-size: 100%;
+    /*font-size: 100%;*/
+    font-style: normal;
   }
 
   to {
-    font-size: 110%;
+    /*font-size: 110%;*/
+    font-style: italic;
   }
 }

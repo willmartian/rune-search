@@ -23,7 +23,7 @@ class PlayerMenu {
 
 	setInfo(data) {
 		let infoContainer = document.getElementById("player-info");
-		let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage;
+		let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage + ", " + game.player.mana.toString();
 		infoContainer.innerHTML = "<p>" + info + "</p>";
 	}
 
