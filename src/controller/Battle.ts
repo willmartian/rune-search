@@ -41,7 +41,7 @@ class Battle {
 			this._skillQueue[i].execute(this);
 		}
 		this._skillQueue = [];
-		this.countdown--;
+		this._countdown--;
 		if (this.countdown == 0) {
 			this.gameover();
 		}
@@ -56,6 +56,10 @@ class Battle {
 
 	spoils(): Manager {
 		let result = new Manager(this._enemyName);
+		let ratio = Math.abs(this._health)/this._startingHealth;
+		ratio = Math.max(1, Math.floor(ratio));
+		result.multiply(ratio);
+		return result;
 	}
 
 	victory(): void {

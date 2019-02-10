@@ -574,7 +574,7 @@ class Battle {
             this._skillQueue[i].execute(this);
         }
         this._skillQueue = [];
-        this.countdown--;
+        this._countdown--;
         if (this.countdown == 0) {
             this.gameover();
         }
@@ -587,6 +587,10 @@ class Battle {
     }
     spoils() {
         let result = new Manager(this._enemyName);
+        let ratio = Math.abs(this._health) / this._startingHealth;
+        ratio = Math.max(1, Math.floor(ratio));
+        result.multiply(ratio);
+        return result;
     }
     victory() {
         //victory code goes here
@@ -608,7 +612,7 @@ class Manager {
         word = word.toLowerCase();
         for (let i = 0; i < word.length; i++) {
             let char = word.charAt(i);
-            if (vowels.indexOf(char) != -1) {
+            if (Manager.vowels.indexOf(char) != -1) {
                 this.increase(char, 1);
             }
         }
@@ -766,6 +770,17 @@ class Skill {
     }
 }
 Skill.vowels = ["a", "e", "i", "o", "u"];
+/// <reference path="../_references.ts" />
+var skills = {};
+function addSkill(s) {
+    skills[s.name.toLowerCase()] = s;
+}
+function addSkills(...s) {
+    for (let i = 0; i < s.length; i++) {
+        addSkill(s[i]);
+    }
+}
+addSkills(new Skill("Bash", Skill.makeDamageEffect(2)));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
