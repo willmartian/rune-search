@@ -78,11 +78,13 @@ pre {
 @keyframes breathe {
   from {
     /*font-size: 100%;*/
-    font-style: normal;
+    /*font-style: normal;*/
+    text-shadow:0px 0px 1px #000000FF;
   }
 
   to {
     /*font-size: 110%;*/
-    font-style: italic;
+    /*font-style: italic;*/
+    text-shadow:0px 0px 10px #00000000;
   }
 }
