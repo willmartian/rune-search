@@ -7,6 +7,7 @@ class Battle {
 	protected _health: number;
 	protected _skillQueue: Skill[];
 	protected _enemyName: String;
+	protected _player: Player;
 
 	constructor(health: number, enemyName: String, countdown: number) {
 		this._startingHealth = health;
@@ -36,11 +37,24 @@ class Battle {
 		return result;
 	}
 
+	enqueue(s: Skill): void {
+		this._skillQueue.push(s);
+	}
+
+	clearQueue(): void {
+		this._skillQueue = new Array<Skill>();
+	}
+
 	endTurn(): void {
 		for (let i = 0; i < this._skillQueue.length; i++) {
 			this._skillQueue[i].execute(this);
 		}
+		this._player.mana.subtract(this.totalCost);
 		this._skillQueue = [];
+		if (this._health <= 0) {
+			this.victory();
+			return;
+		}
 		this._countdown--;
 		if (this.countdown == 0) {
 			this.gameover();
@@ -49,9 +63,6 @@ class Battle {
 
 	damage(x: number): void {
 		this._health -= x;
-		if (this._health <= 0) {
-			this.victory();
-		}
 	}
 
 	spoils(): Manager {
@@ -63,12 +74,13 @@ class Battle {
 	}
 
 	victory(): void {
-		//victory code goes here
+		//TODO: more victory code goes here
+		this._player.mana.add(this.spoils());
 		console.log("battle won!");
 	}
 
 	gameover(): void {
-		//game over code goes here
+		//TODO: game over code goes here
 		console.log("battle lost :(");
 	}
 

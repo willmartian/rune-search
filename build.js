@@ -573,7 +573,12 @@ class Battle {
         for (let i = 0; i < this._skillQueue.length; i++) {
             this._skillQueue[i].execute(this);
         }
+        this._player.mana.subtract(this.totalCost);
         this._skillQueue = [];
+        if (this._health <= 0) {
+            this.victory();
+            return;
+        }
         this._countdown--;
         if (this.countdown == 0) {
             this.gameover();
@@ -581,9 +586,6 @@ class Battle {
     }
     damage(x) {
         this._health -= x;
-        if (this._health <= 0) {
-            this.victory();
-        }
     }
     spoils() {
         let result = new Manager(this._enemyName);
@@ -594,6 +596,7 @@ class Battle {
     }
     victory() {
         //victory code goes here
+        this._player.mana.add(this.spoils());
         console.log("battle won!");
     }
     gameover() {
