@@ -569,6 +569,12 @@ class Battle {
         }
         return result;
     }
+    enqueue(s) {
+        this._skillQueue.push(s);
+    }
+    clearQueue() {
+        this._skillQueue = new Array();
+    }
     endTurn() {
         for (let i = 0; i < this._skillQueue.length; i++) {
             this._skillQueue[i].execute(this);
@@ -595,12 +601,12 @@ class Battle {
         return result;
     }
     victory() {
-        //victory code goes here
+        //TODO: more victory code goes here
         this._player.mana.add(this.spoils());
         console.log("battle won!");
     }
     gameover() {
-        //game over code goes here
+        //TODO: game over code goes here
         console.log("battle lost :(");
     }
 }
