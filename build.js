@@ -51,6 +51,15 @@ class Tile {
     entityIndex(entity) {
         return this._entities.indexOf(entity);
     }
+    getVowels() {
+        let vowels = [];
+        for (let letter of this._letters) {
+            if ("aieou".includes(letter.toLowerCase())) {
+                vowels.push(letter);
+            }
+        }
+        return vowels;
+    }
 }
 /// <reference path="../_references.ts" />
 class TileMap {
@@ -132,8 +141,7 @@ class TileMap {
                 let tile = this._tiles[x][y];
                 if (tile.entities.length == 1 ||
                     tile.getTopLetter() == entity.name.charAt(i)) {
-                    // tile.addLetter(entity.name.charAt(i));
-                    tile.changeLetter(tile.entities.length - 1, entity.name.charAt(i));
+                    tile.addLetter(entity.name.charAt(i));
                     path.push([x, y]);
                     x += xStep;
                     y += yStep;
@@ -160,6 +168,11 @@ class TileMap {
             return true;
         }
         else {
+            for (let location of path) {
+                let x = location[0];
+                let y = location[1];
+                this._tiles[x][y].removeTopLetter();
+            }
             return this.insertEntity(entity);
         }
     }
@@ -263,7 +276,6 @@ class Entity {
 class Ground extends Entity {
     constructor() {
         let randomLetter = Ground.alphabet[Math.floor(Math.random() * Ground.alphabet.length)];
-        console.log(randomLetter);
         super(randomLetter);
     }
     playerCollision() {
@@ -272,7 +284,8 @@ class Ground extends Entity {
         // tile.changeLetter(tile.letters.length-2, this.name);
     }
 }
-Ground.alphabet = "abcdefghijklmnopqrstuvwxyz".split('');
+// private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
+Ground.alphabet = "bcdfghjklmnpqrstvwxyz".split('');
 /// <reference path="../_references.ts" />
 class Character extends Entity {
     constructor(name) {
@@ -318,6 +331,16 @@ class Character extends Entity {
     set attackDamage(attackDamage) {
         this._attackDamage;
     }
+    inventoryToString() {
+        let s = "Inventory: ";
+        if (this._inventory.length > 0) {
+            s += this._inventory[0].name;
+            for (let i = 1; i < this._inventory.length; i++) {
+                s += ", " + this._inventory[i].name;
+            }
+        }
+        return s;
+    }
 }
 /// <reference path="../_references.ts" />
 class Player extends Character {
@@ -329,9 +352,9 @@ class Player extends Character {
         this._party = [];
         this._mana = new Manager();
     }
-    // die(): void {
-    // 	this.name = "DEAD";
-    // }
+    get mana() {
+        return this._mana;
+    }
     playerCollision() { }
 }
 /// <reference path="../../_references.ts" />
@@ -397,15 +420,6 @@ class Key extends Item {
 /// <reference path="../_references.ts" />
 class Game {
     constructor() {
-        //Only adding one entity to colliding, TODO
-        this.checkPlayerCollision = function (tile) {
-            if (tile.entities.includes(game.player) && tile.entities.length > 2) {
-                this._colliding = tile.entities;
-                for (let entity of this._colliding) {
-                    entity.playerCollision();
-                }
-            }
-        };
         this._selected = [];
         //createWorld
         this._tileMap = new TileMap(15, 15);
@@ -414,13 +428,20 @@ class Game {
         this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
         this._colliding = [];
     }
-    // getCollisionTiles(): Tile[] {
-    // 	let tiles: Tile[];
-    // 	for (let entity of this._colliding) {
-    // 		this._tileMap.getEntityTiles(entity).concat(tiles);
-    // 	}
-    // 	return tiles;
-    // }
+    //Only adding one entity to colliding, TODO
+    checkCollisions(entity) {
+        let tiles = this._tileMap.getEntityTiles(entity);
+        let colliding = [];
+        for (let tile of tiles) {
+            for (let otherEntity of tile.entities) {
+                if (!colliding.includes(otherEntity) && entity !== otherEntity) { //&& otherEntity.constructor.name !== "Ground") {
+                    colliding.push(otherEntity);
+                    otherEntity.playerCollision();
+                }
+            }
+        }
+        this._colliding = colliding;
+    }
     get colliding() {
         return this._colliding;
     }
@@ -441,6 +462,18 @@ class Game {
     }
     set selected(tiles) {
         this._selected = tiles;
+    }
+    updatePlayerMana(tiles) {
+        for (let tile of tiles) {
+            let vowels = tile.getVowels();
+            for (let vowel of vowels) {
+                game.player.mana.increase(vowel, 1);
+            }
+        }
+        //temporary hacky solution: removes the e and o added from "HERO". TODO
+        game.player.mana.decrease("e", 1);
+        game.player.mana.decrease("o", 1);
+        console.log(game.player.mana.toString());
     }
     move(entity, newLocation) {
         //check length of intended location
@@ -478,6 +511,9 @@ class Game {
         }
         entity.location = curLocation;
         this._selected = [];
+        if (entity == this._player) {
+            this.updatePlayerMana(newLocation);
+        }
         return true;
     }
     headshift(entity, mul) {
@@ -580,15 +616,58 @@ class Manager {
                 break;
         }
     }
+    increase(which, x) {
+        switch (which.toLowerCase()) {
+            case "a":
+                this._a += x;
+                break;
+            case "e":
+                this._e += x;
+                break;
+            case "i":
+                this._i += x;
+                break;
+            case "o":
+                this._o += x;
+                break;
+            case "u":
+                this._u += x;
+                break;
+        }
+    }
+    decrease(which, x) {
+        switch (which.toLowerCase()) {
+            case "a":
+                this._a -= x;
+                break;
+            case "e":
+                this._e -= x;
+                break;
+            case "i":
+                this._i -= x;
+                break;
+            case "o":
+                this._o -= x;
+                break;
+            case "u":
+                this._u -= x;
+                break;
+        }
+    }
+    toString() {
+        return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
+    }
 }
 class CollisionMenu {
     constructor() {
-        this.element = document.getElementById("entity-menu");
+        this.element = document.getElementById("collision-menu");
+        this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
     }
+    //TODO: only showing the top entity of the last tile, pls fix
     getData() {
         let data;
-        if (game.colliding.length > 0) {
-            let name = game.colliding[game.colliding.length - 2].constructor.name.toLowerCase();
+        if (this.colliding.length > 0) {
+            let name = this.colliding[this.colliding.length - 1].constructor.name.toLowerCase();
             data = xml.getChild(name);
             if (!data) {
                 data = xml.getChild("default");
@@ -598,23 +677,32 @@ class CollisionMenu {
         return null;
     }
     setArt(data) {
-        let artContainer = document.getElementById("entity-art");
-        let art = data.getChild("art").DOM.textContent;
-        artContainer.innerHTML = "<pre>" + art + "</pre>";
+        let artContainer = document.getElementById("collision-art");
+        if (data !== null) {
+            let art = data.getChild("art").DOM.textContent;
+            artContainer.innerHTML = "<pre>" + art + "</pre>";
+        }
+        else {
+            artContainer.innerHTML = "";
+        }
     }
     setInfo(data) {
-        let infoContainer = document.getElementById("entity-info");
-        let entity = game.colliding[game.colliding.length - 2];
-        let info = entity.name;
-        infoContainer.innerHTML = "<p>" + info + "</p>";
+        let infoContainer = document.getElementById("collision-info");
+        if (data !== null) {
+            let entity = this.colliding[this.colliding.length - 1];
+            let info = entity.name;
+            infoContainer.innerHTML = "<p>" + info + "</p>";
+        }
+        else {
+            infoContainer.innerHTML = "";
+        }
     }
     //pulling from xml over and over is bad for performance, TODO
     update() {
+        this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
         let data = this.getData();
-        if (data != null) {
-            this.setArt(data);
-            this.setInfo(data);
-        }
+        this.setArt(data);
+        this.setInfo(data);
     }
 }
 class PlayerMenu {
@@ -638,7 +726,8 @@ class PlayerMenu {
     }
     setInfo(data) {
         let infoContainer = document.getElementById("player-info");
-        let info = game.player.name + ", Health: " + game.player.health + ", Attack: " + game.player.attackDamage;
+        let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
+            + game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
         infoContainer.innerHTML = "<p>" + info + "</p>";
     }
     update() {
@@ -660,29 +749,33 @@ let seed = function (sketch) {
     let padding;
     let marginY, marginX;
     let COLORS;
-    let bolded;
+    let showEntities;
+    let showMana;
     let locationTest;
     // Runs first.
     sketch.preload = function () {
-        // customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
+        // customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
         xml = sketch.loadXML('./assets/game-entities.xml');
-        game = new Game();
         music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
+        game = new Game();
     };
     // Runs once after preload().
     sketch.setup = function () {
-        music.play();
+        music.loop();
         playerMenu = new PlayerMenu();
         collisionMenu = new CollisionMenu();
         let canvas = sketch.createCanvas(1000, 1000);
+        sketch.noLoop();
         canvas.parent('word-search');
         padding = 30;
         marginY = 10;
         marginX = 10;
-        bolded = false;
+        showEntities = false;
+        showMana = false;
         locationTest = false;
         COLORS = {
-            player: sketch.color(0, 0, 0),
+            // player: sketch.color(0, 0, 0),
+            player: sketch.color(255, 255, 255),
             selected: sketch.color(160, 160, 160),
             active: sketch.color(120, 0, 120),
             empty: sketch.color(255, 255, 255),
@@ -691,16 +784,17 @@ let seed = function (sketch) {
     };
     //main loop of the application
     sketch.draw = function () {
-        // playerMenu.update();
-        collisionMenu.update();
-        sketch.background(255);
+        // sketch.background(255);
+        sketch.clear();
+        game.checkCollisions(game.player);
         for (let x = 0; x < game.tileMap.width; x++) {
             for (let y = 0; y < game.tileMap.height; y++) {
                 let tile = game.tileMap.tiles[x][y];
                 sketch.displayTile(tile, x, y);
-                game.checkPlayerCollision(tile);
             }
         }
+        collisionMenu.update();
+        playerMenu.update();
     };
     // Displays the rectangle and text of a Tile.
     sketch.displayTile = function (tile, x, y) {
@@ -715,16 +809,19 @@ let seed = function (sketch) {
     sketch.offsetMap = function (x, y) {
         let theta = (sketch.frameCount + x + y) / 10;
         let coord = [Math.cos(theta) * 5, Math.sin(theta) * 5];
-        //uncomment to animate
-        // return coord; 
+        // return coord; //uncomment to animate
         return [0, 0];
     };
-    sketch.showEntities = function (tile) {
-        if (tile.entities.length > 1) {
-            sketch.textStyle(sketch.BOLD);
+    sketch.switchView = function () {
+        let cm = document.getElementById("collision-menu");
+        let ws = document.getElementById("word-search");
+        if (cm.style.display != "none") {
+            cm.style.display = "none";
+            ws.style.display = "flex";
         }
-        else {
-            sketch.textStyle(sketch.NORMAL);
+        else if (ws.style.display != "none") {
+            ws.style.display = "none";
+            cm.style.display = "flex";
         }
     };
     sketch.setTextStyle = function (tile) {
@@ -737,15 +834,21 @@ let seed = function (sketch) {
             tile.addLetter(" ");
         }
         if (tile.entities.includes(game.player)) {
-            sketch.fill(255);
+            // sketch.fill(255);
+            sketch.fill(0);
             sketch.textStyle(sketch.BOLD);
         }
         else {
-            sketch.fill(0);
+            // sketch.fill(0);
+            sketch.fill(255);
             sketch.textStyle(sketch.NORMAL);
         }
-        if (bolded) {
+        sketch.showColliding(tile);
+        if (showEntities) {
             sketch.showAllEntities(tile);
+        }
+        else if (showMana) {
+            sketch.showAllMana(tile);
         }
     };
     sketch.setRectStyle = function (tile) {
@@ -764,11 +867,29 @@ let seed = function (sketch) {
             }
         }
         else {
-            sketch.fill(COLORS.empty);
+            // sketch.fill(COLORS.empty);
+            sketch.noFill();
         }
+    };
+    sketch.showColliding = function (tile) {
+        for (let entity of tile.entities) {
+            if (game.colliding.includes(entity)) {
+                sketch.textStyle(sketch.BOLD);
+                return;
+            }
+        }
+        sketch.textStyle(sketch.NORMAL);
     };
     sketch.showAllEntities = function (tile) {
         if (tile.entities.length > 1) {
+            sketch.textStyle(sketch.BOLD);
+        }
+        else {
+            sketch.textStyle(sketch.NORMAL);
+        }
+    };
+    sketch.showAllMana = function (tile) {
+        if (tile.getVowels().length > 0) {
             sketch.textStyle(sketch.BOLD);
         }
         else {
@@ -779,10 +900,16 @@ let seed = function (sketch) {
         if (sketch.keyCode === sketch.ENTER) {
             game.move(game.player, game.selected);
         }
-        if (sketch.keyCode === 66) { //keyCode 66 = "b"
-            bolded = !bolded;
+        if (sketch.key == "e") {
+            showEntities = !showEntities;
         }
-        else if (sketch.keyCode == 76) { //keyCode 74 = "l"
+        else if (sketch.key == "v") {
+            showMana = !showMana;
+        }
+        else if (sketch.key == "s") {
+            sketch.switchView();
+        }
+        else if (sketch.key == "l") { //keyCode 74 = "l"
             locationTest = !locationTest;
         }
         else if (sketch.keyCode === 38) { //down arrow
@@ -797,6 +924,7 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 39) { //right arrow
             game.rotateDir(game.player, false);
         }
+        sketch.draw();
         return false;
     };
     sketch.screenCoordToTile = function (screenX, screenY) {
@@ -823,6 +951,7 @@ let seed = function (sketch) {
                 game.selected.push(tile);
             }
         }
+        sketch.draw();
     };
     // Repeat of mouseDragged, but for individual presses.
     sketch.mousePressed = function () {
@@ -841,6 +970,7 @@ let seed = function (sketch) {
                 game.selected.splice(index, 1);
             }
         }
+        sketch.draw();
     };
     // Resizes canvas to match wordsearch length.
     sketch.resize = function () {

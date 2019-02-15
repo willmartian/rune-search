@@ -99,8 +99,7 @@ class TileMap {
 				let tile: Tile = this._tiles[x][y];
 				if (tile.entities.length == 1 ||
 						tile.getTopLetter() == entity.name.charAt(i)) {
-					// tile.addLetter(entity.name.charAt(i));
-					tile.changeLetter(tile.entities.length - 1, entity.name.charAt(i));
+					tile.addLetter(entity.name.charAt(i));
 					path.push([x,y]);
 					x += xStep;
 					y += yStep;	
@@ -125,6 +124,11 @@ class TileMap {
 			this._entities.push(entity);
 			return true;
 		} else {
+			for (let location of path) {
+				let x: number = location[0];
+				let y: number = location[1];
+				this._tiles[x][y].removeTopLetter();
+			}
 			return this.insertEntity(entity);
 		}
 	}

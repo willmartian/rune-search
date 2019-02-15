@@ -12,10 +12,10 @@ class Player extends Character {
 		this._party = [];
 		this._mana = new Manager();
 	}
-
-	// die(): void {
-	// 	this.name = "DEAD";
-	// }
 	
+	get mana(): Manager {
+		return this._mana;
+	}
+
 	playerCollision() {}
 }

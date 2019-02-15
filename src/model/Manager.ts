@@ -91,4 +91,48 @@ class Manager { //Mana-ger. Get it?
 		}
 	}
 
+	increase(which: string, x: number) {
+		switch (which.toLowerCase()) {
+			case "a":
+				this._a += x;
+				break;
+			case "e":
+				this._e += x;
+				break;
+			case "i":
+				this._i += x;
+				break;
+			case "o":
+				this._o += x;
+				break;
+			case "u":
+				this._u += x;
+				break;
+		}
+	}
+
+	decrease(which: string, x: number) {
+		switch (which.toLowerCase()) {
+			case "a":
+				this._a -= x;
+				break;
+			case "e":
+				this._e -= x;
+				break;
+			case "i":
+				this._i -= x;
+				break;
+			case "o":
+				this._o -= x;
+				break;
+			case "u":
+				this._u -= x;
+				break;
+		}
+	}
+
+	toString(): string {
+		return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
+	}
+
 }
