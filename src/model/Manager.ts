@@ -170,7 +170,7 @@ class Manager { //Mana-ger. Get it?
 	}
 
 	toString(): string {
-		return "Mana (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
+		return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
 	}
 
 }

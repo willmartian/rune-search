@@ -760,7 +760,7 @@ class Manager {
         return true;
     }
     toString() {
-        return "Mana (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
+        return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
     }
 }
 Manager.vowels = ["a", "e", "i", "o", "u"];
@@ -925,7 +925,8 @@ let seed = function (sketch) {
         showMana = false;
         locationTest = false;
         COLORS = {
-            player: sketch.color(0, 0, 0),
+            // player: sketch.color(0, 0, 0),
+            player: sketch.color(255, 255, 255),
             selected: sketch.color(160, 160, 160),
             active: sketch.color(120, 0, 120),
             empty: sketch.color(255, 255, 255),
@@ -934,7 +935,8 @@ let seed = function (sketch) {
     };
     //main loop of the application
     sketch.draw = function () {
-        sketch.background(255);
+        // sketch.background(255);
+        sketch.clear();
         game.checkCollisions(game.player);
         for (let x = 0; x < game.tileMap.width; x++) {
             for (let y = 0; y < game.tileMap.height; y++) {
@@ -961,6 +963,18 @@ let seed = function (sketch) {
         // return coord; //uncomment to animate
         return [0, 0];
     };
+    sketch.switchView = function () {
+        let cm = document.getElementById("collision-menu");
+        let ws = document.getElementById("word-search");
+        if (cm.style.display != "none") {
+            cm.style.display = "none";
+            ws.style.display = "flex";
+        }
+        else if (ws.style.display != "none") {
+            ws.style.display = "none";
+            cm.style.display = "flex";
+        }
+    };
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
         sketch.textSize(16);
@@ -971,11 +985,13 @@ let seed = function (sketch) {
             tile.addLetter(" ");
         }
         if (tile.entities.includes(game.player)) {
-            sketch.fill(255);
+            // sketch.fill(255);
+            sketch.fill(0);
             sketch.textStyle(sketch.BOLD);
         }
         else {
-            sketch.fill(0);
+            // sketch.fill(0);
+            sketch.fill(255);
             sketch.textStyle(sketch.NORMAL);
         }
         sketch.showColliding(tile);
@@ -1002,7 +1018,8 @@ let seed = function (sketch) {
             }
         }
         else {
-            sketch.fill(COLORS.empty);
+            // sketch.fill(COLORS.empty);
+            sketch.noFill();
         }
     };
     sketch.showColliding = function (tile) {
@@ -1034,13 +1051,16 @@ let seed = function (sketch) {
         if (sketch.keyCode === sketch.ENTER) {
             game.move(game.player, game.selected);
         }
-        if (sketch.key == "e") { //keyCode 66 = "b"
+        if (sketch.key == "e") {
             showEntities = !showEntities;
         }
-        else if (sketch.key == "v") { //keyCode 74 = "l"
+        else if (sketch.key == "v") {
             showMana = !showMana;
         }
-        else if (sketch.keyCode == 76) { //keyCode 74 = "l"
+        else if (sketch.key == "s") {
+            sketch.switchView();
+        }
+        else if (sketch.key == "l") { //keyCode 74 = "l"
             locationTest = !locationTest;
         }
         else if (sketch.keyCode === 38) { //down arrow

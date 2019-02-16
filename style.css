@@ -12,21 +12,14 @@
     font-smooth: never;
 }*/
 
-* {
-  font-family: "Courier", monospace;
-  /*font-family: "Erika Ormig", monospace;*/
-}
-
-html, body {
-  height: 100%;
-}
-
 h1 {
   display: flex;
   justify-content: center;
-  /*font-family: "FixedsysExcelsior", monospace;*/
+}
 
-  /*font-family: 'Blackwood', Courier, sans-serif;*/
+#word-bank {
+  display: flex;
+  justify-content: center;
 }
 
 #game {
@@ -58,6 +51,7 @@ h1 {
   width: 33%;
   margin: 0;
   display: flex;
+  /*display: none;*/
   /* This centers our sketch horizontally. */
   justify-content: center;
 
@@ -66,25 +60,32 @@ h1 {
 /*   background: rgb(230,230,250); */
 }
 
-pre {
-  background-color: transparent;
-  border: 0px;
-  animation-duration: 1s;
-  animation-name: breathe;
-  animation-direction: alternate-reverse;
-  animation-iteration-count: infinite;
-}
-
+/*
 @keyframes breathe {
   from {
-    /*font-size: 100%;*/
-    /*font-style: normal;*/
-    text-shadow:0px 0px 1px #000000FF;
+    font-style: normal;
   }
 
   to {
-    /*font-size: 110%;*/
-    /*font-style: italic;*/
-    text-shadow:0px 0px 10px #00000000;
+    font-style: italic;
   }
 }
+*/
+body {
+  background-color: black;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.17), black 120%
+  );
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  padding: 2rem;
+  color: white;
+  font: 1.3rem "Courier", monospace;
+  text-shadow: 0 0 5px #C8C8C8;
+}
+
+pre {
+  margin: 0;
+}
+
