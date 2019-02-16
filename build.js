@@ -552,6 +552,8 @@ class Battle {
         this._enemyName = enemyName;
         this._countdown = countdown;
         this._skillQueue = new Array();
+        this._player = game.player;
+        this._log = new Array();
     }
     get countdown() {
         return this._countdown;
@@ -562,6 +564,9 @@ class Battle {
     get enemyName() {
         return this._enemyName;
     }
+    get log() {
+        return this._log;
+    }
     get totalCost() {
         let result = new Manager();
         for (let i = 0; i < this._skillQueue.length; i++) {
@@ -571,6 +576,9 @@ class Battle {
     }
     enqueue(s) {
         this._skillQueue.push(s);
+    }
+    logText(s) {
+        this._log.push(s);
     }
     clearQueue() {
         this._skillQueue = new Array();
@@ -758,23 +766,34 @@ class Manager {
 Manager.vowels = ["a", "e", "i", "o", "u"];
 /// <reference path="../_references.ts" />
 class Skill {
-    constructor(name, effect) {
+    constructor(name, desc, effect) {
         this._name = name;
+        this._desc = desc;
         this._effect = effect;
         this._cost = new Manager(name);
     }
     get name() {
         return this._name;
     }
+    get desc() {
+        return this._name;
+    }
     get cost() {
         return this._cost;
     }
     execute(b) {
-        this._effect.call(this, b);
+        this._effect.call(undefined, b);
     }
     static makeDamageEffect(damageAmount) {
         return function (b) {
             b.damage(damageAmount);
+        };
+    }
+    static makeRepeatedEffect(effect, repetitions) {
+        return function (b) {
+            for (let i = 0; i < repetitions; i++) {
+                effect.call(undefined, b);
+            }
         };
     }
 }
@@ -789,7 +808,7 @@ function addSkills(...s) {
         addSkill(s[i]);
     }
 }
-addSkills(new Skill("Bash", Skill.makeDamageEffect(2)));
+addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");

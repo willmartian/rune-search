@@ -8,6 +8,7 @@ class Battle {
 	protected _skillQueue: Skill[];
 	protected _enemyName: String;
 	protected _player: Player;
+	protected _log: String[];
 
 	constructor(health: number, enemyName: String, countdown: number) {
 		this._startingHealth = health;
@@ -15,6 +16,8 @@ class Battle {
 		this._enemyName = enemyName;
 		this._countdown = countdown;
 		this._skillQueue = new Array<Skill>();
+		this._player = game.player;
+		this._log = new Array<String>();
 	}
 
 	get countdown(): number {
@@ -29,6 +32,10 @@ class Battle {
 		return this._enemyName;
 	}
 
+	get log(): String[] {
+		return this._log;
+	}
+
 	get totalCost(): Manager {
 		let result = new Manager();
 		for (let i = 0; i < this._skillQueue.length; i++) {
@@ -39,6 +46,10 @@ class Battle {
 
 	enqueue(s: Skill): void {
 		this._skillQueue.push(s);
+	}
+
+	logText(s: String): void {
+		this._log.push(s);
 	}
 
 	clearQueue(): void {

@@ -13,5 +13,5 @@ function addSkills(...s: Skill[]): void {
 }
 
 addSkills(
-	new Skill("Bash", Skill.makeDamageEffect(2))
+	new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2))
 );
