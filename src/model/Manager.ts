@@ -2,18 +2,28 @@
 
 class Manager { //Mana-ger. Get it?
 
+	static vowels: string[] = ["a", "e", "i", "o", "u"];
+
 	protected _a: number;
 	protected _e: number;
 	protected _i: number;
 	protected _o: number;
 	protected _u: number;
 
-	constructor() {
+
+	constructor(word: String = "") {
 		this._a = 0;
 		this._e = 0;
 		this._i = 0;
 		this._o = 0;
 		this._u = 0;
+		word = word.toLowerCase();
+		for (let i = 0; i < word.length; i++) {
+			let char = word.charAt(i);
+			if (Manager.vowels.indexOf(char) != -1) {
+				this.increase(char, 1);
+			}
+		}
 	}
 
 	get a(): number {
@@ -71,7 +81,7 @@ class Manager { //Mana-ger. Get it?
 		}
 	}
 
-	setAmount(which: string, x: number) {
+	setAmount(which: string, x: number): void {
 		switch (which.toLowerCase()) {
 			case "a":
 				this._a = x;
@@ -91,7 +101,7 @@ class Manager { //Mana-ger. Get it?
 		}
 	}
 
-	increase(which: string, x: number) {
+	increase(which: string, x: number): void {
 		switch (which.toLowerCase()) {
 			case "a":
 				this._a += x;
@@ -111,7 +121,7 @@ class Manager { //Mana-ger. Get it?
 		}
 	}
 
-	decrease(which: string, x: number) {
+	decrease(which: string, x: number): void {
 		switch (which.toLowerCase()) {
 			case "a":
 				this._a -= x;
@@ -129,6 +139,34 @@ class Manager { //Mana-ger. Get it?
 				this._u -= x;
 				break;
 		}
+	}
+
+	add(other: Manager): void {
+		for (let letter in Manager.vowels) {
+			this.increase(letter, other.getAmount(letter));
+		}
+	}
+
+	subtract(other: Manager): void {
+		for (let letter in Manager.vowels) {
+			this.decrease(letter, other.getAmount(letter));
+		}
+	}
+
+	multiply(scalar: number): void {
+		scalar = Math.round(scalar);
+		for (let letter in Manager.vowels) {
+			this.setAmount(letter, this.getAmount(letter) * scalar);
+		}
+	}
+
+	fitsInto(other: Manager): boolean {
+		for (let letter in Manager.vowels) {
+			if (this.getAmount(letter) > other.getAmount(letter)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	toString(): string {
