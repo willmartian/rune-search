@@ -11,11 +11,11 @@ class Game {
 		this._selected = [];
 
 		//createWorld
-		this._tileMap = new TileMap(15,15);
+		this._tileMap = new TileMap(35,20);
 
 		//createEntities
 		this._player = new Player("Hero");
-		this._tileMap.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin()]);
+		this._tileMap.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Rat(),new Rat(),new Rat(),new Rat()]);
 		this._colliding = [];
 	}
 
