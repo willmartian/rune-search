@@ -422,10 +422,10 @@ class Game {
     constructor() {
         this._selected = [];
         //createWorld
-        this._tileMap = new TileMap(15, 15);
+        this._tileMap = new TileMap(35, 20);
         //createEntities
         this._player = new Player("Hero");
-        this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
+        this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Rat(), new Rat(), new Rat(), new Rat()]);
         this._colliding = [];
     }
     //Only adding one entity to colliding, TODO
@@ -697,12 +697,24 @@ class CollisionMenu {
             infoContainer.innerHTML = "";
         }
     }
+    display(data) {
+        let ws = document.getElementById("word-search");
+        if (data != null && showCM) {
+            this.setArt(data);
+            this.setInfo(data);
+            this.element.style.display = "inline";
+            ws.style.display = "none";
+        }
+        else {
+            this.element.style.display = "none";
+            ws.style.display = "flex";
+        }
+    }
     //pulling from xml over and over is bad for performance, TODO
     update() {
         this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
         let data = this.getData();
-        this.setArt(data);
-        this.setInfo(data);
+        this.display(data);
     }
 }
 class PlayerMenu {
@@ -724,11 +736,33 @@ class PlayerMenu {
         let art = data.getChild("art").DOM.textContent;
         artContainer.innerHTML = "<pre>" + art + "</pre>";
     }
-    setInfo(data) {
-        let infoContainer = document.getElementById("player-info");
-        let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
-            + game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
-        infoContainer.innerHTML = "<p>" + info + "</p>";
+    setInfo() {
+        this.setMana();
+        this.setInventory();
+        // let infoContainer = document.getElementById("player-info");
+        // let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
+        // 	+ game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
+        // infoContainer.innerHTML = "<p>" + info + "</p>";
+    }
+    setMana() {
+        let mana = game.player.mana;
+        document.getElementById("a-mana").innerHTML = mana.a;
+        document.getElementById("e-mana").innerHTML = mana.e;
+        document.getElementById("i-mana").innerHTML = mana.i;
+        document.getElementById("o-mana").innerHTML = mana.o;
+        document.getElementById("u-mana").innerHTML = mana.u;
+    }
+    setInventory() {
+        let inventory = game.player.inventory;
+        let inventoryList = document.getElementById("player-inventory");
+        while (inventoryList.firstChild) {
+            inventoryList.removeChild(inventoryList.firstChild);
+        }
+        for (let item of inventory) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(item.toString()));
+            inventoryList.appendChild(li);
+        }
     }
     update() {
         let data = this.getData();
@@ -744,6 +778,7 @@ let xml;
 let playerMenu;
 let collisionMenu;
 let music;
+let showCM;
 let seed = function (sketch) {
     let font;
     let padding;
@@ -772,6 +807,7 @@ let seed = function (sketch) {
         marginX = 10;
         showEntities = false;
         showMana = false;
+        showCM = true;
         locationTest = false;
         COLORS = {
             // player: sketch.color(0, 0, 0),
@@ -781,6 +817,7 @@ let seed = function (sketch) {
             empty: sketch.color(255, 255, 255),
         };
         sketch.resize();
+        sketch.translate(100, 100);
     };
     //main loop of the application
     sketch.draw = function () {
@@ -812,18 +849,17 @@ let seed = function (sketch) {
         // return coord; //uncomment to animate
         return [0, 0];
     };
-    sketch.switchView = function () {
-        let cm = document.getElementById("collision-menu");
-        let ws = document.getElementById("word-search");
-        if (cm.style.display != "none") {
-            cm.style.display = "none";
-            ws.style.display = "flex";
-        }
-        else if (ws.style.display != "none") {
-            ws.style.display = "none";
-            cm.style.display = "flex";
-        }
-    };
+    // sketch.switchView = function() {
+    // 	let cm = document.getElementById("collision-menu");
+    // 	let ws = document.getElementById("word-search");
+    // 	if (cm.style.display != "none" || cm.style.display == "") {
+    // 		cm.style.display = "none";
+    // 		ws.style.display = "flex";
+    // 	} else if (ws.style.display != "none" || ws.style.display == "") {
+    // 		ws.style.display = "none";
+    // 		cm.style.display = "flex";
+    // 	}
+    // }
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
         sketch.textSize(16);
@@ -907,7 +943,8 @@ let seed = function (sketch) {
             showMana = !showMana;
         }
         else if (sketch.key == "s") {
-            sketch.switchView();
+            // sketch.switchView();
+            showCM = !showCM;
         }
         else if (sketch.key == "l") { //keyCode 74 = "l"
             locationTest = !locationTest;

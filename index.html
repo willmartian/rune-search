@@ -12,19 +12,40 @@
 	</head>
 	<body>
 		<!--  -->
-		<h1>Rune Search</h1>
+		
 		<div id="game">
 			<div id="p5_loading" class="loadingclass">Searching for Runes...</div>
 			<div id="player-menu">
+				<h1 id="title">Rune Search</h1>
 				<div id="player-art"></div>
-				<div id="player-info"></div>
+				<div id="player-info">
+					<div id="player-title"><h3 id="player-name">Hero</h3> <p id="player-level">Lvl. 1</p></div>
+					<div id="player-mana">
+						<ul><u>Mana</u>
+							<li>A: <div id="a-mana" class="mana"></div></li>
+							<li>E: <div id="e-mana" class="mana"></div></li>
+							<li>I: <div id="i-mana" class="mana"></div></li>
+							<li>O: <div id="o-mana" class="mana"></div></li>
+							<li>U: <div id="u-mana" class="mana"></div></li>
+						</ul>
+					</div>
+					<div id="player-inventory">
+						<ul><u>Inventory</u>
+							<li>Empty</li>
+						</ul>
+					</div>
+
+				</div>
 			</div>
-			<div id="word-search"></div>
-			<div id="collision-menu">
-				<div id="collision-info"></div>
-				<div id="collision-art"></div>
+			<div id="dynamic-menu">
+				<div id="word-search"></div>
+				<div id="collision-menu">
+					<div id="collision-info"></div>
+					<!-- <a href="javascript:void(0);">Close</a> -->
+					<div id="collision-art"></div>
+				</div>
+				<div id="word-bank"><p>Word Bank: Goblin, Key, Door</p></div>
 			</div>
 		</div>
-		<div id="word-bank"><p>Word Bank: Goblin, Key, Door</p></div>
 	</body>
 </html>

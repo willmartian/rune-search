@@ -4,6 +4,7 @@ let xml;
 let playerMenu;
 let collisionMenu;
 let music;
+let showCM;
 
 
 let seed = function(sketch) {
@@ -25,6 +26,7 @@ let seed = function(sketch) {
 
 	// Runs once after preload().
 	sketch.setup = function() {
+
 		music.loop();
 		playerMenu = new PlayerMenu();
 		collisionMenu = new CollisionMenu();
@@ -37,6 +39,7 @@ let seed = function(sketch) {
 		marginX = 10;
 		showEntities = false;
 		showMana = false;
+		showCM = true;
 		locationTest = false;
 		COLORS = {
 			// player: sketch.color(0, 0, 0),
@@ -46,11 +49,13 @@ let seed = function(sketch) {
 			empty: sketch.color(255,255,255),
 		}
 		sketch.resize();
+		sketch.translate(100, 100);
 	};
 
 	//main loop of the application
 	sketch.draw = function() {
 		// sketch.background(255);
+
 		sketch.clear();
 		game.checkCollisions(game.player);
 		for (let x = 0; x < game.tileMap.width; x++) {
@@ -83,17 +88,17 @@ let seed = function(sketch) {
 		return [0, 0];
 	}
 
-	sketch.switchView = function() {
-		let cm= document.getElementById("collision-menu");
-		let ws = document.getElementById("word-search");
-		if (cm.style.display != "none") {
-			cm.style.display = "none";
-			ws.style.display = "flex";
-		} else if (ws.style.display != "none") {
-			ws.style.display = "none";
-			cm.style.display = "flex";
-		}
-	}
+	// sketch.switchView = function() {
+	// 	let cm = document.getElementById("collision-menu");
+	// 	let ws = document.getElementById("word-search");
+	// 	if (cm.style.display != "none" || cm.style.display == "") {
+	// 		cm.style.display = "none";
+	// 		ws.style.display = "flex";
+	// 	} else if (ws.style.display != "none" || ws.style.display == "") {
+	// 		ws.style.display = "none";
+	// 		cm.style.display = "flex";
+	// 	}
+	// }
 
 	sketch.setTextStyle = function(tile) {
 		sketch.noStroke();
@@ -181,7 +186,8 @@ let seed = function(sketch) {
 		} else if (sketch.key == "v") {
 			showMana = !showMana;
 		} else if (sketch.key == "s") {
-			sketch.switchView();
+			// sketch.switchView();
+			showCM = !showCM;
 		} else if (sketch.key == "l") { //keyCode 74 = "l"
 			locationTest = !locationTest;
 		} else if (sketch.keyCode === 38) { //down arrow

@@ -39,11 +39,24 @@ class CollisionMenu {
 		}
 	}
 
+	display(data) {
+		let ws = document.getElementById("word-search");
+		if (data != null && showCM) {
+			this.setArt(data);
+			this.setInfo(data);
+			this.element.style.display = "inline";
+			ws.style.display = "none";
+
+		} else {
+			this.element.style.display = "none";
+			ws.style.display = "flex";
+		}
+	}
+
 	//pulling from xml over and over is bad for performance, TODO
 	update() {
 		this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
 		let data = this.getData();
-		this.setArt(data);
-		this.setInfo(data);
+		this.display(data);
 	}
 }
