@@ -2,9 +2,8 @@
 
 <game-entities>
   <default>
-    <description>A hero.</description>
-    <art>
-<![CDATA[ ____________________
+    <description>Nothing to see here.</description>
+    <art><![CDATA[ ____________________
 /                    \
 !    HELP WANTED,    !
 !  WE NEED ARTISTS.  !
@@ -21,29 +20,85 @@
       \_(____)
          !  !
          !  !
-         \__/]]>
-    </art>
+         \__/]]></art>
   </default>
   <ground>
     <description>It is kinda dirty...</description>
-    <art>
-    </art>
+    <art> </art>
   </ground>
 	<goblin>
     <description>A cutie. (etc)</description>
-    <art>
-	<![CDATA[
-             ,      ,
-            /(.-""-.)\
-        |\  \/      \/  /|
-        | \ / =.  .= \ / |
-        \( \   o\/o   / )/
-         \_, '-/  \-' ,_/
-           /   \__/   \
-           \ \__/\__/ /
-         ___\ \|--|/ /___
-       /`    \      /    `\
-      /       '----'       \]]>
-  	</art>
+    <art><![CDATA[        __              __
+       |  \  _//////_  /  |
+        \  \//      \\/  /   
+         \0|  _    _  |0/
+         //  (o)  (o)  \\
+_____    ||    (oo)    ||    _____  
+\/\/\/   ||   ______   ||   \/\/\/
+|  _|    \\   \/  \/   //   |_   | 
+| <_|     \\   /\/\   //    |_>  | 
+\    \     \\________//     /   /  
+ \    \       |    |       /   /      
+  \    \_____/      \_____/   /
+   \_____   / \    / \  _____/ 
+        /   | |    | |  \
+        |   | |    | |  |
+        |___| |____| |__|
+        |    O      O   |
+        |               |
+         \______________/
+          |     /\     |
+          |_____||_____|
+          |     ||     |
+       ___|     ||     |___
+      / xxx     ||     xxx \
+      |________/  \________|]]></art>
   </goblin>
+  <necromancer>
+    <description></description>
+    <art><![CDATA[ ]]></art>
+  </necromancer>
+  <rat>
+    <description>Not a hamster.</description>
+    <art><![CDATA[                                                   '-.
+       _     __,..---"""--...,,                    ,--\
+     _/_),-"`                  '-._                 `\ \    
+\|.-"`    -_)                       '.                 | |
+/`   @   ,                            \               .' /
+'.___,__/                      ._'     \_         _,-' .'
+  |\  \        \            /`         _`"""""""` _,-'
+    __/;--._,.. |           |    --.__/  `"""""""`
+   <<<-'    __//`'-.........-;\       )
+          <<<-'          __//   '--. /
+                       <<<-'     __//
+                               <<<-']]></art>
+  </rat>
+  <robot>
+    <description></description>
+    <art><![CDATA[                 .     *  .
+                   +   0   +
+                   .   |  *  .
+            ___________|__________
+           |        =======       |
+           |          ___         |
+ __        |         |---|        |        __
+)  |__     |         |___|        |      _|  (
+"""|  |    |        ~v~v~v~       |     |  |""
+   |  |    |______________________|     |  |
+   |  |____  _______|     |_______  ____|  |
+   |_____  \|    0     0      0   |/  _____|
+         |__|     ___________     |__|
+            |    | 1 0 1 0 1 |    |
+            |    | 0 1 1 1 1 |    |
+            |    |___________|    |
+            |          0          |
+            |_____________________|
+                 OOOOOOOOOOOOO
+                  OOOOOOOOOOO
+                    OOOOOOO]]></art>
+  </robot>
+  <unicorn>
+    <description></description>
+    <art><![CDATA[ ]]></art>
+  </unicorn>
 </game-entities>

@@ -1,7 +1,7 @@
 /// <reference path="../_references.ts" />
 
 class Ground extends Entity {
-	// private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
+	//private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
 	private static readonly alphabet: string[] = "bcdfghjklmnpqrstvwxyz".split('');
 
 	constructor() {

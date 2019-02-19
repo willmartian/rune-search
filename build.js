@@ -1,4 +1,131 @@
 /// <reference path="../_references.ts" />
+class Game {
+    constructor() {
+        this._selected = [];
+        //createWorld
+        this._tileMap = new TileMap(35, 20);
+        //createEntities
+        this._player = new Player("Hero");
+        this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Rat(), new Rat(), new Rat(), new Rat()]);
+        this._colliding = [];
+    }
+    //Only adding one entity to colliding, TODO
+    checkCollisions(entity) {
+        let tiles = this._tileMap.getEntityTiles(entity);
+        let colliding = [];
+        for (let tile of tiles) {
+            for (let otherEntity of tile.entities) {
+                if (!colliding.includes(otherEntity) && entity !== otherEntity) { //&& otherEntity.constructor.name !== "Ground") {
+                    colliding.push(otherEntity);
+                    otherEntity.playerCollision();
+                }
+            }
+        }
+        this._colliding = colliding;
+    }
+    get colliding() {
+        return this._colliding;
+    }
+    get tileMap() {
+        return this._tileMap;
+    }
+    newLevel() {
+        let level = new TileMap(15, 15);
+        level.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
+        this._colliding = [];
+        this._tileMap = level;
+    }
+    get player() {
+        return this._player;
+    }
+    get selected() {
+        return this._selected;
+    }
+    set selected(tiles) {
+        this._selected = tiles;
+    }
+    updatePlayerMana(tiles) {
+        for (let tile of tiles) {
+            let vowels = tile.getVowels();
+            for (let vowel of vowels) {
+                game.player.mana.increase(vowel, 1);
+            }
+        }
+        //temporary hacky solution: removes the e and o added from "HERO". TODO
+        game.player.mana.decrease("e", 1);
+        game.player.mana.decrease("o", 1);
+        console.log(game.player.mana.toString());
+    }
+    move(entity, newLocation) {
+        //check length of intended location
+        if (entity.name.length != newLocation.length) {
+            return false;
+        }
+        //check if location contains at least one instance of entity
+        let i;
+        for (i = newLocation.length - 1; i >= 0; i--) {
+            if (newLocation[i].entities.includes(entity)) {
+                break;
+            }
+        }
+        if (i == -1) {
+            return false;
+        }
+        //check if selected is in a line
+        let xdiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[0] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[0]);
+        let ydiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[1] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[1]);
+        if ((ydiff != 3 && ydiff != 0) || (xdiff != 3 && xdiff != 0)) {
+            return false;
+        }
+        //if all conditions were met, move to new location
+        let oldLocation = this._tileMap.getEntityTiles(entity);
+        for (let i = 0; i < newLocation.length; i++) {
+            let index = oldLocation[i].entityIndex(entity);
+            oldLocation[i].removeEntity(entity);
+            oldLocation[i].removeLetterAtIndex(index);
+            newLocation[i].addEntity(entity);
+            newLocation[i].addLetter(entity.name.charAt(i));
+        }
+        let curLocation = [];
+        for (let i = 0; i < newLocation.length; i++) {
+            curLocation.push(this._tileMap.getTileLocation(newLocation[i]));
+        }
+        entity.location = curLocation;
+        this._selected = [];
+        if (entity == this._player) {
+            this.updatePlayerMana(newLocation);
+        }
+        return true;
+    }
+    headshift(entity, mul) {
+        let newHead = entity.head;
+        newHead[0] += mul * entity.dir[0];
+        newHead[1] += mul * entity.dir[1];
+        let line = this._tileMap.getTiles(this._tileMap.line(newHead, entity.dir, entity.length));
+        if (line.indexOf(null) == -1 && game.move(entity, line)) {
+            entity.head = newHead;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    changeDir(entity, dir) {
+        let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
+        if (line.indexOf(null) == -1 && game.move(entity, line)) {
+            entity.dir = dir;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    rotateDir(entity, clockwise) {
+        let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
+        return this.changeDir(entity, newdir);
+    }
+}
+/// <reference path="../_references.ts" />
 class Tile {
     constructor() {
         this._entities = [];
@@ -284,7 +411,7 @@ class Ground extends Entity {
         // tile.changeLetter(tile.letters.length-2, this.name);
     }
 }
-// private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
+//private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
 Ground.alphabet = "bcdfghjklmnpqrstvwxyz".split('');
 /// <reference path="../_references.ts" />
 class Character extends Entity {
@@ -418,140 +545,94 @@ class Key extends Item {
 /// <reference path="./model/Door.ts" />
 /// <reference path="./model/items/Key.ts" />
 /// <reference path="../_references.ts" />
-class Game {
-    constructor() {
-        this._selected = [];
-        //createWorld
-        this._tileMap = new TileMap(15, 15);
-        //createEntities
-        this._player = new Player("Hero");
-        this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
-        this._colliding = [];
+class Battle {
+    constructor(health, enemyName, countdown) {
+        this._startingHealth = health;
+        this._health = health;
+        this._enemyName = enemyName;
+        this._countdown = countdown;
+        this._skillQueue = new Array();
+        this._player = game.player;
+        this._log = new Array();
     }
-    //Only adding one entity to colliding, TODO
-    checkCollisions(entity) {
-        let tiles = this._tileMap.getEntityTiles(entity);
-        let colliding = [];
-        for (let tile of tiles) {
-            for (let otherEntity of tile.entities) {
-                if (!colliding.includes(otherEntity) && entity !== otherEntity) { //&& otherEntity.constructor.name !== "Ground") {
-                    colliding.push(otherEntity);
-                    otherEntity.playerCollision();
-                }
-            }
-        }
-        this._colliding = colliding;
+    get countdown() {
+        return this._countdown;
     }
-    get colliding() {
-        return this._colliding;
+    get skillQueue() {
+        return this._skillQueue;
     }
-    get tileMap() {
-        return this._tileMap;
+    get enemyName() {
+        return this._enemyName;
     }
-    newLevel() {
-        let level = new TileMap(15, 15);
-        level.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
-        this._colliding = [];
-        this._tileMap = level;
+    get log() {
+        return this._log;
     }
-    get player() {
-        return this._player;
+    get totalCost() {
+        let result = new Manager();
+        for (let i = 0; i < this._skillQueue.length; i++) {
+            result.add(this._skillQueue[i].cost);
+        }
+        return result;
     }
-    get selected() {
-        return this._selected;
+    enqueue(s) {
+        this._skillQueue.push(s);
     }
-    set selected(tiles) {
-        this._selected = tiles;
+    logText(s) {
+        this._log.push(s);
     }
-    updatePlayerMana(tiles) {
-        for (let tile of tiles) {
-            let vowels = tile.getVowels();
-            for (let vowel of vowels) {
-                game.player.mana.increase(vowel, 1);
-            }
-        }
-        //temporary hacky solution: removes the e and o added from "HERO". TODO
-        game.player.mana.decrease("e", 1);
-        game.player.mana.decrease("o", 1);
-        console.log(game.player.mana.toString());
+    clearQueue() {
+        this._skillQueue = new Array();
     }
-    move(entity, newLocation) {
-        //check length of intended location
-        if (entity.name.length != newLocation.length) {
-            return false;
+    endTurn() {
+        for (let i = 0; i < this._skillQueue.length; i++) {
+            this._skillQueue[i].execute(this);
         }
-        //check if location contains at least one instance of entity
-        let i;
-        for (i = newLocation.length - 1; i >= 0; i--) {
-            if (newLocation[i].entities.includes(entity)) {
-                break;
-            }
+        this._player.mana.subtract(this.totalCost);
+        this._skillQueue = [];
+        if (this._health <= 0) {
+            this.victory();
+            return;
         }
-        if (i == -1) {
-            return false;
-        }
-        //check if selected is in a line
-        let xdiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[0] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[0]);
-        let ydiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[1] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[1]);
-        if ((ydiff != 3 && ydiff != 0) || (xdiff != 3 && xdiff != 0)) {
-            return false;
-        }
-        //if all conditions were met, move to new location
-        let oldLocation = this._tileMap.getEntityTiles(entity);
-        for (let i = 0; i < newLocation.length; i++) {
-            let index = oldLocation[i].entityIndex(entity);
-            oldLocation[i].removeEntity(entity);
-            oldLocation[i].removeLetterAtIndex(index);
-            newLocation[i].addEntity(entity);
-            newLocation[i].addLetter(entity.name.charAt(i));
-        }
-        let curLocation = [];
-        for (let i = 0; i < newLocation.length; i++) {
-            curLocation.push(this._tileMap.getTileLocation(newLocation[i]));
-        }
-        entity.location = curLocation;
-        this._selected = [];
-        if (entity == this._player) {
-            this.updatePlayerMana(newLocation);
-        }
-        return true;
-    }
-    headshift(entity, mul) {
-        let newHead = entity.head;
-        newHead[0] += mul * entity.dir[0];
-        newHead[1] += mul * entity.dir[1];
-        let line = this._tileMap.getTiles(this._tileMap.line(newHead, entity.dir, entity.length));
-        if (line.indexOf(null) == -1 && game.move(entity, line)) {
-            entity.head = newHead;
-            return true;
-        }
-        else {
-            return false;
+        this._countdown--;
+        if (this.countdown == 0) {
+            this.gameover();
         }
     }
-    changeDir(entity, dir) {
-        let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
-        if (line.indexOf(null) == -1 && game.move(entity, line)) {
-            entity.dir = dir;
-            return true;
-        }
-        else {
-            return false;
-        }
+    damage(x) {
+        this._health -= x;
     }
-    rotateDir(entity, clockwise) {
-        let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
-        return this.changeDir(entity, newdir);
+    spoils() {
+        let result = new Manager(this._enemyName);
+        let ratio = Math.abs(this._health) / this._startingHealth;
+        ratio = Math.max(1, Math.floor(ratio));
+        result.multiply(ratio);
+        return result;
+    }
+    victory() {
+        //TODO: more victory code goes here
+        this._player.mana.add(this.spoils());
+        console.log("battle won!");
+    }
+    gameover() {
+        //TODO: game over code goes here
+        console.log("battle lost :(");
     }
 }
 /// <reference path="../_references.ts" />
 class Manager {
-    constructor() {
+    constructor(word = "") {
         this._a = 0;
         this._e = 0;
         this._i = 0;
         this._o = 0;
         this._u = 0;
+        word = word.toLowerCase();
+        for (let i = 0; i < word.length; i++) {
+            let char = word.charAt(i);
+            if (Manager.vowels.indexOf(char) != -1) {
+                this.increase(char, 1);
+            }
+        }
     }
     get a() {
         return this._a;
@@ -654,10 +735,80 @@ class Manager {
                 break;
         }
     }
+    add(other) {
+        for (let letter in Manager.vowels) {
+            this.increase(letter, other.getAmount(letter));
+        }
+    }
+    subtract(other) {
+        for (let letter in Manager.vowels) {
+            this.decrease(letter, other.getAmount(letter));
+        }
+    }
+    multiply(scalar) {
+        scalar = Math.round(scalar);
+        for (let letter in Manager.vowels) {
+            this.setAmount(letter, this.getAmount(letter) * scalar);
+        }
+    }
+    fitsInto(other) {
+        for (let letter in Manager.vowels) {
+            if (this.getAmount(letter) > other.getAmount(letter)) {
+                return false;
+            }
+        }
+        return true;
+    }
     toString() {
         return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
     }
 }
+Manager.vowels = ["a", "e", "i", "o", "u"];
+/// <reference path="../_references.ts" />
+class Skill {
+    constructor(name, desc, effect) {
+        this._name = name;
+        this._desc = desc;
+        this._effect = effect;
+        this._cost = new Manager(name);
+    }
+    get name() {
+        return this._name;
+    }
+    get desc() {
+        return this._name;
+    }
+    get cost() {
+        return this._cost;
+    }
+    execute(b) {
+        this._effect.call(undefined, b);
+    }
+    static makeDamageEffect(damageAmount) {
+        return function (b) {
+            b.damage(damageAmount);
+        };
+    }
+    static makeRepeatedEffect(effect, repetitions) {
+        return function (b) {
+            for (let i = 0; i < repetitions; i++) {
+                effect.call(undefined, b);
+            }
+        };
+    }
+}
+Skill.vowels = ["a", "e", "i", "o", "u"];
+/// <reference path="../_references.ts" />
+var skills = {};
+function addSkill(s) {
+    skills[s.name.toLowerCase()] = s;
+}
+function addSkills(...s) {
+    for (let i = 0; i < s.length; i++) {
+        addSkill(s[i]);
+    }
+}
+addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
@@ -697,12 +848,24 @@ class CollisionMenu {
             infoContainer.innerHTML = "";
         }
     }
+    display(data) {
+        let ws = document.getElementById("word-search");
+        if (data != null && showCM) {
+            this.setArt(data);
+            this.setInfo(data);
+            this.element.style.display = "inline";
+            ws.style.display = "none";
+        }
+        else {
+            this.element.style.display = "none";
+            ws.style.display = "flex";
+        }
+    }
     //pulling from xml over and over is bad for performance, TODO
     update() {
         this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
         let data = this.getData();
-        this.setArt(data);
-        this.setInfo(data);
+        this.display(data);
     }
 }
 class PlayerMenu {
@@ -724,11 +887,33 @@ class PlayerMenu {
         let art = data.getChild("art").DOM.textContent;
         artContainer.innerHTML = "<pre>" + art + "</pre>";
     }
-    setInfo(data) {
-        let infoContainer = document.getElementById("player-info");
-        let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
-            + game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
-        infoContainer.innerHTML = "<p>" + info + "</p>";
+    setInfo() {
+        this.setMana();
+        this.setInventory();
+        // let infoContainer = document.getElementById("player-info");
+        // let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
+        // 	+ game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
+        // infoContainer.innerHTML = "<p>" + info + "</p>";
+    }
+    setMana() {
+        let mana = game.player.mana;
+        document.getElementById("a-mana").innerHTML = mana.a;
+        document.getElementById("e-mana").innerHTML = mana.e;
+        document.getElementById("i-mana").innerHTML = mana.i;
+        document.getElementById("o-mana").innerHTML = mana.o;
+        document.getElementById("u-mana").innerHTML = mana.u;
+    }
+    setInventory() {
+        let inventory = game.player.inventory;
+        let inventoryList = document.getElementById("player-inventory");
+        while (inventoryList.firstChild) {
+            inventoryList.removeChild(inventoryList.firstChild);
+        }
+        for (let item of inventory) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(item.toString()));
+            inventoryList.appendChild(li);
+        }
     }
     update() {
         let data = this.getData();
@@ -744,6 +929,7 @@ let xml;
 let playerMenu;
 let collisionMenu;
 let music;
+let showCM;
 let seed = function (sketch) {
     let font;
     let padding;
@@ -772,6 +958,7 @@ let seed = function (sketch) {
         marginX = 10;
         showEntities = false;
         showMana = false;
+        showCM = true;
         locationTest = false;
         COLORS = {
             // player: sketch.color(0, 0, 0),
@@ -781,6 +968,7 @@ let seed = function (sketch) {
             empty: sketch.color(255, 255, 255),
         };
         sketch.resize();
+        sketch.translate(100, 100);
     };
     //main loop of the application
     sketch.draw = function () {
@@ -812,18 +1000,17 @@ let seed = function (sketch) {
         // return coord; //uncomment to animate
         return [0, 0];
     };
-    sketch.switchView = function () {
-        let cm = document.getElementById("collision-menu");
-        let ws = document.getElementById("word-search");
-        if (cm.style.display != "none") {
-            cm.style.display = "none";
-            ws.style.display = "flex";
-        }
-        else if (ws.style.display != "none") {
-            ws.style.display = "none";
-            cm.style.display = "flex";
-        }
-    };
+    // sketch.switchView = function() {
+    // 	let cm = document.getElementById("collision-menu");
+    // 	let ws = document.getElementById("word-search");
+    // 	if (cm.style.display != "none" || cm.style.display == "") {
+    // 		cm.style.display = "none";
+    // 		ws.style.display = "flex";
+    // 	} else if (ws.style.display != "none" || ws.style.display == "") {
+    // 		ws.style.display = "none";
+    // 		cm.style.display = "flex";
+    // 	}
+    // }
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
         sketch.textSize(16);
@@ -907,7 +1094,8 @@ let seed = function (sketch) {
             showMana = !showMana;
         }
         else if (sketch.key == "s") {
-            sketch.switchView();
+            // sketch.switchView();
+            showCM = !showCM;
         }
         else if (sketch.key == "l") { //keyCode 74 = "l"
             locationTest = !locationTest;
