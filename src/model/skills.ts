@@ -13,5 +13,22 @@ function addSkills(...s: Skill[]): void {
 }
 
 addSkills(
-	new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2))
+
+	new Skill(
+		"Bash",
+		"Deal 2 damage.",
+		Skill.makeDamageEffect(2)
+	),
+
+	new UsableOnceSkill(
+		"Disemvoweling Scourge",
+		"Deal 999 damage. Usable once only.",
+		Skill.makeDamageEffect(999)
+	),
+
+	new UsableOnceSkill(
+		"Aegis of Divine Unmaking", //someone please give this a better name
+		"Increase countdown by 5. Usable once only.",
+		Skill.makeCountdownEffect(5)
+	),
 );
