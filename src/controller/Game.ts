@@ -5,6 +5,7 @@ class Game {
 	private _player: Player;
 	private _selected: Tile[];
 	private _colliding: Entity[];
+	private _entities: Entity[];
 
 	constructor() {
 		this._selected = [];
@@ -12,8 +13,19 @@ class Game {
 		//createWorld
 		this._tileMap = new TileMap(35,20);
 		//createEntities
+
 		this._player = new Player("Hero");
-		this._tileMap.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Rat(),new Rat(),new Rat(),new Rat()]);
+		this._entities = [
+			this.player,
+			new Door(),
+			new items.Key,
+			new enemies.Goblin,
+			new enemies.Rat,
+			new enemies.Robot,
+			new enemies.Dragon,
+			new enemies.Zombie
+		];
+		this._tileMap.insertEntities(this._entities);
 		this._colliding = [];
 	}
 
@@ -42,7 +54,7 @@ class Game {
 
 	newLevel(): void {
 		let level: TileMap = new TileMap(15,15);
-		level.insertEntities([this._player,new Door(),new Key(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin(),new Goblin()]);
+		level.insertEntities(this._entities);
 		this._colliding = [];
 		this._tileMap = level;
 	}

@@ -6,7 +6,17 @@ class Game {
         this._tileMap = new TileMap(35, 20);
         //createEntities
         this._player = new Player("Hero");
-        this._tileMap.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Rat(), new Rat(), new Rat(), new Rat()]);
+        this._entities = [
+            this.player,
+            new Door(),
+            new items.Key,
+            new enemies.Goblin,
+            new enemies.Rat,
+            new enemies.Robot,
+            new enemies.Dragon,
+            new enemies.Zombie
+        ];
+        this._tileMap.insertEntities(this._entities);
         this._colliding = [];
     }
     //Only adding one entity to colliding, TODO
@@ -31,7 +41,7 @@ class Game {
     }
     newLevel() {
         let level = new TileMap(15, 15);
-        level.insertEntities([this._player, new Door(), new Key(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin(), new Goblin()]);
+        level.insertEntities(this._entities);
         this._colliding = [];
         this._tileMap = level;
     }
@@ -500,22 +510,51 @@ class Player extends Character {
     }
     playerCollision() { }
 }
-/// <reference path="../../_references.ts" />
-class Goblin extends Character {
-    constructor() {
-        super("Goblin");
-        super._health = 6;
-        super._attackDamage = 2;
+/// <reference path="../_references.ts" />
+let enemies = {
+    Dragon: class extends Character {
+        constructor() {
+            super("Dragon");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Goblin: class extends Character {
+        constructor() {
+            super("Goblin");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Rat: class extends Character {
+        constructor() {
+            super("Rat");
+            super._health = 1;
+            super._attackDamage = 2;
+        }
+    },
+    Robot: class extends Character {
+        constructor() {
+            super("Rat");
+            super._health = 1;
+            super._attackDamage = 2;
+        }
+    },
+    Unicorn: class extends Character {
+        constructor() {
+            super("Robot");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Zombie: class extends Character {
+        constructor() {
+            super("Zombie");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
     }
-}
-/// <reference path="../../_references.ts" />
-class Rat extends Character {
-    constructor() {
-        super("Rat");
-        super._health = 1;
-        super._attackDamage = 2;
-    }
-}
+};
 /// <reference path="../_references.ts" />
 class Item extends Entity {
     constructor(name) {
@@ -542,12 +581,14 @@ class Door extends Entity {
         }
     }
 }
-/// <reference path="../../_references.ts" />
-class Key extends Item {
-    constructor() {
-        super("Key");
+/// <reference path="../_references.ts" />
+let items = {
+    Key: class extends Item {
+        constructor() {
+            super("Key");
+        }
     }
-}
+};
 /// <reference path="./controller/Game.ts" />
 /// <reference path="./controller/Tile.ts" />
 /// <reference path="./controller/TileMap.ts" />
@@ -555,11 +596,10 @@ class Key extends Item {
 /// <reference path="./model/Ground.ts" />
 /// <reference path="./model/Character.ts" />
 /// <reference path="./model/Player.ts" />
-/// <reference path="./model/enemies/Goblin.ts" />
-/// <reference path="./model/enemies/Rat.ts" />
+/// <reference path="./model/enemies.ts" />
 /// <reference path="./model/Item.ts" />
 /// <reference path="./model/Door.ts" />
-/// <reference path="./model/items/Key.ts" />
+/// <reference path="./model/items.ts" />
 /// <reference path="../_references.ts" />
 class Battle {
     constructor(health, enemyName, countdown) {
