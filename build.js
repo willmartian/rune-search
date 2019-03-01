@@ -618,6 +618,40 @@ class Battle {
         console.log("battle lost :(");
     }
 }
+//creates a string ascii hp bar
+class HpBar {
+    constructor(max) {
+        this.maxBar = 10; //max number of bars to represent hp in string
+        this.currentHealth = max; //hp is full when bar is created
+        this.maxHealth = max;
+        this.barString = "██████████";
+    }
+    //update will update the currentHealth and reupdate the barString
+    //update will take in cur which is the new current hp hpBar should be updated
+    //with
+    update(cur) {
+        if (cur != this.currentHealth) {
+            this.currentHealth = cur;
+            var tmp = this.currentHealth * 10 / this.maxHealth;
+            var i = 0;
+            this.barString = "";
+            //remaking barString
+            while (i < this.maxBar) {
+                if (i < tmp) {
+                    var re = /░/;
+                    this.barString = this.barString + "█";
+                }
+                else {
+                    this.barString = this.barString + "░";
+                }
+                i = i + 1;
+            }
+        }
+    }
+    get bar() {
+        return this.barString;
+    }
+}
 /// <reference path="../_references.ts" />
 class Manager {
     constructor(word = "") {
@@ -837,22 +871,21 @@ class CollisionMenu {
             artContainer.innerHTML = "";
         }
     }
-    setInfo(data) {
-        let infoContainer = document.getElementById("collision-info");
+    setName(data) {
+        let nameContainer = document.getElementById("collision-name");
         if (data !== null) {
             let entity = this.colliding[this.colliding.length - 1];
-            let info = entity.name;
-            infoContainer.innerHTML = "<p>" + info + "</p>";
+            nameContainer.innerHTML = "<p>" + entity.name + "</p>";
         }
         else {
-            infoContainer.innerHTML = "";
+            nameContainer.innerHTML = "";
         }
     }
     display(data) {
         let ws = document.getElementById("word-search");
         if (data != null && showCM) {
             this.setArt(data);
-            this.setInfo(data);
+            this.setName(data);
             this.element.style.display = "inline";
             ws.style.display = "none";
         }
@@ -890,10 +923,6 @@ class PlayerMenu {
     setInfo() {
         this.setMana();
         this.setInventory();
-        // let infoContainer = document.getElementById("player-info");
-        // let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
-        // 	+ game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
-        // infoContainer.innerHTML = "<p>" + info + "</p>";
     }
     setMana() {
         let mana = game.player.mana;
@@ -905,13 +934,19 @@ class PlayerMenu {
     }
     setInventory() {
         let inventory = game.player.inventory;
-        let inventoryList = document.getElementById("player-inventory");
-        while (inventoryList.firstChild) {
-            inventoryList.removeChild(inventoryList.firstChild);
+        let inventoryList = document.getElementById("player-inventory-list");
+        let children = inventoryList.childNodes;
+        while (children[1]) {
+            inventoryList.removeChild(children[1]);
         }
         for (let item of inventory) {
             let li = document.createElement('li');
-            li.appendChild(document.createTextNode(item.toString()));
+            li.appendChild(document.createTextNode(item.name));
+            inventoryList.appendChild(li);
+        }
+        if (inventory.length == 0) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode("Empty :("));
             inventoryList.appendChild(li);
         }
     }

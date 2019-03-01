@@ -28,14 +28,13 @@ class CollisionMenu {
 		}
 	}
 
-	setInfo(data) {
-		let infoContainer = document.getElementById("collision-info");
+	setName(data) {
+		let nameContainer = document.getElementById("collision-name");
 		if (data !== null) {
 			let entity = this.colliding[this.colliding.length - 1];
-			let info = entity.name;
-			infoContainer.innerHTML = "<p>" + info + "</p>";
+			nameContainer.innerHTML = "<p>" + entity.name + "</p>";
 		} else {
-			infoContainer.innerHTML = "";
+			nameContainer.innerHTML = "";
 		}
 	}
 
@@ -43,7 +42,7 @@ class CollisionMenu {
 		let ws = document.getElementById("word-search");
 		if (data != null && showCM) {
 			this.setArt(data);
-			this.setInfo(data);
+			this.setName(data);
 			this.element.style.display = "inline";
 			ws.style.display = "none";
 
