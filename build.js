@@ -478,9 +478,25 @@ class Player extends Character {
         super._active = true;
         this._party = [];
         this._mana = new Manager();
+        this._skills = [];
     }
     get mana() {
         return this._mana;
+    }
+    get skills() {
+        return this._skills;
+    }
+    giveSkill(s) {
+        if (this._skills.indexOf(s) == -1) {
+            this._skills.push(s);
+        }
+    }
+    revokeSkill(n) {
+        let s = skills[n];
+        let index = this._skills.indexOf(s);
+        if (index != -1) {
+            this._skills.splice(index, 1);
+        }
     }
     playerCollision() { }
 }
@@ -573,6 +589,12 @@ class Battle {
             result.add(this._skillQueue[i].cost);
         }
         return result;
+    }
+    get player() {
+        return this._player;
+    }
+    changeCountdown(x) {
+        this._countdown += x;
     }
     enqueue(s) {
         this._skillQueue.push(s);
@@ -823,6 +845,11 @@ class Skill {
             b.damage(damageAmount);
         };
     }
+    static makeCountdownEffect(countdownAmount) {
+        return function (b) {
+            b.changeCountdown(countdownAmount);
+        };
+    }
     static makeRepeatedEffect(effect, repetitions) {
         return function (b) {
             for (let i = 0; i < repetitions; i++) {
@@ -830,8 +857,33 @@ class Skill {
             }
         };
     }
+    static concatEffect(...effects) {
+        return function (b) {
+            for (let i = 0; i < effects.length; i++) {
+                effects[i].call(undefined, b);
+            }
+        };
+    }
+    static revokeSkill(skillName) {
+        return function (b) {
+            b.player.revokeSkill(skillName);
+        };
+    }
 }
 Skill.vowels = ["a", "e", "i", "o", "u"];
+/// <reference path="../_references.ts" />
+class StatusEffect {
+}
+/// <reference path="../_references.ts" />
+class UsableOnceSkill extends Skill {
+    constructor(name, desc, effect) {
+        super(name, desc, effect);
+    }
+    execute(b) {
+        super.execute(b);
+        b.player.revokeSkill(this.name.toLowerCase());
+    }
+}
 /// <reference path="../_references.ts" />
 var skills = {};
 function addSkill(s) {
@@ -842,7 +894,8 @@ function addSkills(...s) {
         addSkill(s[i]);
     }
 }
-addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)));
+addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)), new UsableOnceSkill("Disemvoweling Scourge", "Deal 999 damage. Usable once only.", Skill.makeDamageEffect(999)), new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
+"Increase countdown by 5. Usable once only.", Skill.makeCountdownEffect(5)));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");

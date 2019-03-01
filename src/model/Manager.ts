@@ -11,7 +11,7 @@ class Manager { //Mana-ger. Get it?
 	protected _u: number;
 
 
-	constructor(word: String = "") {
+	constructor(word: string = "") {
 		this._a = 0;
 		this._e = 0;
 		this._i = 0;

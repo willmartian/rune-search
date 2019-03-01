@@ -32,17 +32,37 @@ class Skill {
 		this._effect.call(undefined, b);
 	}
 
-	static makeDamageEffect(damageAmount: number) {
+	static makeDamageEffect(damageAmount: number): Function {
 		return function(b: Battle) {
 			b.damage(damageAmount);
 		}
 	}
 
-	static makeRepeatedEffect(effect: Function, repetitions: number) {
+	static makeCountdownEffect(countdownAmount: number): Function {
+		return function(b: Battle) {
+			b.changeCountdown(countdownAmount);
+		}
+	}
+
+	static makeRepeatedEffect(effect: Function, repetitions: number): Function {
 		return function(b: Battle) {
 			for (let i = 0; i < repetitions; i++) {
 				effect.call(undefined, b);
 			}
+		}
+	}
+
+	static concatEffect(...effects: Function[]): Function {
+		return function(b: Battle) {
+			for (let i = 0; i < effects.length; i++) {
+				effects[i].call(undefined, b);
+			}
+		}
+	}
+
+	static revokeSkill(skillName: string): Function {
+		return function(b: Battle) {
+			b.player.revokeSkill(skillName);
 		}
 	}
 

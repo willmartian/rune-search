@@ -40,8 +40,6 @@ abstract class Character extends Entity {
 		return (this._health > 0);
 	}
 
-
-
 	get inventory(): Item[] {
 		return this._inventory;
 	}
