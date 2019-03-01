@@ -478,9 +478,25 @@ class Player extends Character {
         super._active = true;
         this._party = [];
         this._mana = new Manager();
+        this._skills = [];
     }
     get mana() {
         return this._mana;
+    }
+    get skills() {
+        return this._skills;
+    }
+    giveSkill(s) {
+        if (this._skills.indexOf(s) == -1) {
+            this._skills.push(s);
+        }
+    }
+    revokeSkill(n) {
+        let s = skills[n];
+        let index = this._skills.indexOf(s);
+        if (index != -1) {
+            this._skills.splice(index, 1);
+        }
     }
     playerCollision() { }
 }
@@ -574,6 +590,12 @@ class Battle {
         }
         return result;
     }
+    get player() {
+        return this._player;
+    }
+    changeCountdown(x) {
+        this._countdown += x;
+    }
     enqueue(s) {
         this._skillQueue.push(s);
     }
@@ -616,6 +638,40 @@ class Battle {
     gameover() {
         //TODO: game over code goes here
         console.log("battle lost :(");
+    }
+}
+//creates a string ascii hp bar
+class HpBar {
+    constructor(max) {
+        this.maxBar = 10; //max number of bars to represent hp in string
+        this.currentHealth = max; //hp is full when bar is created
+        this.maxHealth = max;
+        this.barString = "██████████";
+    }
+    //update will update the currentHealth and reupdate the barString
+    //update will take in cur which is the new current hp hpBar should be updated
+    //with
+    update(cur) {
+        if (cur != this.currentHealth) {
+            this.currentHealth = cur;
+            var tmp = this.currentHealth * 10 / this.maxHealth;
+            var i = 0;
+            this.barString = "";
+            //remaking barString
+            while (i < this.maxBar) {
+                if (i < tmp) {
+                    var re = /░/;
+                    this.barString = this.barString + "█";
+                }
+                else {
+                    this.barString = this.barString + "░";
+                }
+                i = i + 1;
+            }
+        }
+    }
+    get bar() {
+        return this.barString;
     }
 }
 /// <reference path="../_references.ts" />
@@ -789,6 +845,11 @@ class Skill {
             b.damage(damageAmount);
         };
     }
+    static makeCountdownEffect(countdownAmount) {
+        return function (b) {
+            b.changeCountdown(countdownAmount);
+        };
+    }
     static makeRepeatedEffect(effect, repetitions) {
         return function (b) {
             for (let i = 0; i < repetitions; i++) {
@@ -796,8 +857,33 @@ class Skill {
             }
         };
     }
+    static concatEffect(...effects) {
+        return function (b) {
+            for (let i = 0; i < effects.length; i++) {
+                effects[i].call(undefined, b);
+            }
+        };
+    }
+    static revokeSkill(skillName) {
+        return function (b) {
+            b.player.revokeSkill(skillName);
+        };
+    }
 }
 Skill.vowels = ["a", "e", "i", "o", "u"];
+/// <reference path="../_references.ts" />
+class StatusEffect {
+}
+/// <reference path="../_references.ts" />
+class UsableOnceSkill extends Skill {
+    constructor(name, desc, effect) {
+        super(name, desc, effect);
+    }
+    execute(b) {
+        super.execute(b);
+        b.player.revokeSkill(this.name.toLowerCase());
+    }
+}
 /// <reference path="../_references.ts" />
 var skills = {};
 function addSkill(s) {
@@ -808,7 +894,8 @@ function addSkills(...s) {
         addSkill(s[i]);
     }
 }
-addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)));
+addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)), new UsableOnceSkill("Disemvoweling Scourge", "Deal 999 damage. Usable once only.", Skill.makeDamageEffect(999)), new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
+"Increase countdown by 5. Usable once only.", Skill.makeCountdownEffect(5)));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
@@ -837,22 +924,21 @@ class CollisionMenu {
             artContainer.innerHTML = "";
         }
     }
-    setInfo(data) {
-        let infoContainer = document.getElementById("collision-info");
+    setName(data) {
+        let nameContainer = document.getElementById("collision-name");
         if (data !== null) {
             let entity = this.colliding[this.colliding.length - 1];
-            let info = entity.name;
-            infoContainer.innerHTML = "<p>" + info + "</p>";
+            nameContainer.innerHTML = "<p>" + entity.name + "</p>";
         }
         else {
-            infoContainer.innerHTML = "";
+            nameContainer.innerHTML = "";
         }
     }
     display(data) {
         let ws = document.getElementById("word-search");
         if (data != null && showCM) {
             this.setArt(data);
-            this.setInfo(data);
+            this.setName(data);
             this.element.style.display = "inline";
             ws.style.display = "none";
         }
@@ -890,10 +976,6 @@ class PlayerMenu {
     setInfo() {
         this.setMana();
         this.setInventory();
-        // let infoContainer = document.getElementById("player-info");
-        // let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
-        // 	+ game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
-        // infoContainer.innerHTML = "<p>" + info + "</p>";
     }
     setMana() {
         let mana = game.player.mana;
@@ -905,13 +987,19 @@ class PlayerMenu {
     }
     setInventory() {
         let inventory = game.player.inventory;
-        let inventoryList = document.getElementById("player-inventory");
-        while (inventoryList.firstChild) {
-            inventoryList.removeChild(inventoryList.firstChild);
+        let inventoryList = document.getElementById("player-inventory-list");
+        let children = inventoryList.childNodes;
+        while (children[1]) {
+            inventoryList.removeChild(children[1]);
         }
         for (let item of inventory) {
             let li = document.createElement('li');
-            li.appendChild(document.createTextNode(item.toString()));
+            li.appendChild(document.createTextNode(item.name));
+            inventoryList.appendChild(li);
+        }
+        if (inventory.length == 0) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode("Empty :("));
             inventoryList.appendChild(li);
         }
     }

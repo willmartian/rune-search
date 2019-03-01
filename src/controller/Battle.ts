@@ -6,18 +6,18 @@ class Battle {
 	protected _startingHealth: number;
 	protected _health: number;
 	protected _skillQueue: Skill[];
-	protected _enemyName: String;
+	protected _enemyName: string;
 	protected _player: Player;
-	protected _log: String[];
+	protected _log: string[];
 
-	constructor(health: number, enemyName: String, countdown: number) {
+	constructor(health: number, enemyName: string, countdown: number) {
 		this._startingHealth = health;
 		this._health = health;
 		this._enemyName = enemyName;
 		this._countdown = countdown;
 		this._skillQueue = new Array<Skill>();
 		this._player = game.player;
-		this._log = new Array<String>();
+		this._log = new Array<string>();
 	}
 
 	get countdown(): number {
@@ -28,11 +28,11 @@ class Battle {
 		return this._skillQueue;
 	}
 
-	get enemyName(): String {
+	get enemyName(): string {
 		return this._enemyName;
 	}
 
-	get log(): String[] {
+	get log(): string[] {
 		return this._log;
 	}
 
@@ -44,11 +44,19 @@ class Battle {
 		return result;
 	}
 
+	get player(): Player {
+		return this._player;
+	}
+
+	changeCountdown(x: number): void {
+		this._countdown += x;
+	}
+
 	enqueue(s: Skill): void {
 		this._skillQueue.push(s);
 	}
 
-	logText(s: String): void {
+	logText(s: string): void {
 		this._log.push(s);
 	}
 
