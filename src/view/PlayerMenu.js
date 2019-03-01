@@ -24,10 +24,6 @@ class PlayerMenu {
 	setInfo() {
 		this.setMana();
 		this.setInventory();
-		// let infoContainer = document.getElementById("player-info");
-		// let info = game.player.name + ", Health: " + game.player.health + ", Attack: "
-		// 	+ game.player.attackDamage + "\n" + game.player.mana.toString() + "\n" + game.player.inventoryToString();
-		// infoContainer.innerHTML = "<p>" + info + "</p>";
 	}
 
 	setMana() {
@@ -41,13 +37,20 @@ class PlayerMenu {
 
 	setInventory() {
 		let inventory = game.player.inventory;
-		let inventoryList = document.getElementById("player-inventory");
-		while (inventoryList.firstChild) {
-   			inventoryList.removeChild(inventoryList.firstChild);
+		let inventoryList = document.getElementById("player-inventory-list");
+		let children = inventoryList.childNodes;
+		while (children[1]) {
+   			inventoryList.removeChild(children[1]);
 		}
 		for (let item of inventory) {
 			let li = document.createElement('li');
-			li.appendChild(document.createTextNode(item.toString()));
+			li.appendChild(document.createTextNode(item.name));
+			inventoryList.appendChild(li);
+		}
+
+		if (inventory.length == 0) {
+			let li = document.createElement('li');
+			li.appendChild(document.createTextNode("Empty :("));
 			inventoryList.appendChild(li);
 		}
 	}

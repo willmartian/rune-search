@@ -101,4 +101,18 @@ _____    ||    (oo)    ||    _____
     <description></description>
     <art><![CDATA[ ]]></art>
   </unicorn>
+  
+  <key>
+    <description>Wonder what this could open?</description>
+    <art><![CDATA[                                        ,, ======= ,,
+    ._.         ._.                  ==   =========   ==
+    | |     ._. | |                ==   =           =    ==
+    | | ._. | | | |               =   =               =   =
+    | |_| |_| |_| |_______________' =                   =  '
+    |_____________________________  =                   =  =
+                                  '  =                 =  '
+                                   =   =             =   =
+                                     ==   ========== ==
+                                        ,, ======= ,,]]></art>
+  </key>
 </game-entities>
