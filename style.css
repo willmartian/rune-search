@@ -95,7 +95,7 @@ li {
 }
 
 #dynamic-menu {
-  display: block;
+  display: flex;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -117,6 +117,37 @@ li {
   justify-content: center;
   align-items: center;=
 }
+
+#collision-art {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+#collision-name {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+#battle {
+  display: block;
+  width: 100%;
+  
+}
+
+#battle-top {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+#battle-bottom {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 
 
 
