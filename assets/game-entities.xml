@@ -5,8 +5,8 @@
     <description>Nothing to see here.</description>
     <art><![CDATA[ ____________________
 /                    \
-!    HELP WANTED,    !
-!  WE NEED ARTISTS.  !
+!      Missing       !
+!       Asset :(     !
 !                    !
 \____________________/
          !  !
@@ -154,11 +154,6 @@ _____    ||    (oo)    ||    _____
             /      | |     |        |;:   |          || |
 ___________/_______|_|_____|________|_____|__________||_|______]]></art>
   </shop>
-
-  <unicorn>
-    <description></description>
-    <art><![CDATA[ ]]></art>
-  </unicorn>
 
   <zombie>
     <description></description>

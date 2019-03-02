@@ -28,7 +28,7 @@ let enemies = {
 
 	Robot: class extends Character {
 		constructor() {
-			super("Rat");
+			super("Robot");
 			super._health = 1;
 			super._attackDamage = 2;
 		}
@@ -36,7 +36,7 @@ let enemies = {
 
 	Unicorn: class extends Character {
 		constructor() {
-			super("Robot");
+			super("Unicorn");
 			super._health = 6;
 			super._attackDamage = 2;
 		}

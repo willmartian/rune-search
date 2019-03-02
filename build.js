@@ -14,6 +14,7 @@ class Game {
             new enemies.Rat,
             new enemies.Robot,
             new enemies.Dragon,
+            new enemies.Unicorn,
             new enemies.Zombie
         ];
         this._tileMap.insertEntities(this._entities);
@@ -40,7 +41,7 @@ class Game {
         return this._tileMap;
     }
     newLevel() {
-        let level = new TileMap(15, 15);
+        let level = new TileMap(35, 20);
         level.insertEntities(this._entities);
         this._colliding = [];
         this._tileMap = level;
@@ -313,6 +314,9 @@ class TileMap {
             return this.insertEntity(entity);
         }
     }
+    // removeEntity(entity: Entity): Entity {
+    // 	//TODO
+    // }
     getTileLocation(tile) {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
@@ -535,14 +539,14 @@ let enemies = {
     },
     Robot: class extends Character {
         constructor() {
-            super("Rat");
+            super("Robot");
             super._health = 1;
             super._attackDamage = 2;
         }
     },
     Unicorn: class extends Character {
         constructor() {
-            super("Robot");
+            super("Unicorn");
             super._health = 6;
             super._attackDamage = 2;
         }

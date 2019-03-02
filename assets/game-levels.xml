@@ -12,6 +12,7 @@
       <Door amount="1"/>
     </entities>
   </one>
+  
   <two>
     <name></name>
     <description></description>

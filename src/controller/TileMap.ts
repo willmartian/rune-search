@@ -133,6 +133,10 @@ class TileMap {
 		}
 	}
 
+	// removeEntity(entity: Entity): Entity {
+	// 	//TODO
+	// }
+
 	getTileLocation(tile: Tile): number[] {
 		for (let x = 0; x < this._width; x++) {
 			for (let y = 0; y < this._height; y++) {

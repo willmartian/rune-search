@@ -23,6 +23,7 @@ class Game {
 			new enemies.Rat,
 			new enemies.Robot,
 			new enemies.Dragon,
+			new enemies.Unicorn,
 			new enemies.Zombie
 		];
 		this._tileMap.insertEntities(this._entities);
@@ -53,7 +54,7 @@ class Game {
 	}
 
 	newLevel(): void {
-		let level: TileMap = new TileMap(15,15);
+		let level: TileMap = new TileMap(35,20);
 		level.insertEntities(this._entities);
 		this._colliding = [];
 		this._tileMap = level;
