@@ -593,6 +593,15 @@ class Battle {
     get player() {
         return this._player;
     }
+    addStatus(status) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].kind == status.kind) {
+                this._statuses[i].increment(status.countdown);
+                return;
+            }
+        }
+        this._statuses.push(status);
+    }
     changeCountdown(x) {
         this._countdown += x;
     }
@@ -611,6 +620,7 @@ class Battle {
         }
         this._player.mana.subtract(this.totalCost);
         this._skillQueue = [];
+        this.runStatusCallbacks("turnEnd");
         if (this._health <= 0) {
             this.victory();
             return;
@@ -638,6 +648,18 @@ class Battle {
     gameover() {
         //TODO: game over code goes here
         console.log("battle lost :(");
+    }
+    runStatusCallbacks(callback) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            this._statuses[i][callback](this);
+        }
+        let temp = [];
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].countdown != 0) {
+                temp.push(this._statuses[i]);
+            }
+        }
+        this._statuses = temp;
     }
 }
 //creates a string ascii hp bar
@@ -873,6 +895,36 @@ class Skill {
 Skill.vowels = ["a", "e", "i", "o", "u"];
 /// <reference path="../_references.ts" />
 class StatusEffect {
+    constructor(n, c, k) {
+        this._name = n;
+        this._countdown = c;
+        this._kind = k;
+        this._turnEndCallback = this.trivialFunction();
+    }
+    get countdown() {
+        return this._countdown;
+    }
+    get kind() {
+        return this._kind;
+    }
+    get name() {
+        return this._name;
+    }
+    set turnEndCallback(f) {
+        this._turnEndCallback = f;
+    }
+    increment(x = 1) {
+        this._countdown += x;
+    }
+    decrement(x = 1) {
+        this._countdown -= x;
+    }
+    turnEnd(b) {
+        this._turnEndCallback.call(this, b);
+    }
+    trivialFunction() {
+        return function () { };
+    }
 }
 /// <reference path="../_references.ts" />
 class UsableOnceSkill extends Skill {

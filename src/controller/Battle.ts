@@ -9,6 +9,7 @@ class Battle {
 	protected _enemyName: string;
 	protected _player: Player;
 	protected _log: string[];
+	protected _statuses: StatusEffect[];
 
 	constructor(health: number, enemyName: string, countdown: number) {
 		this._startingHealth = health;
@@ -48,6 +49,20 @@ class Battle {
 		return this._player;
 	}
 
+	get statuses(): StatusEffect[] {
+		return this._statuses;
+	}
+
+	addStatus(status: StatusEffect) {
+		for (let i = 0; i < this._statuses.length; i++) {
+			if (this._statuses[i].kind == status.kind) {
+				this._statuses[i].increment(status.countdown);
+				return;
+			}
+		}
+		this._statuses.push(status);
+	}
+
 	changeCountdown(x: number): void {
 		this._countdown += x;
 	}
@@ -70,6 +85,7 @@ class Battle {
 		}
 		this._player.mana.subtract(this.totalCost);
 		this._skillQueue = [];
+		this.runStatusCallbacks("turnEnd");
 		if (this._health <= 0) {
 			this.victory();
 			return;
@@ -101,6 +117,19 @@ class Battle {
 	gameover(): void {
 		//TODO: game over code goes here
 		console.log("battle lost :(");
+	}
+
+	private runStatusCallbacks(callback: string) {
+		for (let i = 0; i < this._statuses.length; i++) {
+			this._statuses[i][callback](this);
+		}
+		let temp = [];
+		for (let i = 0; i < this._statuses.length; i++) {
+			if (this._statuses[i].countdown != 0) {
+				temp.push(this._statuses[i]);
+			}
+		}
+		this._statuses = temp;
 	}
 
 }

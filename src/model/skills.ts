@@ -20,6 +20,14 @@ addSkills(
 		Skill.makeDamageEffect(2)
 	),
 
+	new Skill(
+		"Venom",
+		"Inflict 2 poison.",
+		Skill.makeStatusEffect(
+			StatusEffect.poisonStatus(2);
+		)
+	),
+
 	new UsableOnceSkill(
 		"Disemvoweling Scourge",
 		"Deal 999 damage. Usable once only.",
@@ -27,8 +35,16 @@ addSkills(
 	),
 
 	new UsableOnceSkill(
-		"Aegis of Divine Unmaking", //someone please give this a better name
+		"Aegis of Divine Unmaking", //someone please give this a better name. maybe a pun one
 		"Increase countdown by 5. Usable once only.",
 		Skill.makeCountdownEffect(5)
 	),
+
+	new UsableOnceSkill(
+		"Poison Pen Diatribe",
+		"Inflict 100 poison. Usable once only.",
+		Skill.makeStatusEffect(
+			StatusEffect.poisonStatus(100);
+		)
+	)
 );
