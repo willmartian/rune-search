@@ -98,6 +98,14 @@ class Battle {
 
 	damage(x: number): void {
 		this._health -= x;
+		this.runStatusCallbacks("attack");
+	}
+
+	heal(x: number): void {
+		this._health += x;
+		if (this._health > this._startingHealth) {
+			this._health = this._startingHealth;
+		}
 	}
 
 	spoils(): Manager {
