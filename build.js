@@ -637,6 +637,18 @@ class Battle {
     get player() {
         return this._player;
     }
+    get statuses() {
+        return this._statuses;
+    }
+    addStatus(status) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].kind == status.kind) {
+                this._statuses[i].increment(status.countdown);
+                return;
+            }
+        }
+        this._statuses.push(status);
+    }
     changeCountdown(x) {
         this._countdown += x;
     }
@@ -655,6 +667,7 @@ class Battle {
         }
         this._player.mana.subtract(this.totalCost);
         this._skillQueue = [];
+        this.runStatusCallbacks("turnEnd");
         if (this._health <= 0) {
             this.victory();
             return;
@@ -666,6 +679,13 @@ class Battle {
     }
     damage(x) {
         this._health -= x;
+        this.runStatusCallbacks("attack");
+    }
+    heal(x) {
+        this._health += x;
+        if (this._health > this._startingHealth) {
+            this._health = this._startingHealth;
+        }
     }
     spoils() {
         let result = new Manager(this._enemyName);
@@ -682,6 +702,18 @@ class Battle {
     gameover() {
         //TODO: game over code goes here
         console.log("battle lost :(");
+    }
+    runStatusCallbacks(callback) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            this._statuses[i][callback](this);
+        }
+        let temp = [];
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].countdown != 0) {
+                temp.push(this._statuses[i]);
+            }
+        }
+        this._statuses = temp;
     }
 }
 //creates a string ascii hp bar
@@ -894,6 +926,11 @@ class Skill {
             b.changeCountdown(countdownAmount);
         };
     }
+    static makeStatusEffect(status) {
+        return function (b) {
+            b.addStatus(status);
+        };
+    }
     static makeRepeatedEffect(effect, repetitions) {
         return function (b) {
             for (let i = 0; i < repetitions; i++) {
@@ -917,6 +954,72 @@ class Skill {
 Skill.vowels = ["a", "e", "i", "o", "u"];
 /// <reference path="../_references.ts" />
 class StatusEffect {
+    constructor(n, d, c, k) {
+        this._name = n;
+        this._desc = d;
+        this._countdown = c;
+        this._kind = k;
+        this._turnEndCallback = this.trivialFunction();
+        this._attackCallback = this.trivialFunction();
+    }
+    get countdown() {
+        return this._countdown;
+    }
+    get kind() {
+        return this._kind;
+    }
+    get name() {
+        return this._name;
+    }
+    get desc() {
+        let temp = this._desc;
+        temp = temp.replace("%countdown", this._countdown + "");
+        return temp;
+    }
+    set turnEndCallback(f) {
+        this._turnEndCallback = f;
+    }
+    set attackCallback(f) {
+        this._attackCallback = f;
+    }
+    increment(x = 1) {
+        this._countdown += x;
+    }
+    decrement(x = 1) {
+        this._countdown -= x;
+    }
+    attack(b) {
+        this._attackCallback.call(this, b);
+    }
+    turnEnd(b) {
+        this._turnEndCallback.call(this, b);
+    }
+    trivialFunction() {
+        return function () { };
+    }
+    static fragileStatus(countdown) {
+        let status = new StatusEffect("Fragile", "Enemy takes %countdown extra damage from all attacks.", countdown, "fragile");
+        status.attackCallback = function (b) {
+            b.damage(this._countdown);
+        };
+        return status;
+    }
+    static poisonStatus(countdown) {
+        let status = new StatusEffect("Poison", "Enemy takes %countdown damage this turn, then loses 1 Poison.", countdown, "poison");
+        status.turnEndCallback = function (b) {
+            b.damage(this._countdown);
+            this._countdown--;
+        };
+        return status;
+    }
+    static regenStatus(countdown) {
+        let status = new StatusEffect("Regen", "Enemy heals %countdown HP this turn, then loses 1 Regen.", countdown, "regen");
+        status.turnEndCallback = function (b) {
+            b.heal(this._countdown);
+            this._countdown--;
+        };
+        return status;
+    }
 }
 /// <reference path="../_references.ts" />
 class UsableOnceSkill extends Skill {
@@ -938,8 +1041,8 @@ function addSkills(...s) {
         addSkill(s[i]);
     }
 }
-addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)), new UsableOnceSkill("Disemvoweling Scourge", "Deal 999 damage. Usable once only.", Skill.makeDamageEffect(999)), new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
-"Increase countdown by 5. Usable once only.", Skill.makeCountdownEffect(5)));
+addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)), new Skill("Venom", "Inflict 2 poison.", Skill.makeStatusEffect(StatusEffect.poisonStatus(2))), new Skill("Fan the Hammer", "Do 1 damage 6 times.", Skill.makeRepeatedEffect(Skill.makeDamageEffect(1), 6)), new Skill("Acidify", "Inflict 1 Fragile.", Skill.makeStatusEffect(StatusEffect.fragileStatus(1))), new UsableOnceSkill("Disemvoweling Scourge", "Deal 999 damage. Usable once only.", Skill.makeDamageEffect(999)), new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name. maybe a pun one
+"Increase countdown by 5. Usable once only.", Skill.makeCountdownEffect(5)), new UsableOnceSkill("Poison Pen Diatribe", "Inflict 100 Poison. Usable once only.", Skill.makeStatusEffect(StatusEffect.poisonStatus(100))), new UsableOnceSkill("Demolition Charge", "Inflict 25 Fragile. Usable once only.", Skill.makeStatusEffect(StatusEffect.fragileStatus(25))));
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
