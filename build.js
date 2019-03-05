@@ -1,24 +1,33 @@
 /// <reference path="../_references.ts" />
 class Game {
-    constructor() {
-        this._selected = [];
-        //createWorld
-        this._tileMap = new TileMap(35, 20);
-        //createEntities
-        this._player = new Player("Hero");
-        this._entities = [
-            this.player,
-            new Door(),
-            new items.Key,
-            new enemies.Goblin,
-            new enemies.Rat,
-            new enemies.Robot,
-            new enemies.Dragon,
-            new enemies.Unicorn,
-            new enemies.Zombie
-        ];
-        this._tileMap.insertEntities(this._entities);
-        this._colliding = [];
+    constructor(o) {
+        if (o) {
+            this._selected = o.selected;
+            this._tileMap = o.tileMap;
+            this._player = o.player;
+            this._entities = o.entities;
+            this._colliding = o.colliding;
+        }
+        else {
+            this._selected = [];
+            //createWorld
+            this._tileMap = new TileMap(30, 15);
+            //createEntities
+            this._player = new Player("Hero");
+            this._entities = [
+                this.player,
+                new Door(),
+                new items.Key,
+                new enemies.Goblin,
+                new enemies.Rat,
+                new enemies.Robot,
+                new enemies.Dragon,
+                new enemies.Unicorn,
+                new enemies.Zombie
+            ];
+            this._tileMap.insertEntities(this._entities);
+            this._colliding = [];
+        }
     }
     //Only adding one entity to colliding, TODO
     checkCollisions(entity) {
@@ -134,6 +143,24 @@ class Game {
     rotateDir(entity, clockwise) {
         let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
         return this.changeDir(entity, newdir);
+    }
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj = Object.assign({}, this);
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+            if (descriptor && key[0] !== '_') {
+                try {
+                    const val = this[key];
+                    jsonObj[key] = val;
+                }
+                catch (error) {
+                    console.error(`Error calling getter ${key}`, error);
+                }
+            }
+        });
+        return jsonObj;
     }
 }
 /// <reference path="../_references.ts" />
@@ -491,8 +518,8 @@ class Player extends Character {
         super._attackDamage = 1;
         super._active = true;
         this._party = [];
-        this._mana = new Manager();
-        this._skills = [];
+        this._mana = new Manager("aaaaa");
+        this._skills = [skills.slap];
     }
     get mana() {
         return this._mana;
@@ -929,17 +956,38 @@ class UsableOnceSkill extends Skill {
     }
 }
 /// <reference path="../_references.ts" />
-var skills = {};
-function addSkill(s) {
-    skills[s.name.toLowerCase()] = s;
-}
-function addSkills(...s) {
-    for (let i = 0; i < s.length; i++) {
-        addSkill(s[i]);
-    }
-}
-addSkills(new Skill("Bash", "Deal 2 damage.", Skill.makeDamageEffect(2)), new UsableOnceSkill("Disemvoweling Scourge", "Deal 999 damage. Usable once only.", Skill.makeDamageEffect(999)), new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
-"Increase countdown by 5. Usable once only.", Skill.makeCountdownEffect(5)));
+let skills = {
+    slap: new Skill("Slap", "Deal 2 damage.", Skill.makeDamageEffect(2)),
+    disemvowel: new Skill("Disemvowel", "Deal 999 damage! (Useable only once.)", Skill.makeDamageEffect(999)),
+    aegis: new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
+    "Increase countdown by 5! (Usable once only.)", Skill.makeCountdownEffect(5))
+};
+// var skills = {};
+// function addSkill(s: Skill): void {
+// 	skills[s.name.toLowerCase()] = s;
+// }
+// function addSkills(...s: Skill[]): void {
+// 	for (let i = 0; i < s.length; i++) {
+// 		addSkill(s[i]);
+// 	}
+// }
+// addSkills(
+// 	new Skill(
+// 		"Bash",
+// 		"Deal 2 damage.",
+// 		Skill.makeDamageEffect(2)
+// 	),
+// 	new UsableOnceSkill(
+// 		"Disemvoweling Scourge",
+// 		"Deal 999 damage. Usable once only.",
+// 		Skill.makeDamageEffect(999)
+// 	),
+// 	new UsableOnceSkill(
+// 		"Aegis of Divine Unmaking", //someone please give this a better name
+// 		"Increase countdown by 5. Usable once only.",
+// 		Skill.makeCountdownEffect(5)
+// 	),
+// );
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
@@ -978,11 +1026,30 @@ class CollisionMenu {
             nameContainer.innerHTML = "";
         }
     }
+    setMoves() {
+        let skills = game.player.skills;
+        let skillList = document.getElementById("move-list").children[0];
+        let children = skillList.childNodes;
+        while (children[1]) {
+            skillList.removeChild(children[1]);
+        }
+        for (let skill of skills) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(skill.name));
+            skillList.appendChild(li);
+        }
+        if (skills.length == 0) {
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode("Empty :("));
+            skillList.appendChild(li);
+        }
+    }
     display(data) {
         let ws = document.getElementById("word-search");
         if (data != null && showCM) {
             this.setArt(data);
             this.setName(data);
+            this.setMoves();
             this.element.style.display = "inline";
             ws.style.display = "none";
         }
@@ -1064,6 +1131,7 @@ let music;
 let showCM;
 let seed = function (sketch) {
     let font;
+    let fontSize;
     let padding;
     let marginY, marginX;
     let COLORS;
@@ -1085,10 +1153,13 @@ let seed = function (sketch) {
         let canvas = sketch.createCanvas(1000, 1000);
         sketch.noLoop();
         canvas.parent('word-search');
-        padding = 30;
+        // padding = 30;
         marginY = 10;
         marginX = 10;
-        showEntities = false;
+        fontSize = window.getComputedStyle(document.body).fontSize;
+        padding = parseInt(fontSize) * 2;
+        console.log(padding);
+        showEntities = true;
         showMana = false;
         showCM = true;
         locationTest = false;
@@ -1145,7 +1216,7 @@ let seed = function (sketch) {
     // }
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
-        sketch.textSize(16);
+        sketch.textSize(parseInt(fontSize));
         // sketch.textFont(customFont);
         sketch.textFont("Courier");
         sketch.textAlign(sketch.CENTER, sketch.CENTER);
@@ -1162,17 +1233,18 @@ let seed = function (sketch) {
             sketch.fill(255);
             sketch.textStyle(sketch.NORMAL);
         }
-        sketch.showColliding(tile);
-        if (showEntities) {
-            sketch.showAllEntities(tile);
-        }
-        else if (showMana) {
-            sketch.showAllMana(tile);
-        }
+        // sketch.showColliding(tile);
+        // if (showEntities) {
+        // 	sketch.showAllEntities(tile);
+        // } else if (showMana) {
+        // 	sketch.showAllMana(tile);
+        // }
     };
     sketch.setRectStyle = function (tile) {
         sketch.rectMode(sketch.CENTER);
-        sketch.noStroke();
+        if (showEntities) {
+            sketch.showAllEntities(tile);
+        }
         if (game.selected.includes(tile)) {
             sketch.fill(COLORS.selected);
         }
@@ -1201,10 +1273,12 @@ let seed = function (sketch) {
     };
     sketch.showAllEntities = function (tile) {
         if (tile.entities.length > 1) {
-            sketch.textStyle(sketch.BOLD);
+            // sketch.textStyle(sketch.BOLD);
+            sketch.stroke(255);
         }
         else {
-            sketch.textStyle(sketch.NORMAL);
+            // sketch.textStyle(sketch.NORMAL);
+            sketch.noStroke();
         }
     };
     sketch.showAllMana = function (tile) {
@@ -1228,6 +1302,14 @@ let seed = function (sketch) {
         else if (sketch.key == "s") {
             // sketch.switchView();
             showCM = !showCM;
+        }
+        else if (sketch.key == "z") {
+            // sketch.switchView();
+            sketch.saveGame();
+        }
+        else if (sketch.key == "x") {
+            // sketch.switchView();
+            sketch.loadGame();
         }
         else if (sketch.key == "l") { //keyCode 74 = "l"
             locationTest = !locationTest;
@@ -1295,6 +1377,20 @@ let seed = function (sketch) {
     // Resizes canvas to match wordsearch length.
     sketch.resize = function () {
         sketch.resizeCanvas(game.tileMap.width * padding + marginX, game.tileMap.height * padding + marginY);
+    };
+    //TODO
+    sketch.saveGame = function () {
+        let saveState = JSON.stringify(game.toJSON());
+        localStorage.setItem("saveState", saveState);
+    };
+    //TODO
+    sketch.loadGame = function () {
+        // try {
+        let gameSeed = JSON.parse(localStorage.getItem("saveState"));
+        let game = new Game(gameSeed);
+        // } catch(err) {
+        // 	console.log(err);
+        // }
     };
 };
 let main = new p5(seed);

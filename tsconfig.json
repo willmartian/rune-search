@@ -2,7 +2,7 @@
   "compilerOptions": {
     // "strictNullChecks": true,
     "allowJs": true,
-    "target": "es2016",
+    "target": "es2017",
     "outFile": "build.js"
   },
 

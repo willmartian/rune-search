@@ -38,11 +38,32 @@ class CollisionMenu {
 		}
 	}
 
+	setMoves() {
+		let skills = game.player.skills;
+		let skillList = document.getElementById("move-list").children[0];
+		let children = skillList.childNodes;
+		while (children[1]) {
+   			skillList.removeChild(children[1]);
+		}
+		for (let skill of skills) {
+			let li = document.createElement('li');
+			li.appendChild(document.createTextNode(skill.name));
+			skillList.appendChild(li);
+		}
+
+		if (skills.length == 0) {
+			let li = document.createElement('li');
+			li.appendChild(document.createTextNode("Empty :("));
+			skillList.appendChild(li);
+		}
+	}
+
 	display(data) {
 		let ws = document.getElementById("word-search");
 		if (data != null && showCM) {
 			this.setArt(data);
 			this.setName(data);
+			this.setMoves();
 			this.element.style.display = "inline";
 			ws.style.display = "none";
 

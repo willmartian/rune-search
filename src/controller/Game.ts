@@ -7,28 +7,37 @@ class Game {
 	private _colliding: Entity[];
 	private _entities: Entity[];
 
-	constructor() {
-		this._selected = [];
+	constructor(o: any) {
+		if (o) {
+			this._selected = o.selected;
+			this._tileMap = o.tileMap;
+			this._player = o.player;
+			this._entities = o.entities;
+			this._colliding = o.colliding;
+		} else {
+			this._selected = [];
 
-		//createWorld
-		this._tileMap = new TileMap(35,20);
-		//createEntities
+			//createWorld
+			this._tileMap = new TileMap(30,15);
+			//createEntities
 
-		this._player = new Player("Hero");
-		this._entities = [
-			this.player,
-			new Door(),
-			new items.Key,
-			new enemies.Goblin,
-			new enemies.Rat,
-			new enemies.Robot,
-			new enemies.Dragon,
-			new enemies.Unicorn,
-			new enemies.Zombie
-		];
-		this._tileMap.insertEntities(this._entities);
-		this._colliding = [];
+			this._player = new Player("Hero");
+			this._entities = [
+				this.player,
+				new Door(),
+				new items.Key,
+				new enemies.Goblin,
+				new enemies.Rat,
+				new enemies.Robot,
+				new enemies.Dragon,
+				new enemies.Unicorn,
+				new enemies.Zombie
+			];
+			this._tileMap.insertEntities(this._entities);
+			this._colliding = [];
+		}
 	}
+
 
 	//Only adding one entity to colliding, TODO
 	checkCollisions(entity: Entity): void {
@@ -159,5 +168,25 @@ class Game {
 	rotateDir(entity: Entity, clockwise: boolean): boolean {
 		let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
 		return this.changeDir(entity, newdir);
+	}
+
+	toJSON(): string {
+		const proto = Object.getPrototypeOf(this);
+		const jsonObj: any = Object.assign({}, this);
+
+		Object.entries(Object.getOwnPropertyDescriptors(proto))
+		.filter(([key, descriptor]) => typeof descriptor.get === 'function')
+		.map(([key, descriptor]) => {
+		  if (descriptor && key[0] !== '_') {
+		    try {
+		      const val = (this as any)[key];
+		      jsonObj[key] = val;
+		    } catch (error) {
+		      console.error(`Error calling getter ${key}`, error);
+		    }
+		  }
+		});
+
+		return jsonObj;
 	}
 }
