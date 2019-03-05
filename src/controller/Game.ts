@@ -29,7 +29,7 @@ class Game {
 				new enemies.Goblin,
 				new enemies.Rat,
 				new enemies.Robot,
-				new enemies.Dragon,
+				new enemies.Dinosaur,
 				new enemies.Unicorn,
 				new enemies.Zombie
 			];

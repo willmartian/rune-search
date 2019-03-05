@@ -28,7 +28,7 @@
     <art> </art>
   </ground>
 
-  <dragon>
+  <dinosaur>
     <description>roar</description>
     <art><![CDATA[  _(0(0)__        __/^\__
  /. .   \/_     __\_\_/_/__
@@ -39,7 +39,7 @@
          /|        \       \  ___.'
         /_/  |,__.-`',_    /`'
          /__/`        /___/]]></art>
-  </dragon>
+  </dinosaur>
 
 	<goblin>
     <description>A cutie. (etc)</description>

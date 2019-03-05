@@ -21,7 +21,7 @@ class Game {
                 new enemies.Goblin,
                 new enemies.Rat,
                 new enemies.Robot,
-                new enemies.Dragon,
+                new enemies.Dinosaur,
                 new enemies.Unicorn,
                 new enemies.Zombie
             ];
@@ -543,9 +543,9 @@ class Player extends Character {
 }
 /// <reference path="../_references.ts" />
 let enemies = {
-    Dragon: class extends Character {
+    Dinosaur: class extends Character {
         constructor() {
-            super("Dragon");
+            super("Dinosaur");
             super._health = 6;
             super._attackDamage = 2;
         }
@@ -1154,16 +1154,44 @@ class CollisionMenu {
     }
     display(data) {
         let ws = document.getElementById("word-search");
-        if (data != null && showCM) {
+        if (data && showCM) {
             this.setArt(data);
             this.setName(data);
             this.setMoves();
+            // this.zoomIn();
+            // ws.style.display = "none";
             this.element.style.display = "inline";
-            ws.style.display = "none";
+            let that = this;
+            window.setTimeout(that.zoomIn, 100);
         }
         else {
-            this.element.style.display = "none";
-            ws.style.display = "flex";
+            // this.zoomOut();
+            // this.element.addEventListener("transitionend", function() {
+            let cm = document.getElementById("collision-menu");
+            cm.style.display = "none";
+            // ws.style.display = "flex";
+            this.zoomOut();
+            // 	cm.removeEventListener("transitionend", this);
+            // });
+        }
+    }
+    zoomIn() {
+        let cm = document.getElementById("collision-menu");
+        if (!cm.classList.contains("zoom")) {
+            cm.classList.add("zoom");
+        }
+        let ws = document.getElementById("word-search");
+        if (!ws.classList.contains("blur")) {
+            ws.classList.add("blur");
+        }
+    }
+    zoomOut() {
+        if (this.element.classList.contains("zoom")) {
+            this.element.classList.remove("zoom");
+        }
+        let ws = document.getElementById("word-search");
+        if (ws.classList.contains("blur")) {
+            ws.classList.remove("blur");
         }
     }
     //pulling from xml over and over is bad for performance, TODO

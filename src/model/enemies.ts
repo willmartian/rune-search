@@ -2,9 +2,9 @@
 
 let enemies = {
 
-	Dragon: class extends Character {
+	Dinosaur: class extends Character {
 		constructor() {
-			super("Dragon");
+			super("Dinosaur");
 			super._health = 6;
 			super._attackDamage = 2;
 		}
