@@ -19,7 +19,47 @@ let skills = {
 		"Aegis of Divine Unmaking", //someone please give this a better name
 		"Increase countdown by 5! (Usable once only.)",
 		Skill.makeCountdownEffect(5)
-	)
+	),
+
+	acidify: new Skill(
+		"Acidify",
+		"Inflict 1 Fragile.",
+		Skill.makeStatusEffect(
+			StatusEffect.fragileStatus(1)
+		)
+	),
+
+	venom: new Skill(
+		"Venom",
+		"Inflict 2 poison.",
+		Skill.makeStatusEffect(
+			StatusEffect.poisonStatus(2)
+		)
+	),
+
+	fanTheHammer: new Skill(
+		"Fan the Hammer",
+		"Do 1 damage 6 times.",
+		Skill.makeRepeatedEffect(
+			Skill.makeDamageEffect(1), 6
+		)
+	),
+
+	poisonPen: new UsableOnceSkill(
+		"Poison Pen Diatribe",
+		"Inflict 100 Poison. Usable once only.",
+		Skill.makeStatusEffect(
+			StatusEffect.poisonStatus(100)
+		)
+	),
+
+	demolitionCharge: new UsableOnceSkill(
+		"Demolition Charge",
+		"Inflict 25 Fragile. Usable once only.",
+		Skill.makeStatusEffect(
+			StatusEffect.fragileStatus(25)
+		)
+	),
 }
 
 
@@ -55,3 +95,4 @@ let skills = {
 // 		Skill.makeCountdownEffect(5)
 // 	),
 // );
+

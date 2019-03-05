@@ -44,6 +44,12 @@ class Skill {
 		}
 	}
 
+	static makeStatusEffect(status: StatusEffect): Function {
+		return function(b: Battle) {
+			b.addStatus(status);
+		}
+	}
+
 	static makeRepeatedEffect(effect: Function, repetitions: number): Function {
 		return function(b: Battle) {
 			for (let i = 0; i < repetitions; i++) {
