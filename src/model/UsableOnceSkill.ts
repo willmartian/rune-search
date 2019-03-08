@@ -8,7 +8,7 @@ class UsableOnceSkill extends Skill {
 
 	execute(b: Battle) {
 		super.execute(b);
-		b.player.revokeSkill(this.name.toLowerCase());
+		b.player.revokeSkill(this.camelCaseName);
 	}
 
 }

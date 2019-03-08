@@ -8,12 +8,14 @@ class Skill {
 	protected _desc: string;
 	protected _cost: Manager;
 	protected _effect: Function;
+	protected _camelCaseName: string;
 
 	constructor(name: string, desc: string, effect: Function) {
 		this._name = name;
 		this._desc = desc;
 		this._effect = effect;
 		this._cost = new Manager(name);
+		this._camelCaseName = this.generateCamelCaseName();
 	}
 
 	get name(): string {
@@ -26,6 +28,22 @@ class Skill {
 
 	get cost(): Manager {
 		return this._cost;
+	}
+
+	get camelCaseName(): string {
+		return this._camelCaseName;
+	}
+
+	private generateCamelCaseName(): string {
+		let splat = this.name.split(" ");
+		let r = splat[0].toLowerCase();
+		for (let i = 0; i < splat.length; i++) {
+			let curr = splat[i].toLowerCase();
+			let firstLetter = curr.substring(0, 1);
+			let backhalf = curr.substring(1);
+			r += firstLetter.toUpperCase() + backhalf;
+		}
+		return r;
 	}
 
 	execute(b: Battle) {

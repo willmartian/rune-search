@@ -930,6 +930,7 @@ class Skill {
         this._desc = desc;
         this._effect = effect;
         this._cost = new Manager(name);
+        this._camelCaseName = this.generateCamelCaseName();
     }
     get name() {
         return this._name;
@@ -939,6 +940,20 @@ class Skill {
     }
     get cost() {
         return this._cost;
+    }
+    get camelCaseName() {
+        return this._camelCaseName;
+    }
+    generateCamelCaseName() {
+        let splat = this.name.split(" ");
+        let r = splat[0].toLowerCase();
+        for (let i = 0; i < splat.length; i++) {
+            let curr = splat[i].toLowerCase();
+            let firstLetter = curr.substring(0, 1);
+            let backhalf = curr.substring(1);
+            r += firstLetter.toUpperCase() + backhalf;
+        }
+        return r;
     }
     execute(b) {
         this._effect.call(undefined, b);
@@ -1055,7 +1070,7 @@ class UsableOnceSkill extends Skill {
     }
     execute(b) {
         super.execute(b);
-        b.player.revokeSkill(this.name.toLowerCase());
+        b.player.revokeSkill(this.camelCaseName);
     }
 }
 /// <reference path="../_references.ts" />
