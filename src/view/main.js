@@ -9,6 +9,7 @@ let showCM;
 
 let seed = function(sketch) {
 	let font;
+	let fontSize;
 	let padding;
 	let marginY, marginX;
 	let COLORS;
@@ -34,10 +35,13 @@ let seed = function(sketch) {
 		let canvas = sketch.createCanvas(1000,1000);
 		sketch.noLoop();
 		canvas.parent('word-search');
-		padding = 30;
+		// padding = 30;
 		marginY = 10;
 		marginX = 10;
-		showEntities = false;
+		fontSize = window.getComputedStyle(document.body).fontSize;
+		padding = parseInt(fontSize)*2;
+		console.log(padding);
+		showEntities = true;
 		showMana = false;
 		showCM = true;
 		locationTest = false;
@@ -102,7 +106,7 @@ let seed = function(sketch) {
 
 	sketch.setTextStyle = function(tile) {
 		sketch.noStroke();
-		sketch.textSize(16);
+		sketch.textSize(parseInt(fontSize));
 		// sketch.textFont(customFont);
 		sketch.textFont("Courier");
 		sketch.textAlign(sketch.CENTER, sketch.CENTER);
@@ -121,20 +125,22 @@ let seed = function(sketch) {
   			sketch.textStyle(sketch.NORMAL);
   		}
 
-  		sketch.showColliding(tile);
+  		// sketch.showColliding(tile);
 
-  		if (showEntities) {
-  			sketch.showAllEntities(tile);
-  		} else if (showMana) {
-  			sketch.showAllMana(tile);
-  		}
+  		// if (showEntities) {
+  		// 	sketch.showAllEntities(tile);
+  		// } else if (showMana) {
+  		// 	sketch.showAllMana(tile);
+  		// }
 
 
 	}
 
 	sketch.setRectStyle = function(tile) {
 		sketch.rectMode(sketch.CENTER);
-		sketch.noStroke();
+		if (showEntities) {
+  			sketch.showAllEntities(tile);
+  		}
 		if (game.selected.includes(tile)) {
 			sketch.fill(COLORS.selected);
 		} else if (tile.entities.includes(game.player)) {
@@ -149,6 +155,7 @@ let seed = function(sketch) {
 			// sketch.fill(COLORS.empty);
 			sketch.noFill();
 		}
+
 	};
 
 	sketch.showColliding = function(tile) {
@@ -161,11 +168,14 @@ let seed = function(sketch) {
 		sketch.textStyle(sketch.NORMAL);
 	};
 
+
 	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
-			sketch.textStyle(sketch.BOLD);
+			// sketch.textStyle(sketch.BOLD);
+			sketch.stroke(255);
 		} else {
-			sketch.textStyle(sketch.NORMAL);
+			// sketch.textStyle(sketch.NORMAL);
+			sketch.noStroke();
 		}
 	};
 
@@ -188,6 +198,12 @@ let seed = function(sketch) {
 		} else if (sketch.key == "s") {
 			// sketch.switchView();
 			showCM = !showCM;
+		} else if (sketch.key == "z") {
+			// sketch.switchView();
+			sketch.saveGame();
+		} else if (sketch.key == "x") {
+			// sketch.switchView();
+			sketch.loadGame();
 		} else if (sketch.key == "l") { //keyCode 74 = "l"
 			locationTest = !locationTest;
 		} else if (sketch.keyCode === 38) { //down arrow
@@ -256,6 +272,20 @@ let seed = function(sketch) {
 	sketch.resize = function() {
 		sketch.resizeCanvas(game.tileMap.width*padding + marginX, game.tileMap.height*padding + marginY);
 	};
+	//TODO
+	sketch.saveGame = function() {
+		let saveState = JSON.stringify(game.toJSON());
+		localStorage.setItem("saveState", saveState);
+	}
+	//TODO
+	sketch.loadGame = function() {
+		// try {
+			let gameSeed = JSON.parse(localStorage.getItem("saveState"));
+			let game = new Game(gameSeed);
+		// } catch(err) {
+		// 	console.log(err);
+		// }
+	}
 
 };
 
