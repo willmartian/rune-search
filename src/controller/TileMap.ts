@@ -87,15 +87,27 @@ class TileMap {
 	insertEntity(entity: Entity): boolean {
 
 		let posDir: number[] = this.randomPosDir();
-		let x: number = posDir[0], y: number = posDir[1],
+		let x: number = posDir[0], y: number = posDir[1], 
 		xStep: number = posDir[2], yStep: number = posDir[3];
+		
+		let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+
+		if (result == false) {
+			return this.insertEntity(entity);
+		} else {
+			return result;
+		}
+
+	}
+
+	insertEntityAtLocation(entity: Entity, x: number, y: number, xStep: number, yStep: number): boolean {
 
 		let path: number[][] = [];
 		let i: number;
 
 		//Does entity name fit?
 		for (i = 0; i < entity.name.length; i++) {
-			if (x < this.width && x > 0 && y < this.height && y > 0) {
+			if (x < this.width && x >= 0 && y < this.height && y >= 0) {
 				let tile: Tile = this._tiles[x][y];
 				if (tile.entities.length == 1 ||
 						tile.getTopLetter() == entity.name.charAt(i)) {
@@ -129,7 +141,7 @@ class TileMap {
 				let y: number = location[1];
 				this._tiles[x][y].removeTopLetter();
 			}
-			return this.insertEntity(entity);
+			return false;
 		}
 	}
 
