@@ -5,8 +5,8 @@
     <description>Nothing to see here.</description>
     <art><![CDATA[ ____________________
 /                    \
-!    HELP WANTED,    !
-!  WE NEED ARTISTS.  !
+!      Missing       !
+!       Asset :(     !
 !                    !
 \____________________/
          !  !
@@ -22,10 +22,25 @@
          !  !
          \__/]]></art>
   </default>
+
   <ground>
     <description>It is kinda dirty...</description>
     <art> </art>
   </ground>
+
+  <dinosaur>
+    <description>roar</description>
+    <art><![CDATA[  _(0(0)__        __/^\__
+ /. .   \/_     __\_\_/_/__
+ \ __    \/_   _\.'     './_       _\
+  `---`\  \/_ _\/         \/_    _|.')
+        \  \/_\/    /      \/_   |/ /
+         \  `-'    |         ';_:' /
+         /|        \       \  ___.'
+        /_/  |,__.-`',_    /`'
+         /__/`        /___/]]></art>
+  </dinosaur>
+
 	<goblin>
     <description>A cutie. (etc)</description>
     <art><![CDATA[        __              __
@@ -33,12 +48,12 @@
         \  \//      \\/  /   
          \0|  _    _  |0/
          //  (o)  (o)  \\
-_____    ||    (oo)    ||    _____  
+_____    ||    (oo)    ||    _____
 \/\/\/   ||   ______   ||   \/\/\/
-|  _|    \\   \/  \/   //   |_   | 
-| <_|     \\   /\/\   //    |_>  | 
-\    \     \\________//     /   /  
- \    \       |    |       /   /      
+|  _|    \\   \/  \/   //   |_   |
+| <_|     \\   /\/\   //    |_>  |
+\    \     \\________//     /   / 
+ \    \       |    |       /   /
   \    \_____/      \_____/   /
    \_____   / \    / \  _____/ 
         /   | |    | |  \
@@ -54,10 +69,26 @@ _____    ||    (oo)    ||    _____
       / xxx     ||     xxx \
       |________/  \________|]]></art>
   </goblin>
+
+  <key>
+    <description>Wonder what this could open?</description>
+    <art><![CDATA[                                        ,, ======= ,,
+    ._.         ._.                  ==   =========   ==
+    | |     ._. | |                ==   =           =    ==
+    | | ._. | | | |               =   =               =   =
+    | |_| |_| |_| |_______________' =                   =  '
+    |_____________________________  =                   =  =
+                                  '  =                 =  '
+                                   =   =             =   =
+                                     ==   ========== ==
+                                        ,, ======= ,,]]></art>
+  </key>
+
   <necromancer>
     <description></description>
     <art><![CDATA[ ]]></art>
   </necromancer>
+
   <rat>
     <description>Not a hamster.</description>
     <art><![CDATA[                                                   '-.
@@ -73,6 +104,7 @@ _____    ||    (oo)    ||    _____
                        <<<-'     __//
                                <<<-']]></art>
   </rat>
+
   <robot>
     <description></description>
     <art><![CDATA[                 .     *  .
@@ -97,22 +129,48 @@ _____    ||    (oo)    ||    _____
                   OOOOOOOOOOO
                     OOOOOOO]]></art>
   </robot>
-  <unicorn>
+
+  <shop>
+    <description>squack</description>
+    <art><![CDATA[                                     !         !
+                                     !         !
+                                  ___!_________!___
+                                 |                 |
+                                 |  G E N E R A L  |
+                                 |    S T O R E    |
+                , , () , ,       |_________________|
+                |\/\/\/\/|
+                |_o_<>_o_|
+                /        \                           ____
+               /      (0  \________                 (____)
+               |          "________)                 MMMM
+               \         ,-------'                   WWWW
+                \_     _/                       ____ MMMM ____
+                 /(   )\                        \__  || |  __/
+                /  [ ]  \                            || |
+               /   / \   \            (-)            || |
+              /    | |    \         ,-'-'-,          || |
+             /     | |     |        :-...-:          || |
+            /      | |     |        |;:   |          || |
+___________/_______|_|_____|________|_____|__________||_|______]]></art>
+  </shop>
+
+  <zombie>
     <description></description>
-    <art><![CDATA[ ]]></art>
-  </unicorn>
-  
-  <key>
-    <description>Wonder what this could open?</description>
-    <art><![CDATA[                                        ,, ======= ,,
-    ._.         ._.                  ==   =========   ==
-    | |     ._. | |                ==   =           =    ==
-    | | ._. | | | |               =   =               =   =
-    | |_| |_| |_| |_______________' =                   =  '
-    |_____________________________  =                   =  =
-                                  '  =                 =  '
-                                   =   =             =   =
-                                     ==   ========== ==
-                                        ,, ======= ,,]]></art>
-  </key>
+    <art><![CDATA[     ___ ___________(_ _)
+    /(-  /(\_\_______   \
+    \ )  \ )        \o   \
+    /|\  /|          |'   |
+   /''''''/          | o__\
+  C C    /           / '  |
+ /<     |           / /   |
+/__O__=/'          /_/\___|
+  ('.  (           (   _( <
+  )  .')           \    \ \
+    .               \    \ \
+  . .                \____\_\
+    .  .              ___\_\_\
+                    /`  /`   _\
+                   |___|______|]]></art>
+  </zombie>
 </game-entities>

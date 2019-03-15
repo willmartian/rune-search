@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<game-levels>
+  <one>
+    <name>Hidden Forest</name>
+    <description>A forest! That is hidden!!!</description>
+    <music>Exploratory_Final.mp3</music>
+    <entities>
+      <Rat amount="3"/>
+      <Goblin amount="1"/>
+      <Key amount="1"/>
+      <Door amount="1"/>
+    </entities>
+  </one>
+  
+  <two>
+    <name></name>
+    <description></description>
+    <music></music>
+    <entities>
+      
+    </entities>
+  </two>
+</game-levels>

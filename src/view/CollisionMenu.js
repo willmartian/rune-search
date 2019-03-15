@@ -38,17 +38,69 @@ class CollisionMenu {
 		}
 	}
 
+	setMoves() {
+		let skills = game.player.skills;
+		let skillList = document.getElementById("move-list").children[0];
+		let children = skillList.childNodes;
+		while (children[1]) {
+   			skillList.removeChild(children[1]);
+		}
+		for (let skill of skills) {
+			let li = document.createElement('li');
+			li.appendChild(document.createTextNode(skill.name));
+			skillList.appendChild(li);
+		}
+
+		if (skills.length == 0) {
+			let li = document.createElement('li');
+			li.appendChild(document.createTextNode("Empty :("));
+			skillList.appendChild(li);
+		}
+	}
+
 	display(data) {
 		let ws = document.getElementById("word-search");
-		if (data != null && showCM) {
+		if (data && showCM) {
 			this.setArt(data);
 			this.setName(data);
+			this.setMoves();
+			// this.zoomIn();
+			// ws.style.display = "none";
 			this.element.style.display = "inline";
-			ws.style.display = "none";
-
+			let that = this;
+			window.setTimeout(that.zoomIn, 100);
+			
 		} else {
-			this.element.style.display = "none";
-			ws.style.display = "flex";
+			// this.zoomOut();
+			// this.element.addEventListener("transitionend", function() {
+				let cm = document.getElementById("collision-menu");
+				cm.style.display = "none";
+				// ws.style.display = "flex";
+				this.zoomOut();
+			// 	cm.removeEventListener("transitionend", this);
+			// });
+		}
+	}
+
+	zoomIn() {
+		let cm = document.getElementById("collision-menu");
+		if (!cm.classList.contains("zoom")) {
+			cm.classList.add("zoom");
+		}
+		let ws = document.getElementById("word-search");
+		if (!ws.classList.contains("blur")) {
+			ws.classList.add("blur");
+		}
+
+	}
+
+	zoomOut() {
+		if (this.element.classList.contains("zoom")) {
+			this.element.classList.remove("zoom");
+		}
+		let ws = document.getElementById("word-search");
+		if (ws.classList.contains("blur")) {
+			ws.classList.remove("blur");
 		}
 	}
 

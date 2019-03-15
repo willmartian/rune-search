@@ -11,8 +11,8 @@ class Player extends Character {
 		super._attackDamage = 1;
 		super._active = true;
 		this._party = [];
-		this._mana = new Manager();
-		this._skills = [];
+		this._mana = new Manager("aaaaa");
+		this._skills = [skills.slap];
 	}
 	
 	get mana(): Manager {

@@ -1,3 +1,29 @@
+body {
+  opacity: 0;
+  background-color: rgb(25,25,25);
+  /*background-image: radial-gradient(
+    rgba(255, 255, 255, 0.17), black 120%
+  );*/
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  padding: 2rem;
+  color: white;
+  font: 1em "Courier", monospace;
+  font-size: .85em;
+  animation-name: fadeIn;
+  animation-duration: 5s;
+  animation-iteration-count: 1;
+  animation-delay: 1s;
+  animation-fill-mode: forwards;
+  /*text-shadow: 0 0 5px #C8C8C8;*/
+}
+
+pre {
+  margin: 0;
+  font: 1em "Courier", monospace;
+}
+
 h1 {
   display: flex;
   justify-content: center;
@@ -20,18 +46,21 @@ h1 {
   width: 100%;
   font-weight: 100;
   display: flex;
-  /*justify-content: center;*/
-  /*align-items: center;*/
+  justify-content: center;
+/*   align-items: center; */
 }
 
 #player-menu {
   /*width: 33%;*/
+  background-color: black;
+  border: 3px white solid;
   float: left;
   padding: 1em;
-  margin: 0;
+  margin-right: 2em;
   display: inline;
   justify-content: center;
   align-items: center;
+/*   transition: visibility 2s linear 1s; */
 }
 
 #player-art {
@@ -95,57 +124,101 @@ li {
 }
 
 #dynamic-menu {
-  display: block;
+  display: flex;
+  background-color: black;
+  border: 3px white solid;
+/*   border-left: none; */
   width: 100%;
   justify-content: center;
   align-items: center;
+  margin: 0;
+  padding 0;
 }
 
 #word-search {
-  display: 
+  display: flex;
   width: 100%;
   margin: 0;
+  padding: 0;
   justify-content: center;
   align-items: center;
-  margin-top: 4em;
+  
+/*   margin-top: 4em; */
+}
+
+.blurrable {
+  filter: blur(0);
+  transition: filter 2s;
+}
+
+.blur {
+  filter: blur(2px);
 }
 
 #collision-menu {
+/*   border: 3px white dashed; */
+  background-color: rgba(0,0,0,.91); 
+  border: 3px white dashed;
+  position: absolute;
+  z-index: 2;
   float: right;
   margin: 0;
+  padding: 1em;
   display: none;
   justify-content: center;
-  align-items: center;=
+  align-items: center;
+  
 }
 
+.zoomable {
+  transform: scale(0);
+  transition: transform 1s, opacity .5s;
+  opacity: 0;
+  
+}
 
+.zoom {
+  opacity: 1;
+  transform: scale(1);
+  
+}
 
-/*
-@keyframes breathe {
+#collision-art {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+#collision-name {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+#battle {
+  display: block;
+  width: 100%;
+  
+}
+
+#battle-top {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+#battle-bottom {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
   from {
-    font-style: normal;
+    opacity: 0
   }
 
   to {
-    font-style: italic;
+    opacity: 1;
   }
 }
-*/
-body {
-  background-color: black;
-  background-image: radial-gradient(
-    rgba(255, 255, 255, 0.17), black 120%
-  );
-  height: 100vh;
-  margin:ee 0;
-  overflow: hidden;
-  padding: 2rem;
-  color: white;
-  font: 1.3rem "Courier", monospace;
-  text-shadow: 0 0 5px #C8C8C8;
-}
-
-pre {
-  margin: 0;
-}
-

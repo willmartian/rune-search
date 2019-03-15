@@ -14,7 +14,7 @@
 		<!--  -->
 		
 		<div id="game">
-			<div id="p5_loading" class="loadingclass">Searching for Runes...</div>
+			<div id="p5_loading" class="loadingclass"></div>
 			<div id="player-menu">
 				<h1 id="title">Rune Search</h1>
 				<div id="player-art"></div>
@@ -38,24 +38,30 @@
 				</div>
 			</div>
 			<div id="dynamic-menu">
-				<div id="word-search"></div><!-- <div id="word-bank">Word Bank Word Bank</div></div> -->
-				<div id="collision-menu">
+				<div id="word-search" class="blurrable"></div><!-- <div id="word-bank">Word Bank Word Bank</div></div> -->
+				<div id="collision-menu" class="zoomable">
 					<div id="collision-art"></div>
 					<div id="collision-info">
 						<h3 id="collision-name"></h3>
 						<div id="battle">
-							<div id="battle-health-bar"></div>
-							<div id="battle-turn-counter">Turns Remaining:</div>
-							<div id="move-list">
-								<ul><u>Moves</u>
-									<li>Empty</li>
-								</ul>
+							<div id="battle-top">
+								<div id="battle-health-bar"></div>
+								<div id="battle-turn-counter">Turns Remaining:</div>
 							</div>
-							<div id="battle-queue">
-								<ul><u>Battle Queue</u>
-									<li>Empty</li>
-								</ul>
+							<div id="battle-bottom">
+								<div id="move-list">
+									<ul><u>Moves</u>
+										<li>Empty</li>
+									</ul>
+								</div>
+								<div id="battle-queue">
+									<ul><u>Battle Queue</u>
+										<li>Empty</li>
+									</ul>
+								</div>
 							</div>
+							
+							
 						</div>
 					</div>
 				</div>
