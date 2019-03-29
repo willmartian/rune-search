@@ -3,11 +3,13 @@ class PlayerMenu {
 	constructor() {
 		this.element = document.getElementById("player-menu");
 		this.update();
+		this.dialogueKey = "instructions";
+		this.dialogueIndex = 0;
 	}
 
 	getData() {
 		let data;
-		let name = game.player.name.toLowerCase();
+		let name = Game.player.name.toLowerCase();
 		data = xml.getChild(name);
 		if (!data) {
 			data = xml.getChild("default");
@@ -24,10 +26,41 @@ class PlayerMenu {
 	setInfo() {
 		this.setMana();
 		this.setInventory();
+		this.setHunger();
+		this.setDialogue();
+	}
+
+	setHunger() {
+		let hunger = Game.player.hunger;
+		if (hunger > Game.player.maxHunger) {
+			hunger = Game.player.maxHunger;
+		}
+		document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+	}
+
+	setDialogue() {
+		let dialogueMenu = document.getElementById("player-speech-container");
+		if (this.dialogueKey == "") {
+			dialogueMenu.style.display = "none";
+		} else {
+			if (dialogueMenu.style.display == "none") {
+				dialogueMenu.style.display = "inline"
+			}
+			let k = this.dialogueKey;
+			let dialogueList = dialogueXML.getChild(k).getChildren();
+			if (this.dialogueIndex >= dialogueList.length) {
+				console.log("test");
+				this.dialogueKey = "";
+				this.dialogueIndex = 0;
+			} else {
+				let i = this.dialogueIndex;
+				document.getElementById("player-speech").innerHTML = dialogueList[i].DOM.textContent;
+			}
+		}
 	}
 
 	setMana() {
-		let mana = game.player.mana;
+		let mana = Game.player.mana;
 		document.getElementById("a-mana").innerHTML = mana.a;
 		document.getElementById("e-mana").innerHTML = mana.e;
 		document.getElementById("i-mana").innerHTML = mana.i;
@@ -36,7 +69,7 @@ class PlayerMenu {
 	}
 
 	setInventory() {
-		let inventory = game.player.inventory;
+		let inventory = Game.player.inventory;
 		let inventoryList = document.getElementById("player-inventory-list");
 		let children = inventoryList.childNodes;
 		while (children[1]) {

@@ -39,7 +39,7 @@ class CollisionMenu {
 	}
 
 	setMoves() {
-		let skills = game.player.skills;
+		let skills = Game.player.skills;
 		let skillList = document.getElementById("move-list").children[0];
 		let children = skillList.childNodes;
 		while (children[1]) {
@@ -60,25 +60,21 @@ class CollisionMenu {
 
 	display(data) {
 		let ws = document.getElementById("word-search");
-		if (data && showCM) {
+		if ((data != null) && showCM) {
 			this.setArt(data);
 			this.setName(data);
-			this.setMoves();
-			// this.zoomIn();
-			// ws.style.display = "none";
+			let battle = document.getElementById("battle");
+			if (this.colliding[this.colliding.length - 1].constructor.name == "Character") {
+				battle.style.display = "block";
+				this.setMoves();
+			} else {
+				battle.style.display = "none";
+			}
 			this.element.style.display = "inline";
 			let that = this;
 			window.setTimeout(that.zoomIn, 100);
-			
 		} else {
-			// this.zoomOut();
-			// this.element.addEventListener("transitionend", function() {
-				let cm = document.getElementById("collision-menu");
-				cm.style.display = "none";
-				// ws.style.display = "flex";
-				this.zoomOut();
-			// 	cm.removeEventListener("transitionend", this);
-			// });
+			this.zoomOut();
 		}
 	}
 
@@ -91,17 +87,32 @@ class CollisionMenu {
 		if (!ws.classList.contains("blur")) {
 			ws.classList.add("blur");
 		}
-
 	}
 
 	zoomOut() {
-		if (this.element.classList.contains("zoom")) {
-			this.element.classList.remove("zoom");
+		let n = 0;
+		let cm = document.getElementById("collision-menu");
+		if (cm.classList.contains("zoom")) {
+			cm.classList.remove("zoom");
+			n += 1;
 		}
 		let ws = document.getElementById("word-search");
 		if (ws.classList.contains("blur")) {
 			ws.classList.remove("blur");
+			n += 1;
 		}
+		if (n == 2) {
+			document.addEventListener("transitionend", function hide(event) {
+					if (event.propertyName == "opacity" 
+						&& (cm.style.opacity == 0)
+						&& cm.style.display != "none") {
+							cm.style.display = "none";
+					}
+					console.log(event);
+					document.removeEventListener("transitionend", hide);
+			});
+		}
+
 	}
 
 	//pulling from xml over and over is bad for performance, TODO

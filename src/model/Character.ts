@@ -18,18 +18,33 @@ abstract class Character extends Entity {
 		this._inventory.push(item);
 	}
 
+	removeItem(item: Item): void {
+		let index = this._inventory.indexOf(item);
+		this._inventory.splice(index, 1);
+	}
+
 	//TODO
-	die(): void {}
+	die(): boolean {
+		// if (!this.isDead) {
+		// 	if(game.tileMap.removeEntity(this)) {
+		// 		this.isDead = true;
+		// 		game.deadEntities.push(this);
+		// 		return true;
+		// 	}
+		// }
+		return false;
+	}
 
 	playerCollision(): void {
-		while (this.isAlive() && game.player.isAlive()) {
-			game.player.attack(this);
-			this.attack(game.player);
+		while (this.isAlive() && Game.player.isAlive()) {
+			Game.player.attack(this);
+			this.attack(Game.player);
 			console.log("enemy battled");
 		}
-		if (game.player.isDead()) {
-			game.player.die();
+		if (Game.player.isDead()) {
+			Game.player.die();
 		}
+		super.playerCollision();
 	}
 
 	isDead(): boolean {
