@@ -380,11 +380,20 @@ class TileMap {
     insertEntity(entity) {
         let posDir = this.randomPosDir();
         let x = posDir[0], y = posDir[1], xStep = posDir[2], yStep = posDir[3];
+        let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+        if (result == false) {
+            return this.insertEntity(entity);
+        }
+        else {
+            return result;
+        }
+    }
+    insertEntityAtLocation(entity, x, y, xStep, yStep) {
         let path = [];
         let i;
         //Does entity name fit?
         for (i = 0; i < entity.name.length; i++) {
-            if (x < this.width && x > 0 && y < this.height && y > 0) {
+            if (x < this.width && x >= 0 && y < this.height && y >= 0) {
                 let tile = this._tiles[x][y];
                 if (tile.entities.length == 1 ||
                     tile.getTopLetter() == entity.name.charAt(i)) {
@@ -420,7 +429,7 @@ class TileMap {
                 let y = location[1];
                 this._tiles[x][y].removeTopLetter();
             }
-            return this.insertEntity(entity);
+            return false;
         }
     }
     removeEntity(entity) {
@@ -875,6 +884,7 @@ class Skill {
         this._desc = desc;
         this._effect = effect;
         this._cost = new Manager(name);
+        this._camelCaseName = this.generateCamelCaseName();
     }
     get name() {
         return this._name;
@@ -884,6 +894,20 @@ class Skill {
     }
     get cost() {
         return this._cost;
+    }
+    get camelCaseName() {
+        return this._camelCaseName;
+    }
+    generateCamelCaseName() {
+        let splat = this.name.split(" ");
+        let r = splat[0].toLowerCase();
+        for (let i = 0; i < splat.length; i++) {
+            let curr = splat[i].toLowerCase();
+            let firstLetter = curr.substring(0, 1);
+            let backhalf = curr.substring(1);
+            r += firstLetter.toUpperCase() + backhalf;
+        }
+        return r;
     }
     execute(b) {
         this._effect.call(undefined, b);
@@ -1359,6 +1383,7 @@ class Sign extends Entity {
     constructor(name) {
         super(name);
     }
+
     playerCollision() {
         return;
     }
