@@ -70,9 +70,30 @@ _____    ||    (oo)    ||    _____
       |________/  \________|]]></art>
   </goblin>
 
+  <goat>
+    <description>moo</description>
+    <art><![CDATA[             ,--._,--.
+           ,'  ,'   ,-`.
+(`-.__    /  ,'   /
+ `.   `--'          \__,--'-.
+   `--/__     ____   ______/
+     (o-.|-^-| o- |-/  ;^;
+      `--'    `--'  \
+     |:              \
+    ,'`         ,     \
+    (o o ,    --'      :
+     \--','.           ;
+      `;;  :          /
+       ;'  ;     ,' ,'
+       ,','     :  '
+       \ \      :
+         `]]></art>
+  </goat>
+
   <key>
     <description>Wonder what this could open?</description>
-    <art><![CDATA[                                        ,, ======= ,,
+    <art><![CDATA[
+                                         ,, ======= ,,
     ._.         ._.                  ==   =========   ==
     | |     ._. | |                ==   =           =    ==
     | | ._. | | | |               =   =               =   =
@@ -154,6 +175,11 @@ _____    ||    (oo)    ||    _____
             /      | |     |        |;:   |          || |
 ___________/_______|_|_____|________|_____|__________||_|______]]></art>
   </shop>
+
+  <sign>
+    <description>squack</description>
+    <art><p>Add some instructions here</p></art>
+  </sign>
 
   <zombie>
     <description></description>

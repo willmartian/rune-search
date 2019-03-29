@@ -1,3 +1,16 @@
+@font-face {
+    font-family: 'FixedsysExcelsior';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./assets/fonts/fsex300-webfont.eot');
+    src: url('./assets/fonts/fsex300-webfont.eot?#iefix') format('embedded-opentype'),
+         url('./assets/fonts/fsex300-webfont.woff') format('woff'),
+         url('./assets/fonts/fsex300-webfont.ttf') format('truetype'),
+         url('./assets/fonts/fsex300-webfont.svg#FixedsysExcelsior301Regular') format('svg');
+    -webkit-font-smoothing: aliased;
+    font-smooth: never;
+}
+
 body {
   opacity: 0;
   background-color: rgb(25,25,25);
@@ -7,9 +20,12 @@ body {
   height: 100vh;
   margin: 0;
   overflow: hidden;
-  padding: 2rem;
+  padding: 1em;
   color: white;
-  font: 1em "Courier", monospace;
+  font-family: 'FixedsysExcelsior', monospace;
+  align-items: center;
+  justify-content: center;
+  /*font: 1em "Courier", monospace;*/
   font-size: .85em;
   animation-name: fadeIn;
   animation-duration: 5s;
@@ -17,6 +33,16 @@ body {
   animation-delay: 1s;
   animation-fill-mode: forwards;
   /*text-shadow: 0 0 5px #C8C8C8;*/
+}
+
+#background {
+   position: absolute;
+   top: 0;
+   left: 0;
+   bottom: 0;
+   right: 0;
+   z-index: -1;
+   overflow: hidden;
 }
 
 pre {
@@ -34,26 +60,36 @@ h1 {
   padding: 0;
 }
 
-#word-bank {
-/*   width: 100%; */
-/*   display: flex; */
-  justify-content: center;
-  align-content: center;
-/*   float: inline-end; */
-}
-
 #game {
   width: 100%;
+/*   height: 100%; */
   font-weight: 100;
   display: flex;
   justify-content: center;
+/*   padding-top: 1em; */
 /*   align-items: center; */
+}
+
+#pause {
+  background-color: black;
+  border: 3px white solid;
+  width: 60%;
+  height: 60%;
+  left:20%;
+  top:20%;
+  padding: 0em;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  position: absolute;
 }
 
 #player-menu {
   /*width: 33%;*/
   background-color: black;
   border: 3px white solid;
+  /*box-shadow: 0 0 5px #C8C8C8;*/
   float: left;
   padding: 1em;
   margin-right: 2em;
@@ -67,13 +103,33 @@ h1 {
   display: block;
   justify-content: center;
   align-items: center;
-  margin: 1em;
+  margin: 1em 0 0 0;
   
 }
 
 #player-info {
  display: block;
  margin: 1em;
+ overflow: hidden;
+ position: relative;
+}
+
+#player-speech-container {
+  display: inline;
+  padding: 1em;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: black;
+  position: absolute;
+}
+
+#player-speech {
+
+}
+
+#continue {
+  margin-top: 5em;
 }
 
 #player-title {
@@ -90,6 +146,16 @@ h1 {
   margin: 0;
   margin-right: .5em;
   padding: 0;
+}
+
+#h-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: .5em;
+  margin-bottom: 0;
+  padding: 0;
+  font-size: 1.2em;
 }
 
 #player-level {
@@ -109,24 +175,24 @@ li {
   margin: .5em;
 }
 
-#player-mana {
-  float: left;
-  display: inline;
+#player-lists {
+  padding-top: 1em;
+  display: flex;
+  justify-content: center;
+  font-size: 1.2em;
 }
 
 .mana {
   display: inline;
 }
 
-#player-inventory {
-  float: right;
-  display: inline;
-}
 
 #dynamic-menu {
-  display: flex;
+  display: block;
   background-color: black;
   border: 3px white solid;
+  /*box-shadow: 0 0 5px #C8C8C8;*/
+
 /*   border-left: none; */
   width: 100%;
   justify-content: center;
@@ -135,9 +201,32 @@ li {
   padding 0;
 }
 
+#level-select {
+  display: flex; 
+  justify-content: center;
+  align-content: center;
+  margin: 1em;
+}
+
+#word-bank {
+/*   width: 100%; */
+  display: flex; 
+  justify-content: center;
+  align-content: center;
+/*   float: inline-end; */
+}
+
+#ws-cm-container {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+}
+
 #word-search {
   display: flex;
-  width: 100%;
+/*   width: 100%; */
   margin: 0;
   padding: 0;
   justify-content: center;
@@ -147,12 +236,14 @@ li {
 }
 
 .blurrable {
-  filter: blur(0);
+/*   filter: blur(0); */
+  filter: brightness(1);
   transition: filter 2s;
 }
 
 .blur {
-  filter: blur(2px);
+/*   filter: blur(2px); */
+  filter: brightness(.22);
 }
 
 #collision-menu {
@@ -163,7 +254,7 @@ li {
   z-index: 2;
   float: right;
   margin: 0;
-  padding: 1em;
+  padding: 2em;
   display: none;
   justify-content: center;
   align-items: center;
@@ -172,7 +263,7 @@ li {
 
 .zoomable {
   transform: scale(0);
-  transition: transform 1s, opacity .5s;
+  transition: opacity .5s, transform 1s;
   opacity: 0;
   
 }

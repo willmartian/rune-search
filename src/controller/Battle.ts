@@ -17,7 +17,7 @@ class Battle {
 		this._enemyName = enemyName;
 		this._countdown = countdown;
 		this._skillQueue = new Array<Skill>();
-		this._player = game.player;
+		this._player = Game.player;
 		this._log = new Array<string>();
 	}
 

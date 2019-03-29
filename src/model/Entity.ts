@@ -14,7 +14,13 @@ abstract class Entity {
 	}
 
 	//override this default method method
-	abstract playerCollision(): void;
+	playerCollision(): void {
+		let that = this;
+		// window.setTimeout(function() {
+		game.tileMap.removeEntity(that);
+		// }, 1000);
+		
+	}
 
 	get name(): string {
 		return this._name;
@@ -81,5 +87,4 @@ abstract class Entity {
 	set active(active: boolean) {
 		this._active = active;
 	}
-
 }
