@@ -41,6 +41,43 @@
          /__/`        /___/]]></art>
   </dinosaur>
 
+  <door>
+    <description>open meeee</description>
+    <art><![CDATA[           ..''''''''''''''''..             
+        .''    .    ;    |    .''.
+       .''.    ;    |    .    ;   ''.
+      "   ;    |    .         .   | " 
+      "        .         |        .  "
+      "   |    ;    '         ; _    "
+      "        .    |    ;     ( )   "
+    } "   .         .         .   ;  " {     
+     }"   |    .    ;    .    |      " }  {  
+  { }{"   .    |    .    ;    .   |  " { } {   
+{ }{ }"______________________________" { }{  }]]></art>
+  </door>
+
+  <ghoul>
+    <description>roar</description>
+    <art><![CDATA[                                 ,,,,
+           .'` `'.               ||||
+          /    ,-.\              ||||
+         /    /:::\\           ( ////
+         |    |:::||            \///
+         |    |:::||             //
+         |    |:::||            //
+         /    |:::|/        _,-//\
+        /`    |:::|`-,__,-'`  |/  \
+      /`  |   |'' ||           \   |
+    /`    \   |   ||            |  /
+  |`       |  |   |)            \ |
+ |          \ |   /     ,.___    \|
+ |                    /`     `\   |
+ |       /           /         \  /
+        .                      | /
+                               `(
+                                )]]></art>
+  </ghoul>
+
 	<goblin>
     <description>A cutie. (etc)</description>
     <art><![CDATA[        __              __
@@ -70,9 +107,30 @@ _____    ||    (oo)    ||    _____
       |________/  \________|]]></art>
   </goblin>
 
+  <goat>
+    <description>moo</description>
+    <art><![CDATA[             ,--._,--.
+           ,'  ,'   ,-`.
+(`-.__    /  ,'   /
+ `.   `--'          \__,--'-.
+   `--/__     ____   ______/
+     (o-.|-^-| o- |-/  ;^;
+      `--'    `--'  \
+     |:              \
+    ,'`         ,     \
+    (o o ,    --'      :
+     \--','.           ;
+      `;;  :          /
+       ;'  ;     ,' ,'
+       ,','     :  '
+       \ \      :
+         `]]></art>
+  </goat>
+
   <key>
     <description>Wonder what this could open?</description>
-    <art><![CDATA[                                        ,, ======= ,,
+    <art><![CDATA[
+                                         ,, ======= ,,
     ._.         ._.                  ==   =========   ==
     | |     ._. | |                ==   =           =    ==
     | | ._. | | | |               =   =               =   =
@@ -130,7 +188,7 @@ _____    ||    (oo)    ||    _____
                     OOOOOOO]]></art>
   </robot>
 
-  <shop>
+  <shopkeep>
     <description>squack</description>
     <art><![CDATA[                                     !         !
                                      !         !
@@ -153,7 +211,29 @@ _____    ||    (oo)    ||    _____
              /     | |     |        :-...-:          || |
             /      | |     |        |;:   |          || |
 ___________/_______|_|_____|________|_____|__________||_|______]]></art>
-  </shop>
+  </shopkeep>
+
+  <sign>
+    <description>squack</description>
+    <art><p>Add some info here</p></art>
+  </sign>
+
+  <wizard>
+    <description>goblet o FIREEE</description>
+    <art><![CDATA[             ^
+            / \
+           /___\
+          ( o o )           * *
+          )  L  (          /   * *
+   _______()(~)()_______  /     * * *
+e\| _____ )||(|() _____ |/3     * * *
+  |/      (|(|()(      \|      * * * *
+          | )|) |
+          /     \
+         / *  *  \
+        /   *  *  \
+       / *_  *  _  \]]></art>
+  </wizard>
 
   <zombie>
     <description></description>

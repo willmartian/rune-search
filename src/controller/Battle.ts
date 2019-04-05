@@ -2,6 +2,7 @@
 
 class Battle {
 
+	protected _enemy: Character;
 	protected _countdown: number;
 	protected _startingHealth: number;
 	protected _health: number;
@@ -10,15 +11,27 @@ class Battle {
 	protected _player: Player;
 	protected _log: string[];
 	protected _statuses: StatusEffect[];
+	protected static _active: boolean;
 
-	constructor(health: number, enemyName: string, countdown: number) {
-		this._startingHealth = health;
-		this._health = health;
-		this._enemyName = enemyName;
+	// constructor(health: number, enemyName: string, countdown: number) {
+	// 	this._startingHealth = health;
+	// 	this._health = health;
+	// 	this._enemyName = enemyName;
+	// 	this._countdown = countdown;
+	// 	this._skillQueue = new Array<Skill>();
+	// 	this._player = Game.player;
+	// 	this._log = new Array<string>();
+	// 	this._statuses = [];
+	// }
+
+	constructor(enemy: Character, countdown: number) {
+		this._enemy = enemy;
+		this._startingHealth = this._enemy.health;
 		this._countdown = countdown;
 		this._skillQueue = new Array<Skill>();
-		this._player = game.player;
+		this._player = Game.player;
 		this._log = new Array<string>();
+		this._statuses = [];
 	}
 
 	get countdown(): number {
@@ -30,7 +43,7 @@ class Battle {
 	}
 
 	get enemyName(): string {
-		return this._enemyName;
+		return this._enemy.name;
 	}
 
 	get log(): string[] {
@@ -51,6 +64,14 @@ class Battle {
 
 	get statuses(): StatusEffect[] {
 		return this._statuses;
+	}
+
+	static get active(): boolean {
+		return Battle._active;
+	}
+
+	static set active(active: boolean) {
+		Battle._active = active;
 	}
 
 	addStatus(status: StatusEffect) {
@@ -91,26 +112,26 @@ class Battle {
 			return;
 		}
 		this._countdown--;
-		if (this.countdown == 0) {
+		if (this._countdown == 0) {
 			this.gameover();
 		}
 	}
 
 	damage(x: number): void {
-		this._health -= x;
+		this._enemy.health -= x;
 		this.runStatusCallbacks("attack");
 	}
 
 	heal(x: number): void {
-		this._health += x;
-		if (this._health > this._startingHealth) {
-			this._health = this._startingHealth;
+		this._enemy.health += x;
+		if (this._enemy.health > this._startingHealth) {
+			this._enemy.health = this._startingHealth;
 		}
 	}
 
 	spoils(): Manager {
-		let result = new Manager(this._enemyName);
-		let ratio = Math.abs(this._health)/this._startingHealth;
+		let result = new Manager(this._enemy.name);
+		let ratio = Math.abs(this._enemy.health)/this._startingHealth;
 		ratio = Math.max(1, Math.floor(ratio));
 		result.multiply(ratio);
 		return result;
