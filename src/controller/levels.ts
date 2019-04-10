@@ -4,6 +4,7 @@
 let levels = [
 	
 	function(): TileMap {
+
 		let newMap = new TileMap(15,15);
 		Game.player.addItem(new items.Key);
 		let door: Door = new Door();
@@ -15,6 +16,7 @@ let levels = [
 			door
 		];
 		// newMap.insertEntities(game.entities);
+
 		newMap.insertEntityAt(game.entities[1], 5, 5, 0, 1);
 		newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
 		newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);

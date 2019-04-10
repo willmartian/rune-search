@@ -133,10 +133,12 @@ class Game {
 		if (dir == [0,0] || !dir) {
 			return null;
 		}
+
 		entity.oldDirs.unshift(dir);
 		if (entity.oldDirs.length > entity.location.length) {
 			entity.oldDirs.pop();
 		}
+
 		let oldLocation: number[][] = entity.location;
 		let oldHead: number[] = entity.head;
 		let newLocation: number[][] = [];
@@ -150,6 +152,7 @@ class Game {
 		oldLocation = oldLocation.slice(0,-1);
 		newLocation = newLocation.concat(oldLocation);
 		return newLocation;
+
 	}
 
 	undoSnake(entity: Entity) {

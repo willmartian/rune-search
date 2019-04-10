@@ -185,8 +185,6 @@ class CollisionMenu {
 							&& (cm.style.opacity == 0)
 							&& cm.style.display != "none") {
 						cm.style.display = "none";
-
-
 					}
 					console.log(event);
 					document.removeEventListener("transitionend", hide);

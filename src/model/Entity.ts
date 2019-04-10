@@ -20,8 +20,7 @@ abstract class Entity {
 		// let that = this;
 		// window.setTimeout(function() {
 		// game.tileMap.removeEntity(that);
-		// }, 1000);
-		
+		// }, 1000);	
 	}
 
 	get name(): string {

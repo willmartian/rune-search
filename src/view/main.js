@@ -19,6 +19,7 @@ let seed = function(sketch) {
 	let showMana;
 	let locationTest;
 	let paused;
+
 	// Runs first.
 	sketch.preload = function() {
 		customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
@@ -57,7 +58,6 @@ let seed = function(sketch) {
 		}
 		sketch.resize();
 		sketch.translate(100, 100);
-		
 		// walker = setInterval(sketch.walk, 500);
 		game.nextLevel();
 	};

@@ -53,7 +53,6 @@ abstract class Character extends Entity {
 			game.battle = b;
 			Battle.active = true;
 		}
-
 		super.playerCollision();
 	}
 

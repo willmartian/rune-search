@@ -235,6 +235,11 @@ e\| _____ )||(|() _____ |/3     * * *
        / *_  *  _  \]]></art>
   </wizard>
 
+  <sign>
+    <description>squack</description>
+    <art><p>Add some instructions here</p></art>
+  </sign>
+
   <zombie>
     <description></description>
     <art><![CDATA[     ___ ___________(_ _)
