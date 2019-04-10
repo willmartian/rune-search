@@ -19,11 +19,12 @@ let levels = [
 		newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
 		newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
 		newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
+		main.showEntities(true);
 		return newMap;
 	},
 
 	function(): TileMap {
-		let newMap = new TileMap(20,10);
+		let newMap = new TileMap(30,10);
 		let rat_key = new enemies.Rat;
 		rat_key.giveItem(new items.Key); 
 		game.entities = [
@@ -35,6 +36,7 @@ let levels = [
 		];
 		newMap.insertEntities(game.entities);
 		main.changeMusic("Exploratory_Final.mp3");
+		main.showEntities(false);
 		return newMap;
 	},
 
@@ -100,6 +102,7 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Undeadication.mp3");
 		return newMap;
 	},
 
@@ -117,6 +120,7 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Bookends.mp3");
 		return newMap;
 	},
 
@@ -128,9 +132,12 @@ let levels = [
 			new Sign("May"),
 			new Sign("Rebekah"),
 			new Sign("Helena"),
-			new Sign("Jack")
+			new Sign("Jack"),
+			new Sign("VGDev")
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Victory.mp3");
+		main.showEntities(true);
 		return newMap;
 	}
 ]

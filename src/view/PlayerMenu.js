@@ -74,7 +74,7 @@ class PlayerMenu {
 				// try {
 				// 	clearInterval(walker);
 				// } catch {
-					walker = setInterval(main.walk, 500);
+					walker = setInterval(main.walk, 1500);
 				// }
 
 				break;

@@ -89,7 +89,9 @@ class Battle {
 	}
 
 	enqueue(s: Skill): void {
-		this._skillQueue.push(s);
+		if (s != null) {
+			this._skillQueue.push(s);
+		}
 	}
 
 	logText(s: string): void {
@@ -107,7 +109,7 @@ class Battle {
 		this._player.mana.subtract(this.totalCost);
 		this._skillQueue = [];
 		this.runStatusCallbacks("turnEnd");
-		if (this._health <= 0) {
+		if (this._enemy.health <= 0) {
 			this.victory();
 			return;
 		}
@@ -140,6 +142,7 @@ class Battle {
 	victory(): void {
 		//TODO: more victory code goes here
 		this._player.mana.add(this.spoils());
+		collisionMenu.closeMenu();
 		console.log("battle won!");
 	}
 

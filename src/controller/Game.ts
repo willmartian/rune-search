@@ -94,7 +94,9 @@ class Game {
 		this._tileMap = newMap;
 		Game.player.hunger = 1;
 		main.draw();
+		// if (level == levels[0]) {
 		main.resize();
+		// }
 		return old;
 	}
 

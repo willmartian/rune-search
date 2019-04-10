@@ -43,7 +43,7 @@ let seed = function(sketch) {
 		marginX = 10;
 		fontSize = window.getComputedStyle(document.body).fontSize;
 		padding = parseInt(fontSize)*2;
-		showEntities = true;
+		showEntities = false;
 		showMana = false;
 		showCM = true;
 		locationTest = false;
@@ -75,6 +75,7 @@ let seed = function(sketch) {
 		collisionMenu.update();
 		playerMenu.update();
 		sketch.updateWordBank();
+		// sketch.scrollStyle();
 	};
 
 	sketch.pause = function() {
@@ -90,7 +91,7 @@ let seed = function(sketch) {
 			pauseMenu.style.display = "none";
 			music.loop();
 			game.classList.remove("blur");
-			walker = setInterval(sketch.walk, 500);
+			walker = setInterval(sketch.walk, 1500);
 			paused = false;
 		}
 	}
@@ -206,6 +207,10 @@ let seed = function(sketch) {
 		sketch.textStyle(sketch.NORMAL);
 	};
 
+	sketch.showEntities = function(bool) {
+		let b = new Boolean(bool);
+		showEntities = b;
+	}
 
 	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
@@ -226,7 +231,15 @@ let seed = function(sketch) {
 	};
 
 	sketch.keyPressed = function() {
-		if (sketch.keyCode == 37) { //left arrow
+		if (sketch.keyCode == 38) { //up arrow
+			if (!collisionMenu.visible) {
+				sketch.walk();
+			}
+		} else if (sketch.key == "e") {
+			showEntities = !showEntities;
+		} else if (sketch.key == "n") {
+			game.nextLevel();
+		} else if (sketch.keyCode == 37) { //left arrow
 			if (!collisionMenu.visible) {
 				game.rotateDir(Game.player, true);
 			} else {
@@ -305,6 +318,68 @@ let seed = function(sketch) {
 		// } catch(err) {
 		// 	console.log(err);
 		// }
+	}
+
+	sketch.scrollStyle = function() {
+		let ws = document.getElementById("word-search");
+		let fade = document.getElementById("ws-fade");
+		if(ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
+			console.log("go down");
+			fade.classList.add("fade-bottom");
+		} else {
+			fade.classList.remove("fade-bottom");
+		}
+
+		if(ws.scrollTop !== 0) {
+			console.log("go up");
+			fade.classList.add("fade-top");
+		} else {
+			fade.classList.remove("fade-top");
+		}
+
+		if(ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
+			//there is still more to the left 
+			console.log("go right");
+			fade.classList.add("fade-right");
+		} else {
+			fade.classList.remove("fade-right");
+		}
+
+		if(ws.scrollLeft !== 0) {
+			//there is still more to the left 
+			console.log("go left");
+			fade.classList.add("fade-left");
+		} else {
+			fade.classList.remove("fade-left");
+		}
+	}
+
+
+	/* View in fullscreen */
+	sketch.openFullscreen = function() {
+	  let elem = document.documentElement;
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	    elem.mozRequestFullScreen();
+	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	    elem.msRequestFullscreen();
+	  }
+	}
+
+	/* Close fullscreen */
+	sketch.closeFullscreen = function() {
+	  if (document.exitFullscreen) {
+	    document.exitFullscreen();
+	  } else if (document.mozCancelFullScreen) { /* Firefox */
+	    document.mozCancelFullScreen();
+	  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+	    document.webkitExitFullscreen();
+	  } else if (document.msExitFullscreen) { /* IE/Edge */
+	    document.msExitFullscreen();
+	  }
 	}
 
 };

@@ -13,6 +13,9 @@ class CollisionMenu {
 		let data;
 		if (this.colliding.length > 0) {
 			let name = this.colliding[this.colliding.length - 1].constructor.name.toLowerCase();
+			if (name == "sign") {
+				name = this.colliding[this.colliding.length - 1].name.toLowerCase();
+			}
 			data = xml.getChild(name);
 			if (!data) {
 				data = xml.getChild("default");

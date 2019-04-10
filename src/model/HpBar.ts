@@ -2,14 +2,14 @@
 class HpBar {
   private currentHealth: number; //the current health
   private maxHealth: number; //max hp
-  private maxBar: number = 10; //max number of bars to represent hp in string
+  private maxBar: number = 5; //max number of bars to represent hp in string
   private barString: string; //this is the hp bar
 
   constructor(max: number){
     this.currentHealth = max; //hp is full when bar is created
     this.maxHealth = max;
     // this.barString = "██████████";
-    this.barString = "[][][][][]"
+    this.barString = "<3 <3 <3 <3 <3 "
 
   }
 
@@ -24,20 +24,20 @@ class HpBar {
       this.barString = "";
 
       //remaking barString
-      let left = true;
+      // let left = true;
       while(i < this.maxBar){
          if(i < tmp) {
              var re = /░/;
-            if (left) {
+            // if (left) {
               // this.barString = this.barString + "█";
-              this.barString = this.barString + "[";
-            } else {
-              this.barString = this.barString + "]";
-            }
-            left = !left;
+              this.barString = this.barString + "<3 ";
+            // } else {
+              // this.barString = this.barString + "]";
+            // }
+            // left = !left;
          } else {
            // this.barString = this.barString + "░";
-            this.barString = this.barString + " ";
+            this.barString = this.barString + "   ";
 
          }
          i = i+1;
