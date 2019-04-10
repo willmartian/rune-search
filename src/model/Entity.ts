@@ -6,20 +6,21 @@ abstract class Entity {
 	protected _active: boolean;
 	protected _head: number[]; //x,y
 	protected _dir: number[]; //xstep,ystep - head's x + dir's x = next x coord
+	protected _oldDirs: number[][];
 
 	constructor(name: string) {
 		this._name = name;
 		this._location = [];
 		this._active = false;
+		this._oldDirs = [];
 	}
 
 	//override this default method method
 	playerCollision(): void {
-		let that = this;
+		// let that = this;
 		// window.setTimeout(function() {
-		game.tileMap.removeEntity(that);
-		// }, 1000);
-		
+		// game.tileMap.removeEntity(that);
+		// }, 1000);	
 	}
 
 	get name(): string {
@@ -74,6 +75,14 @@ abstract class Entity {
 
 	set dir(dir: number[]) {
 		this._dir = dir;
+	}
+
+	get oldDirs(): number[][] {
+		return this._oldDirs;
+	}
+
+	set oldDirs(oldDirs: number[][]) {
+		this._oldDirs = oldDirs;
 	}
 
 	get reverseDir() {

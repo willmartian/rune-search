@@ -199,6 +199,8 @@ class TileMap {
 			tile.removeEntity(entity);
 			tile.removeTopLetter();
 		}
+
+		game.dead.push(entity);
 		return entity;
 
 	}

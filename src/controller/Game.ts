@@ -8,6 +8,7 @@ class Game {
 	private _entities: Entity[];
 	private _currentLevel: number;
 	private _dead: Entity[];
+	private _battle: Battle;
 
 	constructor() {
 		this._selected = [];
@@ -50,6 +51,14 @@ class Game {
 		this._entities = entities;
 	}
 
+	get battle(): Battle {
+		return this._battle;
+	}
+
+	set battle(battle: Battle) {
+		this._battle = battle;
+	}
+
 	get dead(): Entity[] {
 		return this._dead;
 	}
@@ -85,6 +94,9 @@ class Game {
 		this._tileMap = newMap;
 		Game.player.hunger = 1;
 		main.draw();
+		// if (level == levels[0]) {
+		main.resize();
+		// }
 		return old;
 	}
 
@@ -121,6 +133,12 @@ class Game {
 		if (dir == [0,0] || !dir) {
 			return null;
 		}
+
+		entity.oldDirs.unshift(dir);
+		if (entity.oldDirs.length > entity.location.length) {
+			entity.oldDirs.pop();
+		}
+
 		let oldLocation: number[][] = entity.location;
 		let oldHead: number[] = entity.head;
 		let newLocation: number[][] = [];
@@ -133,6 +151,25 @@ class Game {
 		newLocation.push(newHead);
 		oldLocation = oldLocation.slice(0,-1);
 		newLocation = newLocation.concat(oldLocation);
+		return newLocation;
+
+	}
+
+	undoSnake(entity: Entity) {
+		
+		let oldLocation: number[][] = entity.location;
+		let oldBottom: number[] = oldLocation[oldLocation.length - 1];
+		let newLocation: number[][] = [];
+		let dir = entity.oldDirs[entity.oldDirs.length - 1];
+
+		let newBottom: number[] = [(oldBottom[0] + dir[0]), (oldBottom[1] + dir[1])];
+		if (this.tileMap.getTile(newBottom[0],newBottom[1]) != null
+			&& this.tileMap.getTile(newBottom[0],newBottom[1]).containsEntity(entity)) {
+			return oldLocation;
+		}
+		newLocation.push(newBottom);
+		oldLocation = oldLocation.slice(1,0);
+		newLocation = oldLocation.concat(newLocation);
 		return newLocation;
 	}
 

@@ -32,17 +32,26 @@ abstract class Character extends Entity {
 		// 		return true;
 		// 	}
 		// }
+		for (let item of this._inventory) {
+			game.colliding.push(item);
+		}
 		return false;
 	}
 
 	playerCollision(): void {
-		while (this.isAlive() && Game.player.isAlive()) {
-			Game.player.attack(this);
-			this.attack(Game.player);
-			console.log("enemy battled");
-		}
-		if (Game.player.isDead()) {
-			Game.player.die();
+		// while (this.isAlive() && Game.player.isAlive()) {
+		// 	Game.player.attack(this);
+		// 	this.attack(Game.player);
+		// 	console.log("enemy battled");
+		// }
+		// if (Game.player.isDead()) {
+		// 	Game.player.die();
+		// }
+		if (!Battle.active) {
+			// let b = new Battle(this._health, this._name, 3);
+			let b = new Battle(this, 3);
+			game.battle = b;
+			Battle.active = true;
 		}
 		super.playerCollision();
 	}
@@ -57,6 +66,10 @@ abstract class Character extends Entity {
 
 	get inventory(): Item[] {
 		return this._inventory;
+	}
+
+	giveItem(item: Item): void {
+		this._inventory.push(item);
 	}
 
 	get health(): number {

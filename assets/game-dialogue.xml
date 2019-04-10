@@ -4,5 +4,9 @@
   <instructions>
     <d1>Hello, and welcome to Rune Search! I am Goat.</d1>
     <d2>I AM HUNGRYYYYYY!</d2>
+    <d3>I love to eat letters! Use the &lt; and &gt; keys to help me find them. (I can't see very well...)</d3>
+    <d4>Whenever I am not eating something I get pretty cranky... Don't let my Hunger level reach 10!</d4>
+    <d5>If YOU need to go eat something, press 'p' to pause the game.</d5>
+    <d6>Ready?</d6>
   </instructions>
 </game-dialogue>

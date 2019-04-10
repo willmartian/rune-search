@@ -4,7 +4,8 @@
 let levels = [
 	
 	function(): TileMap {
-		let newMap = new TileMap(30,15);
+
+		let newMap = new TileMap(15,15);
 		Game.player.addItem(new items.Key);
 		let door: Door = new Door();
 		door.name = "Start";
@@ -15,24 +16,29 @@ let levels = [
 			door
 		];
 		// newMap.insertEntities(game.entities);
-		newMap.insertEntityAt(game.entities[1], 10, 6, 1, 0);
-		newMap.insertEntityAt(game.entities[2], 20, 6, 1, 0);
-		newMap.insertEntityAt(game.entities[3], 15, 10, 1, 0);
-		newMap.insertEntityAt(game.entities[0], 29, 14, 1, 0);
+
+		newMap.insertEntityAt(game.entities[1], 5, 5, 0, 1);
+		newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
+		newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
+		newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
+		main.showEntities(true);
 		return newMap;
 	},
 
 	function(): TileMap {
-		let newMap = new TileMap(30,15);
+		let newMap = new TileMap(30,10);
+		let rat_key = new enemies.Rat;
+		rat_key.giveItem(new items.Key); 
 		game.entities = [
 			Game.player,
 			new enemies.Rat,
-			new enemies.Rat,
+			rat_key,
 			new items.Key,
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
 		main.changeMusic("Exploratory_Final.mp3");
+		main.showEntities(false);
 		return newMap;
 	},
 
@@ -40,7 +46,7 @@ let levels = [
 		let newMap = new TileMap(30,15);
 		game.entities = [
 			Game.player,
-			new enemies.Goblin,
+			new enemies.Wizard,
 			new enemies.Goblin,
 			new enemies.Goblin,
 			new enemies.Goblin,
@@ -73,19 +79,32 @@ let levels = [
 	},
 
 	function(): TileMap {
-		let newMap = new TileMap(30,15);
+		let newMap = new TileMap(10,10);
+		Game.player.addItem(new items.Key);
+		game.entities = [
+			Game.player,
+			new Shopkeep(),
+			new Door(),
+		];
+		newMap.insertEntities(game.entities);
+		return newMap;
+	},
+
+	function(): TileMap {
+		let newMap = new TileMap(20,20);
 		game.entities = [
 			Game.player,
 			new enemies.Rat,
 			new enemies.Rat,
 			new enemies.Zombie,
 			new enemies.Zombie,
-			new enemies.Zombie,
-			new enemies.Zombie,
+			new enemies.Ghoul,
+			new enemies.Ghoul,
 			new items.Key,
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Undeadication.mp3");
 		return newMap;
 	},
 
@@ -98,11 +117,12 @@ let levels = [
 			new enemies.Dinosaur,
 			new enemies.Dinosaur,
 			new enemies.Dinosaur,
-			new enemies.Dinosaur,
+			new enemies.Wizard,
 			new items.Key,
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Bookends.mp3");
 		return newMap;
 	},
 
@@ -114,9 +134,12 @@ let levels = [
 			new Sign("May"),
 			new Sign("Rebekah"),
 			new Sign("Helena"),
-			new Sign("Jack")
+			new Sign("Jack"),
+			new Sign("VGDev")
 		];
 		newMap.insertEntities(game.entities);
+		main.changeMusic("Victory.mp3");
+		main.showEntities(true);
 		return newMap;
 	}
 ]

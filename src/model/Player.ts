@@ -14,7 +14,7 @@ class Player extends Character {
 		super._active = true;
 		this._party = [];
 		this._mana = new Manager();
-		this._skills = [skills.slap];
+		this._skills = [skills.slap, skills.aegis];
 		this._hunger = 2;
 		this._maxHunger = 10;
 	}

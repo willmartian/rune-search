@@ -6,6 +6,7 @@ let playerMenu;
 let collisionMenu;
 let music;
 let showCM;
+let walker;
 
 
 let seed = function(sketch) {
@@ -18,7 +19,6 @@ let seed = function(sketch) {
 	let showMana;
 	let locationTest;
 	let paused;
-	let walker;
 
 	// Runs first.
 	sketch.preload = function() {
@@ -44,7 +44,7 @@ let seed = function(sketch) {
 		marginX = 10;
 		fontSize = window.getComputedStyle(document.body).fontSize;
 		padding = parseInt(fontSize)*2;
-		showEntities = true;
+		showEntities = false;
 		showMana = false;
 		showCM = true;
 		locationTest = false;
@@ -58,8 +58,7 @@ let seed = function(sketch) {
 		}
 		sketch.resize();
 		sketch.translate(100, 100);
-		
-		walker = setInterval(sketch.walk, 500);
+		// walker = setInterval(sketch.walk, 500);
 		game.nextLevel();
 	};
 
@@ -76,6 +75,7 @@ let seed = function(sketch) {
 		collisionMenu.update();
 		playerMenu.update();
 		sketch.updateWordBank();
+		// sketch.scrollStyle();
 	};
 
 	sketch.pause = function() {
@@ -91,7 +91,7 @@ let seed = function(sketch) {
 			pauseMenu.style.display = "none";
 			music.loop();
 			game.classList.remove("blur");
-			walker = setInterval(sketch.walk, 500);
+			walker = setInterval(sketch.walk, 1500);
 			paused = false;
 		}
 	}
@@ -111,6 +111,11 @@ let seed = function(sketch) {
 		}
 		for (let entity of game.entities) {
 			let li = document.createElement('li');
+			li.classList.add("word-bank-item");
+			if (game.dead.includes(entity)) {
+				li.style.setProperty("text-decoration", "line-through");
+				li.style.setProperty("font-style", "italic");
+			}
 			li.appendChild(document.createTextNode(entity.name));
 			wb.appendChild(li);
 		}
@@ -202,6 +207,10 @@ let seed = function(sketch) {
 		sketch.textStyle(sketch.NORMAL);
 	};
 
+	sketch.showEntities = function(bool) {
+		let b = new Boolean(bool);
+		showEntities = b;
+	}
 
 	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
@@ -222,38 +231,59 @@ let seed = function(sketch) {
 	};
 
 	sketch.keyPressed = function() {
-		// if (sketch.keyCode === sketch.ENTER) {
-		// 	game.move(Game.player, game.selected);
-		// }
-		if (sketch.key == "e") {
+		if (sketch.keyCode == 38) { //up arrow
+			if (!collisionMenu.visible) {
+				sketch.walk();
+			}
+		} else if (sketch.key == "e") {
 			showEntities = !showEntities;
-		// } else if (sketch.key == "v") {
-		// 	showMana = !showMana;
-		// } else if (sketch.key == "s") {
-		// 	// sketch.switchView();
-		// 	showCM = !showCM;
-		// } else if (sketch.key == "z") {
-		// 	// sketch.switchView();
-		// 	sketch.saveGame();
-		// } else if (sketch.key == "x") {
-		// 	// sketch.switchView();
-		// 	sketch.loadGame();
-		// } else if (sketch.key == "l") { //keyCode 74 = "l"
-		// 	locationTest = !locationTest;
-		// } else if (sketch.keyCode === 38) { //down arrow
-		// 	game.headshift(Game.player, -1);
-		// } else if (sketch.keyCode === 40) { //up arrow
-		// 	game.headshift(Game.player, 1);
+		} else if (sketch.key == "n") {
+			game.nextLevel();
 		} else if (sketch.keyCode == 37) { //left arrow
-			game.rotateDir(Game.player, true);
+			if (!collisionMenu.visible) {
+				game.rotateDir(Game.player, true);
+				// sketch.walk();
+			} else {
+				if (collisionMenu.entity instanceof Character 
+						&& collisionMenu.activeSkill > 0) {
+					collisionMenu.activeSkill += -1;
+				}
+			}
 		} else if (sketch.keyCode == 39) { //right arrow
-			game.rotateDir(Game.player, false);
+			if (!collisionMenu.visible) {
+				game.rotateDir(Game.player, false);
+				// sketch.walk();
+			} else {
+				if (collisionMenu.entity instanceof Character 
+						&& collisionMenu.activeSkill < Game.player.skills.length) {
+					collisionMenu.activeSkill += 1;
+				}
+			}
 		} else if (sketch.key == "p") {
 			sketch.pause();
 		} else if (sketch.key == "z") {
-			playerMenu.dialogueIndex += 1;
+			if (playerMenu.dialogueKey != "") {
+				playerMenu.dialogueIndex += 1;
+			}
+			if (collisionMenu.visible) {
+				collisionMenu.closeMenu();
+			}
+		} else if (paused && sketch.key == "c") {
+			game.changeLevel(levels[levels.length - 1]);
+			sketch.pause();
+		} else if (sketch.key == "m") {
+			if (music.isLooping()) {
+				music.pause();
+			} else {
+				music.loop();
+			}
+		} else if (sketch.key = "b") {
+			if (Battle.active) {
+				game.battle.enqueue(collisionMenu.getActiveSkill());
+				game.battle.endTurn();
+			}
 		}
-
+ 
 		sketch.draw();
 		return false
 	};
@@ -272,40 +302,6 @@ let seed = function(sketch) {
 		return [x, y];
 	}
 
-	// sketch.mouseDragged = function() {
-	// 	let mouseX = sketch.mouseX;
-	// 	let mouseY = sketch.mouseY;
-	// 	let coord = sketch.screenCoordToTile(mouseX, mouseY);
-	// 	let x = coord[0];
-	// 	let y = coord[1];
-	// 	if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-	// 		let tile = game.tileMap.tiles[x][y];
-	// 		if (!game.selected.includes(tile)) {
-	// 			game.selected.push(tile);
-	// 		}
-	// 	}
-	// 	sketch.draw();
-	// }
-
-	// Repeat of mouseDragged, but for individual presses.
-	// sketch.mousePressed = function() { 
-	// 	let mouseX = sketch.mouseX;
-	// 	let mouseY = sketch.mouseY;
-	// 	let coord = sketch.screenCoordToTile(mouseX, mouseY);
-	// 	let x = coord[0];
-	// 	let y = coord[1];
-	// 	if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-	// 		let tile = game.tileMap.tiles[x][y];
-	// 		if (!game.selected.includes(tile)) {
-	// 			game.selected.push(tile);
-	// 		} else {
-	// 			let index = game.selected.indexOf(tile);
-	// 			game.selected.splice(index, 1);
-	// 		}
-	// 	}
-	// 	sketch.draw();
-	// }
-
 	// Resizes canvas to match wordsearch length.
 	sketch.resize = function() {
 		sketch.resizeCanvas(game.tileMap.width*padding + marginX, game.tileMap.height*padding + marginY);
@@ -323,6 +319,68 @@ let seed = function(sketch) {
 		// } catch(err) {
 		// 	console.log(err);
 		// }
+	}
+
+	sketch.scrollStyle = function() {
+		let ws = document.getElementById("word-search");
+		let fade = document.getElementById("ws-fade");
+		if(ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
+			console.log("go down");
+			fade.classList.add("fade-bottom");
+		} else {
+			fade.classList.remove("fade-bottom");
+		}
+
+		if(ws.scrollTop !== 0) {
+			console.log("go up");
+			fade.classList.add("fade-top");
+		} else {
+			fade.classList.remove("fade-top");
+		}
+
+		if(ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
+			//there is still more to the left 
+			console.log("go right");
+			fade.classList.add("fade-right");
+		} else {
+			fade.classList.remove("fade-right");
+		}
+
+		if(ws.scrollLeft !== 0) {
+			//there is still more to the left 
+			console.log("go left");
+			fade.classList.add("fade-left");
+		} else {
+			fade.classList.remove("fade-left");
+		}
+	}
+
+
+	/* View in fullscreen */
+	sketch.openFullscreen = function() {
+	  let elem = document.documentElement;
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	    elem.mozRequestFullScreen();
+	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	    elem.msRequestFullscreen();
+	  }
+	}
+
+	/* Close fullscreen */
+	sketch.closeFullscreen = function() {
+	  if (document.exitFullscreen) {
+	    document.exitFullscreen();
+	  } else if (document.mozCancelFullScreen) { /* Firefox */
+	    document.mozCancelFullScreen();
+	  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+	    document.webkitExitFullscreen();
+	  } else if (document.msExitFullscreen) { /* IE/Edge */
+	    document.msExitFullscreen();
+	  }
 	}
 
 };

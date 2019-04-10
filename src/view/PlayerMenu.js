@@ -5,6 +5,7 @@ class PlayerMenu {
 		this.update();
 		this.dialogueKey = "instructions";
 		this.dialogueIndex = 0;
+		this.completedActions = new Set();
 	}
 
 	getData() {
@@ -49,13 +50,36 @@ class PlayerMenu {
 			let k = this.dialogueKey;
 			let dialogueList = dialogueXML.getChild(k).getChildren();
 			if (this.dialogueIndex >= dialogueList.length) {
-				console.log("test");
+				let actionKey = this.dialogueKey + "-f";
+				this.dialogueActions(actionKey);
 				this.dialogueKey = "";
 				this.dialogueIndex = 0;
 			} else {
+				let actionKey = this.dialogueKey + "-d" + (this.dialogueIndex + 1);
+				console.log(actionKey);
+				this.dialogueActions(actionKey);
 				let i = this.dialogueIndex;
 				document.getElementById("player-speech").innerHTML = dialogueList[i].DOM.textContent;
 			}
+		}
+	}
+
+	dialogueActions(key) {
+		if (this.completedActions.has(key)) {
+			return;
+		}
+		this.completedActions.add(key);
+		switch(key) {
+			case "instructions-f":
+				// try {
+				// 	clearInterval(walker);
+				// } catch {
+					walker = setInterval(main.walk, 1500);
+				// }
+
+				break;
+			default:
+				return;
 		}
 	}
 
