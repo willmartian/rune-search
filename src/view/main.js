@@ -242,6 +242,7 @@ let seed = function(sketch) {
 		} else if (sketch.keyCode == 37) { //left arrow
 			if (!collisionMenu.visible) {
 				game.rotateDir(Game.player, true);
+				// sketch.walk();
 			} else {
 				if (collisionMenu.entity instanceof Character 
 						&& collisionMenu.activeSkill > 0) {
@@ -251,13 +252,13 @@ let seed = function(sketch) {
 		} else if (sketch.keyCode == 39) { //right arrow
 			if (!collisionMenu.visible) {
 				game.rotateDir(Game.player, false);
+				// sketch.walk();
 			} else {
 				if (collisionMenu.entity instanceof Character 
 						&& collisionMenu.activeSkill < Game.player.skills.length) {
 					collisionMenu.activeSkill += 1;
 				}
 			}
-			game.rotateDir(Game.player, false);
 		} else if (sketch.key == "p") {
 			sketch.pause();
 		} else if (sketch.key == "z") {
