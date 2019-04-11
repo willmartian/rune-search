@@ -5,8 +5,8 @@ let skills = {
 
 	slap: new Skill(
 		"Slap",
-		"Deal 2 damage.",
-		Skill.makeDamageEffect(2)
+		"Deal 1 damage.",
+		Skill.makeDamageEffect(1)
 	),
 
 	disemvowel: new Skill(

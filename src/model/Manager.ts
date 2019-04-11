@@ -59,7 +59,7 @@ class Manager { //Mana-ger. Get it?
 	}
 
 	get u(): number {
-		return this._a;
+		return this._u;
 	}
 
 	set u(x: number) {

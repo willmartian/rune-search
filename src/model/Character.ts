@@ -18,18 +18,42 @@ abstract class Character extends Entity {
 		this._inventory.push(item);
 	}
 
+	removeItem(item: Item): void {
+		let index = this._inventory.indexOf(item);
+		this._inventory.splice(index, 1);
+	}
+
 	//TODO
-	die(): void {}
+	die(): boolean {
+		// if (!this.isDead) {
+		// 	if(game.tileMap.removeEntity(this)) {
+		// 		this.isDead = true;
+		// 		game.deadEntities.push(this);
+		// 		return true;
+		// 	}
+		// }
+		for (let item of this._inventory) {
+			game.colliding.push(item);
+		}
+		return false;
+	}
 
 	playerCollision(): void {
-		while (this.isAlive() && game.player.isAlive()) {
-			game.player.attack(this);
-			this.attack(game.player);
-			console.log("enemy battled");
+		// while (this.isAlive() && Game.player.isAlive()) {
+		// 	Game.player.attack(this);
+		// 	this.attack(Game.player);
+		// 	console.log("enemy battled");
+		// }
+		// if (Game.player.isDead()) {
+		// 	Game.player.die();
+		// }
+		if (!Battle.active) {
+			// let b = new Battle(this._health, this._name, 3);
+			let b = new Battle(this, 3);
+			game.battle = b;
+			Battle.active = true;
 		}
-		if (game.player.isDead()) {
-			game.player.die();
-		}
+		super.playerCollision();
 	}
 
 	isDead(): boolean {
@@ -42,6 +66,10 @@ abstract class Character extends Entity {
 
 	get inventory(): Item[] {
 		return this._inventory;
+	}
+
+	giveItem(item: Item): void {
+		this._inventory.push(item);
 	}
 
 	get health(): number {

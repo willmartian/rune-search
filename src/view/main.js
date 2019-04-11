@@ -1,10 +1,12 @@
 /// <reference path="../_references.ts" />
 let game;
 let xml;
+let dialogueXML;
 let playerMenu;
 let collisionMenu;
 let music;
 let showCM;
+let walker;
 
 
 let seed = function(sketch) {
@@ -16,35 +18,37 @@ let seed = function(sketch) {
 	let showEntities;
 	let showMana;
 	let locationTest;
+	let paused;
 
 	// Runs first.
 	sketch.preload = function() {
-		// customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
+		customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
 		xml = sketch.loadXML('./assets/game-entities.xml');
-		music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
+		dialogueXML = sketch.loadXML('./assets/game-dialogue.xml')
+		music = sketch.createAudio('./assets/music/Rune_Search.mp3');
 		game = new Game();
+		playerMenu = new PlayerMenu();
+		collisionMenu = new CollisionMenu();
 	};
 
 	// Runs once after preload().
 	sketch.setup = function() {
-
 		music.loop();
-		playerMenu = new PlayerMenu();
-		collisionMenu = new CollisionMenu();
+		// playerMenu = new PlayerMenu();
+		// collisionMenu = new CollisionMenu();
 
 		let canvas = sketch.createCanvas(1000,1000);
 		sketch.noLoop();
 		canvas.parent('word-search');
-		// padding = 30;
 		marginY = 10;
 		marginX = 10;
 		fontSize = window.getComputedStyle(document.body).fontSize;
 		padding = parseInt(fontSize)*2;
-		console.log(padding);
-		showEntities = true;
+		showEntities = false;
 		showMana = false;
 		showCM = true;
 		locationTest = false;
+		pausec = false;
 		COLORS = {
 			// player: sketch.color(0, 0, 0),
 			player: sketch.color(255, 255, 255),
@@ -54,14 +58,14 @@ let seed = function(sketch) {
 		}
 		sketch.resize();
 		sketch.translate(100, 100);
+		// walker = setInterval(sketch.walk, 500);
+		game.nextLevel();
 	};
 
 	//main loop of the application
 	sketch.draw = function() {
-		// sketch.background(255);
-
 		sketch.clear();
-		game.checkCollisions(game.player);
+		game.checkCollisions(Game.player);
 		for (let x = 0; x < game.tileMap.width; x++) {
 		  	for (let y = 0; y < game.tileMap.height; y++) {
 		  		let tile = game.tileMap.tiles[x][y];
@@ -70,7 +74,52 @@ let seed = function(sketch) {
 		}
 		collisionMenu.update();
 		playerMenu.update();
+		sketch.updateWordBank();
+		// sketch.scrollStyle();
 	};
+
+	sketch.pause = function() {
+		let game = document.getElementById("game");
+		let pauseMenu = document.getElementById("pause");
+		if (!paused) {
+			clearInterval(walker);
+			music.pause();
+			game.classList.add("blur");
+			pauseMenu.style.display = "flex";
+			paused = true;
+		} else {
+			pauseMenu.style.display = "none";
+			music.loop();
+			game.classList.remove("blur");
+			walker = setInterval(sketch.walk, 1500);
+			paused = false;
+		}
+	}
+
+	sketch.changeMusic = function(fileName) {
+		fileName = 'assets/music/' + fileName;
+		music.pause();
+		music = sketch.createAudio(fileName);
+		music.loop();
+	}
+
+	sketch.updateWordBank = function() {
+		let wb = document.getElementById("word-bank");
+		let children = wb.childNodes;
+		while (children[1]) {
+   			wb.removeChild(children[1]);
+		}
+		for (let entity of game.entities) {
+			let li = document.createElement('li');
+			li.classList.add("word-bank-item");
+			if (game.dead.includes(entity)) {
+				li.style.setProperty("text-decoration", "line-through");
+				li.style.setProperty("font-style", "italic");
+			}
+			li.appendChild(document.createTextNode(entity.name));
+			wb.appendChild(li);
+		}
+	}
 
 	// Displays the rectangle and text of a Tile.
 	sketch.displayTile = function(tile, x, y) {
@@ -82,7 +131,7 @@ let seed = function(sketch) {
   		sketch.rect(marginX + x*padding + xOff, marginY + y*padding + yOff, padding, padding, 5); //5 is the roundess/radius of the corners
 
   		sketch.setTextStyle(tile);
-  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding + xOff, marginY + y*padding + yOff);
+  		sketch.text(tile.getTopLetter().toUpperCase(), marginX + x*padding + xOff, marginY + y*padding + yOff - 2);
   	}
 
 	sketch.offsetMap = function(x, y) {
@@ -92,30 +141,31 @@ let seed = function(sketch) {
 		return [0, 0];
 	}
 
-	// sketch.switchView = function() {
-	// 	let cm = document.getElementById("collision-menu");
-	// 	let ws = document.getElementById("word-search");
-	// 	if (cm.style.display != "none" || cm.style.display == "") {
-	// 		cm.style.display = "none";
-	// 		ws.style.display = "flex";
-	// 	} else if (ws.style.display != "none" || ws.style.display == "") {
-	// 		ws.style.display = "none";
-	// 		cm.style.display = "flex";
-	// 	}
-	// }
+	sketch.walk = function() {
+		// game.headshift(Game.player, -1);
+		if (collisionMenu.colliding.length > 0) {
+			return;
+		} else {
+			let newLocation = game.moveSnake(Game.player, Game.player.dir);
+			let tiles = game.tileMap.getTiles(newLocation);
+			game.move(Game.player, tiles);
+			Game.player.hunger += 1;
+			sketch.draw();
+		}
+	}
 
 	sketch.setTextStyle = function(tile) {
 		sketch.noStroke();
-		sketch.textSize(parseInt(fontSize));
-		// sketch.textFont(customFont);
-		sketch.textFont("Courier");
+		sketch.textSize(parseInt(fontSize)*1.2);
+		sketch.textFont(customFont);
+		// sketch.textFont("Courier");
 		sketch.textAlign(sketch.CENTER, sketch.CENTER);
 		
 		if (tile.getTopLetter() == null) {
 		  	tile.addLetter(" ");
   		}
 
-  		if (tile.entities.includes(game.player)) {
+  		if (tile.entities.includes(Game.player)) {
   			// sketch.fill(255);
   			sketch.fill(0);
   			sketch.textStyle(sketch.BOLD);
@@ -124,16 +174,6 @@ let seed = function(sketch) {
   			sketch.fill(255);
   			sketch.textStyle(sketch.NORMAL);
   		}
-
-  		// sketch.showColliding(tile);
-
-  		// if (showEntities) {
-  		// 	sketch.showAllEntities(tile);
-  		// } else if (showMana) {
-  		// 	sketch.showAllMana(tile);
-  		// }
-
-
 	}
 
 	sketch.setRectStyle = function(tile) {
@@ -143,16 +183,15 @@ let seed = function(sketch) {
   		}
 		if (game.selected.includes(tile)) {
 			sketch.fill(COLORS.selected);
-		} else if (tile.entities.includes(game.player)) {
+		} else if (tile.entities.includes(Game.player)) {
 			sketch.fill(COLORS.player);
 			if (locationTest) {
 				let loc = game.tileMap.getTileLocation(tile);
-				if (game.player.locationIncludes(loc[0], loc[1])) {
+				if (Game.player.locationIncludes(loc[0], loc[1])) {
 					sketch.stroke(sketch.color(0, 255, 255));
 				}
 			}
 		} else {
-			// sketch.fill(COLORS.empty);
 			sketch.noFill();
 		}
 
@@ -168,6 +207,10 @@ let seed = function(sketch) {
 		sketch.textStyle(sketch.NORMAL);
 	};
 
+	sketch.showEntities = function(bool) {
+		let b = new Boolean(bool);
+		showEntities = b;
+	}
 
 	sketch.showAllEntities = function(tile) {
 		if (tile.entities.length > 1) {
@@ -188,34 +231,59 @@ let seed = function(sketch) {
 	};
 
 	sketch.keyPressed = function() {
-		if (sketch.keyCode === sketch.ENTER) {
-			game.move(game.player, game.selected);
-		}
-		if (sketch.key == "e") {
+		if (sketch.keyCode == 38) { //up arrow
+			if (!collisionMenu.visible) {
+				sketch.walk();
+			}
+		} else if (sketch.key == "e") {
 			showEntities = !showEntities;
-		} else if (sketch.key == "v") {
-			showMana = !showMana;
-		} else if (sketch.key == "s") {
-			// sketch.switchView();
-			showCM = !showCM;
-		} else if (sketch.key == "z") {
-			// sketch.switchView();
-			sketch.saveGame();
-		} else if (sketch.key == "x") {
-			// sketch.switchView();
-			sketch.loadGame();
-		} else if (sketch.key == "l") { //keyCode 74 = "l"
-			locationTest = !locationTest;
-		} else if (sketch.keyCode === 38) { //down arrow
-			game.headshift(game.player, -1);
-		} else if (sketch.keyCode === 40) { //up arrow
-			game.headshift(game.player, 1);
+		} else if (sketch.key == "n") {
+			game.nextLevel();
 		} else if (sketch.keyCode == 37) { //left arrow
-			game.rotateDir(game.player, true);
+			if (!collisionMenu.visible) {
+				game.rotateDir(Game.player, true);
+				// sketch.walk();
+			} else {
+				if (collisionMenu.entity instanceof Character 
+						&& collisionMenu.activeSkill > 0) {
+					collisionMenu.activeSkill += -1;
+				}
+			}
 		} else if (sketch.keyCode == 39) { //right arrow
-			game.rotateDir(game.player, false);
+			if (!collisionMenu.visible) {
+				game.rotateDir(Game.player, false);
+				// sketch.walk();
+			} else {
+				if (collisionMenu.entity instanceof Character 
+						&& collisionMenu.activeSkill < Game.player.skills.length) {
+					collisionMenu.activeSkill += 1;
+				}
+			}
+		} else if (sketch.key == "p") {
+			sketch.pause();
+		} else if (sketch.key == "z") {
+			if (playerMenu.dialogueKey != "") {
+				playerMenu.dialogueIndex += 1;
+			}
+			if (collisionMenu.visible) {
+				collisionMenu.closeMenu();
+			}
+		} else if (paused && sketch.key == "c") {
+			game.changeLevel(levels[levels.length - 1]);
+			sketch.pause();
+		} else if (sketch.key == "m") {
+			if (music.isLooping()) {
+				music.pause();
+			} else {
+				music.loop();
+			}
+		} else if (sketch.key = "b") {
+			if (Battle.active) {
+				game.battle.enqueue(collisionMenu.getActiveSkill());
+				game.battle.endTurn();
+			}
 		}
-
+ 
 		sketch.draw();
 		return false
 	};
@@ -232,40 +300,6 @@ let seed = function(sketch) {
 		let x = Math.round(sketch.map(screenX, marginX, marginX + (game.tileMap.width + 1)*padding, 0, game.tileMap.width + 1));
 		let y = Math.round(sketch.map(screenY, marginY, marginY + (game.tileMap.height + 1)*padding, 0, game.tileMap.height + 1));
 		return [x, y];
-	}
-
-	sketch.mouseDragged = function() {
-		let mouseX = sketch.mouseX;
-		let mouseY = sketch.mouseY;
-		let coord = sketch.screenCoordToTile(mouseX, mouseY);
-		let x = coord[0];
-		let y = coord[1];
-		if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-			let tile = game.tileMap.tiles[x][y];
-			if (!game.selected.includes(tile)) {
-				game.selected.push(tile);
-			}
-		}
-		sketch.draw();
-	}
-
-	// Repeat of mouseDragged, but for individual presses.
-	sketch.mousePressed = function() { 
-		let mouseX = sketch.mouseX;
-		let mouseY = sketch.mouseY;
-		let coord = sketch.screenCoordToTile(mouseX, mouseY);
-		let x = coord[0];
-		let y = coord[1];
-		if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-			let tile = game.tileMap.tiles[x][y];
-			if (!game.selected.includes(tile)) {
-				game.selected.push(tile);
-			} else {
-				let index = game.selected.indexOf(tile);
-				game.selected.splice(index, 1);
-			}
-		}
-		sketch.draw();
 	}
 
 	// Resizes canvas to match wordsearch length.
@@ -285,6 +319,68 @@ let seed = function(sketch) {
 		// } catch(err) {
 		// 	console.log(err);
 		// }
+	}
+
+	sketch.scrollStyle = function() {
+		let ws = document.getElementById("word-search");
+		let fade = document.getElementById("ws-fade");
+		if(ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
+			console.log("go down");
+			fade.classList.add("fade-bottom");
+		} else {
+			fade.classList.remove("fade-bottom");
+		}
+
+		if(ws.scrollTop !== 0) {
+			console.log("go up");
+			fade.classList.add("fade-top");
+		} else {
+			fade.classList.remove("fade-top");
+		}
+
+		if(ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
+			//there is still more to the left 
+			console.log("go right");
+			fade.classList.add("fade-right");
+		} else {
+			fade.classList.remove("fade-right");
+		}
+
+		if(ws.scrollLeft !== 0) {
+			//there is still more to the left 
+			console.log("go left");
+			fade.classList.add("fade-left");
+		} else {
+			fade.classList.remove("fade-left");
+		}
+	}
+
+
+	/* View in fullscreen */
+	sketch.openFullscreen = function() {
+	  let elem = document.documentElement;
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	    elem.mozRequestFullScreen();
+	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	    elem.msRequestFullscreen();
+	  }
+	}
+
+	/* Close fullscreen */
+	sketch.closeFullscreen = function() {
+	  if (document.exitFullscreen) {
+	    document.exitFullscreen();
+	  } else if (document.mozCancelFullScreen) { /* Firefox */
+	    document.mozCancelFullScreen();
+	  } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+	    document.webkitExitFullscreen();
+	  } else if (document.msExitFullscreen) { /* IE/Edge */
+	    document.msExitFullscreen();
+	  }
 	}
 
 };

@@ -84,15 +84,10 @@ class TileMap {
 		return locations;
 	}
 
-	insertEntity(entity: Entity): boolean {
-
-		let posDir: number[] = this.randomPosDir();
-		let x: number = posDir[0], y: number = posDir[1],
-		xStep: number = posDir[2], yStep: number = posDir[3];
-
+	insertEntityAt(entity: Entity, x: number, y: number, xStep: number, yStep: number) {
+		
 		let path: number[][] = [];
 		let i: number;
-
 		//Does entity name fit?
 		for (i = 0; i < entity.name.length; i++) {
 			if (x < this.width && x > 0 && y < this.height && y > 0) {
@@ -133,9 +128,82 @@ class TileMap {
 		}
 	}
 
-	// removeEntity(entity: Entity): Entity {
-	// 	//TODO
-	// }
+	insertEntity(entity: Entity): boolean {
+
+		let posDir: number[] = this.randomPosDir();
+		let x: number = posDir[0], y: number = posDir[1], 
+		xStep: number = posDir[2], yStep: number = posDir[3];
+		
+		let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+
+		if (result == false) {
+			return this.insertEntity(entity);
+		} else {
+			return result;
+		}
+
+	}
+
+	insertEntityAtLocation(entity: Entity, x: number, y: number, xStep: number, yStep: number): boolean {
+
+		let path: number[][] = [];
+		let i: number;
+
+		//Does entity name fit?
+		for (i = 0; i < entity.name.length; i++) {
+			if (x < this.width && x >= 0 && y < this.height && y >= 0) {
+				let tile: Tile = this._tiles[x][y];
+				if (tile.entities.length == 1 ||
+						tile.getTopLetter() == entity.name.charAt(i)) {
+					tile.addLetter(entity.name.charAt(i));
+					path.push([x,y]);
+					x += xStep;
+					y += yStep;	
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+
+		//If so, add entity to tile.
+		if (i == entity.name.length) {
+			let currLocation = [];
+			for (let location of path) {
+				currLocation.push(location);
+				let x: number = location[0];
+				let y: number = location[1];
+				this._tiles[x][y].addEntity(entity);
+			}
+			entity.location = currLocation;
+			this._entities.push(entity);
+			return true;
+		} else {
+			for (let location of path) {
+				let x: number = location[0];
+				let y: number = location[1];
+				this._tiles[x][y].removeTopLetter();
+			}
+			return false;
+		}
+	}
+
+	removeEntity(entity: Entity): Entity {
+		//TODO
+		let tiles: Tile[] = this.getEntityTiles(entity);
+		if (tiles.length <= 0) {
+			throw ("Entity not found.");
+		}
+		for (let tile of tiles) {
+			tile.removeEntity(entity);
+			tile.removeTopLetter();
+		}
+
+		game.dead.push(entity);
+		return entity;
+
+	}
 
 	getTileLocation(tile: Tile): number[] {
 		for (let x = 0; x < this._width; x++) {
@@ -149,7 +217,7 @@ class TileMap {
 
 	getTile(x: number, y: number): Tile {
 		if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-			console.log("out of bounds....");
+			// console.log("out of bounds....");
 			return null;
 		}
 		return this._tiles[x][y];

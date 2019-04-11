@@ -10,6 +10,14 @@ let enemies = {
 		}
 	},
 
+	Ghoul: class extends Character {
+		constructor() {
+			super("Ghoul");
+			super._health = 6;
+			super._attackDamage = 2;
+		}
+	},
+
 	Goblin: class extends Character {
 		constructor() {
 			super("Goblin");
@@ -21,7 +29,7 @@ let enemies = {
 	Rat: class extends Character {
 		constructor() {
 			super("Rat");
-			super._health = 1;
+			super._health = 2;
 			super._attackDamage = 2;
 		}
 	},
@@ -37,6 +45,14 @@ let enemies = {
 	Unicorn: class extends Character {
 		constructor() {
 			super("Unicorn");
+			super._health = 6;
+			super._attackDamage = 2;
+		}
+	},
+
+	Wizard: class extends Character {
+		constructor() {
+			super("Wizard");
 			super._health = 6;
 			super._attackDamage = 2;
 		}

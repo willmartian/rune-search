@@ -41,6 +41,43 @@
          /__/`        /___/]]></art>
   </dinosaur>
 
+  <door>
+    <description>open meeee</description>
+    <art><![CDATA[           ..''''''''''''''''..             
+        .''    .    ;    |    .''.
+       .''.    ;    |    .    ;   ''.
+      "   ;    |    .         .   | " 
+      "        .         |        .  "
+      "   |    ;    '         ; _    "
+      "        .    |    ;     ( )   "
+    } "   .         .         .   ;  " {     
+     }"   |    .    ;    .    |      " }  {  
+  { }{"   .    |    .    ;    .   |  " { } {   
+{ }{ }"______________________________" { }{  }]]></art>
+  </door>
+
+  <ghoul>
+    <description>roar</description>
+    <art><![CDATA[                                 ,,,,
+           .'` `'.               ||||
+          /    ,-.\              ||||
+         /    /:::\\           ( ////
+         |    |:::||            \///
+         |    |:::||             //
+         |    |:::||            //
+         /    |:::|/        _,-//\
+        /`    |:::|`-,__,-'`  |/  \
+      /`  |   |'' ||           \   |
+    /`    \   |   ||            |  /
+  |`       |  |   |)            \ |
+ |          \ |   /     ,.___    \|
+ |                    /`     `\   |
+ |       /           /         \  /
+        .                      | /
+                               `(
+                                )]]></art>
+  </ghoul>
+
 	<goblin>
     <description>A cutie. (etc)</description>
     <art><![CDATA[        __              __
@@ -70,9 +107,30 @@ _____    ||    (oo)    ||    _____
       |________/  \________|]]></art>
   </goblin>
 
+  <goat>
+    <description>moo</description>
+    <art><![CDATA[             ,--._,--.
+           ,'  ,'   ,-`.
+(`-.__    /  ,'   /
+ `.   `--'          \__,--'-.
+   `--/__     ____   ______/
+     (o-.|-^-| o- |-/  ;^;
+      `--'    `--'  \
+     |:              \
+    ,'`         ,     \
+    (o o ,    --'      :
+     \--','.           ;
+      `;;  :          /
+       ;'  ;     ,' ,'
+       ,','     :  '
+       \ \      :
+         `]]></art>
+  </goat>
+
   <key>
     <description>Wonder what this could open?</description>
-    <art><![CDATA[                                        ,, ======= ,,
+    <art><![CDATA[
+                                         ,, ======= ,,
     ._.         ._.                  ==   =========   ==
     | |     ._. | |                ==   =           =    ==
     | | ._. | | | |               =   =               =   =
@@ -130,7 +188,7 @@ _____    ||    (oo)    ||    _____
                     OOOOOOO]]></art>
   </robot>
 
-  <shop>
+  <shopkeep>
     <description>squack</description>
     <art><![CDATA[                                     !         !
                                      !         !
@@ -153,7 +211,34 @@ _____    ||    (oo)    ||    _____
              /     | |     |        :-...-:          || |
             /      | |     |        |;:   |          || |
 ___________/_______|_|_____|________|_____|__________||_|______]]></art>
-  </shop>
+  </shopkeep>
+
+  <sign>
+    <description>squack</description>
+    <art><p>Add some info here</p></art>
+  </sign>
+
+  <wizard>
+    <description>goblet o FIREEE</description>
+    <art><![CDATA[             ^
+            / \
+           /___\
+          ( o o )           * *
+          )  L  (          /   * *
+   _______()(~)()_______  /     * * *
+e\| _____ )||(|() _____ |/3     * * *
+  |/      (|(|()(      \|      * * * *
+          | )|) |
+          /     \
+         / *  *  \
+        /   *  *  \
+       / *_  *  _  \]]></art>
+  </wizard>
+
+  <sign>
+    <description>squack</description>
+    <art><p>Add some instructions here</p></art>
+  </sign>
 
   <zombie>
     <description></description>
@@ -173,4 +258,57 @@ ___________/_______|_|_____|________|_____|__________||_|______]]></art>
                     /`  /`   _\
                    |___|______|]]></art>
   </zombie>
+
+  <!-- credits -->
+  <will>
+    <art><![CDATA[A 4th year Psychology student. 
+
+This is the first game I have made that have really <b>finished.</b> 
+
+It has been a super fun experience, and I have loved working with my team. 
+
+Find more of my projects on my <a href="http://willmartian.com" target="_blank class="credits-link">website.</a> 
+
+#project_lead #programming #game_design]]></art>
+  </will>
+
+  <rebekah>
+    <art><![CDATA[A 2nd year potato majoring in Computational Media.
+
+Usually can be found petting all the good doggos. 
+
+Is easily scared of bugs and impending deadlines.
+
+#game_design #art #programming]]></art>
+  </rebekah>
+
+  <may>
+    <art><![CDATA[Put description here.
+
+#music #programming #game_design]]></art>
+  </may>
+
+  <helena>
+    <art><![CDATA[A second-year Computer Science major and Spider-Man aficionado (the Raimi trilogy is supreme, don’t @ me)
+
+Is constantly creating new Spotify playlists for every vibe under the sun.
+
+#game_design]]></art>
+  </helena>
+
+  <jack>
+    <art><![CDATA[A 3rd year Computer Science student. 
+
+Professional coffee snob, gym junkie, and meme connoisseur. 
+
+Spends time stressing about little things that do not matter. 
+
+#art]]></art>
+  </jack>
+
+  <vgdev>
+    <art><![CDATA[This lil game wouldn't have been possible 
+without the help and support of <a href="http://vgdev.org" target="_blank class="credits-link">VGDev</a> at Georgia Tech. 
+Thanks everyone :) ]]></art>
+  </vgdev>
 </game-entities>

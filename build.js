@@ -1,37 +1,21 @@
 /// <reference path="../_references.ts" />
 class Game {
-    constructor(o) {
-        if (o) {
-            this._selected = o.selected;
-            this._tileMap = o.tileMap;
-            this._player = o.player;
-            this._entities = o.entities;
-            this._colliding = o.colliding;
-        }
-        else {
-            this._selected = [];
-            //createWorld
-            this._tileMap = new TileMap(30, 15);
-            //createEntities
-            this._player = new Player("Hero");
-            this._entities = [
-                this.player,
-                new Door(),
-                new items.Key,
-                new enemies.Goblin,
-                new enemies.Rat,
-                new enemies.Robot,
-                new enemies.Dinosaur,
-                new enemies.Unicorn,
-                new enemies.Zombie
-            ];
-            this._tileMap.insertEntities(this._entities);
-            this._colliding = [];
-        }
+    constructor() {
+        this._selected = [];
+        this._colliding = [];
+        this._dead = [];
+        Game._player = new Player("Goat");
+        this._tileMap = new TileMap(30, 15);
+        this._entities = [
+            Game._player
+        ];
+        this._tileMap.insertEntities(this._entities);
+        this._currentLevel = -1;
     }
     //Only adding one entity to colliding, TODO
     checkCollisions(entity) {
-        let tiles = this._tileMap.getEntityTiles(entity);
+        // let tiles: Tile[] = this._tileMap.getEntityTiles(entity);
+        let tiles = this._tileMap.getTiles([entity.head]);
         let colliding = [];
         for (let tile of tiles) {
             for (let otherEntity of tile.entities) {
@@ -46,17 +30,59 @@ class Game {
     get colliding() {
         return this._colliding;
     }
+    get entities() {
+        return this._entities;
+    }
+    set entities(entities) {
+        this._entities = entities;
+    }
+    get battle() {
+        return this._battle;
+    }
+    set battle(battle) {
+        this._battle = battle;
+    }
+    get dead() {
+        return this._dead;
+    }
+    set dead(dead) {
+        this._dead = dead;
+    }
     get tileMap() {
         return this._tileMap;
     }
-    newLevel() {
-        let level = new TileMap(35, 20);
-        level.insertEntities(this._entities);
-        this._colliding = [];
-        this._tileMap = level;
+    set tileMap(tileMap) {
+        this._tileMap = tileMap;
     }
-    get player() {
-        return this._player;
+    nextLevel() {
+        let next;
+        try {
+            next = levels[this._currentLevel + 1];
+        }
+        catch (e) {
+            console.log(e);
+            return false;
+        }
+        this.changeLevel(next);
+        this._currentLevel += 1;
+        return true;
+    }
+    changeLevel(level) {
+        let old = this._tileMap;
+        let newMap = level.call(this);
+        this._tileMap = newMap;
+        Game.player.hunger = 1;
+        main.draw();
+        // if (level == levels[0]) {
+        main.resize();
+        // }
+        return old;
+    }
+    static get player() {
+        return Game._player;
+    }
+    static set player(player) {
+        Game._player = player;
     }
     get selected() {
         return this._selected;
@@ -68,17 +94,56 @@ class Game {
         for (let tile of tiles) {
             let vowels = tile.getVowels();
             for (let vowel of vowels) {
-                game.player.mana.increase(vowel, 1);
+                Game.player.mana.increase(vowel, 1);
             }
         }
         //temporary hacky solution: removes the e and o added from "HERO". TODO
-        game.player.mana.decrease("e", 1);
-        game.player.mana.decrease("o", 1);
-        console.log(game.player.mana.toString());
+        Game.player.mana.decrease("a", 1);
+        Game.player.mana.decrease("o", 1);
+        // console.log(Game.player.mana.toString());
+    }
+    moveSnake(entity, dir) {
+        if (dir == [0, 0] || !dir) {
+            return null;
+        }
+        entity.oldDirs.unshift(dir);
+        if (entity.oldDirs.length > entity.location.length) {
+            entity.oldDirs.pop();
+        }
+        let oldLocation = entity.location;
+        let oldHead = entity.head;
+        let newLocation = [];
+        let newHead = [(oldHead[0] - dir[0]), (oldHead[1] - dir[1])];
+        if (this.tileMap.getTile(newHead[0], newHead[1]) != null
+            && this.tileMap.getTile(newHead[0], newHead[1]).containsEntity(entity)) {
+            return oldLocation;
+        }
+        newLocation.push(newHead);
+        oldLocation = oldLocation.slice(0, -1);
+        newLocation = newLocation.concat(oldLocation);
+        return newLocation;
+    }
+    undoSnake(entity) {
+        let oldLocation = entity.location;
+        let oldBottom = oldLocation[oldLocation.length - 1];
+        let newLocation = [];
+        let dir = entity.oldDirs[entity.oldDirs.length - 1];
+        let newBottom = [(oldBottom[0] + dir[0]), (oldBottom[1] + dir[1])];
+        if (this.tileMap.getTile(newBottom[0], newBottom[1]) != null
+            && this.tileMap.getTile(newBottom[0], newBottom[1]).containsEntity(entity)) {
+            return oldLocation;
+        }
+        newLocation.push(newBottom);
+        oldLocation = oldLocation.slice(1, 0);
+        newLocation = oldLocation.concat(newLocation);
+        return newLocation;
     }
     move(entity, newLocation) {
         //check length of intended location
         if (entity.name.length != newLocation.length) {
+            return false;
+        }
+        if (newLocation.includes(null)) {
             return false;
         }
         //check if location contains at least one instance of entity
@@ -92,11 +157,11 @@ class Game {
             return false;
         }
         //check if selected is in a line
-        let xdiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[0] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[0]);
-        let ydiff = Math.abs(this._tileMap.getTileLocation(newLocation[0])[1] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[1]);
-        if ((ydiff != 3 && ydiff != 0) || (xdiff != 3 && xdiff != 0)) {
-            return false;
-        }
+        // let xdiff: number = Math.abs(this._tileMap.getTileLocation(newLocation[0])[0] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[0]);
+        // let ydiff: number = Math.abs(this._tileMap.getTileLocation(newLocation[0])[1] - this._tileMap.getTileLocation(newLocation[newLocation.length - 1])[1]);
+        // if ((ydiff != 3 && ydiff != 0) || (xdiff != 3 && xdiff != 0)) {
+        // 	return false;
+        // }
         //if all conditions were met, move to new location
         let oldLocation = this._tileMap.getEntityTiles(entity);
         for (let i = 0; i < newLocation.length; i++) {
@@ -112,7 +177,7 @@ class Game {
         }
         entity.location = curLocation;
         this._selected = [];
-        if (entity == this._player) {
+        if (entity == Game._player) {
             this.updatePlayerMana(newLocation);
         }
         return true;
@@ -122,7 +187,7 @@ class Game {
         newHead[0] += mul * entity.dir[0];
         newHead[1] += mul * entity.dir[1];
         let line = this._tileMap.getTiles(this._tileMap.line(newHead, entity.dir, entity.length));
-        if (line.indexOf(null) == -1 && game.move(entity, line)) {
+        if (line.indexOf(null) == -1 && this.move(entity, line)) {
             entity.head = newHead;
             return true;
         }
@@ -130,19 +195,20 @@ class Game {
             return false;
         }
     }
-    changeDir(entity, dir) {
-        let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
-        if (line.indexOf(null) == -1 && game.move(entity, line)) {
-            entity.dir = dir;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    // changeDir(entity: Entity, dir: number[]): boolean {
+    // 	let line = this._tileMap.getTiles(this._tileMap.line(entity.head, dir, entity.length));
+    // 	if (line.indexOf(null) == -1 && this.move(entity, line)) {
+    // 		entity.dir = dir;
+    // 		return true;
+    // 	} else {
+    // 		return false;
+    // 	}
+    // }
     rotateDir(entity, clockwise) {
-        let newdir = this._tileMap.rotateDir(entity.dir, clockwise);
-        return this.changeDir(entity, newdir);
+        let newDir = this._tileMap.rotateDir(entity.dir, clockwise);
+        entity.dir = newDir;
+        // return this.changeDir(entity, newdir);
+        return true;
     }
     toJSON() {
         const proto = Object.getPrototypeOf(this);
@@ -295,9 +361,7 @@ class TileMap {
         }
         return locations;
     }
-    insertEntity(entity) {
-        let posDir = this.randomPosDir();
-        let x = posDir[0], y = posDir[1], xStep = posDir[2], yStep = posDir[3];
+    insertEntityAt(entity, x, y, xStep, yStep) {
         let path = [];
         let i;
         //Does entity name fit?
@@ -341,9 +405,74 @@ class TileMap {
             return this.insertEntity(entity);
         }
     }
-    // removeEntity(entity: Entity): Entity {
-    // 	//TODO
-    // }
+    insertEntity(entity) {
+        let posDir = this.randomPosDir();
+        let x = posDir[0], y = posDir[1], xStep = posDir[2], yStep = posDir[3];
+        let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+        if (result == false) {
+            return this.insertEntity(entity);
+        }
+        else {
+            return result;
+        }
+    }
+    insertEntityAtLocation(entity, x, y, xStep, yStep) {
+        let path = [];
+        let i;
+        //Does entity name fit?
+        for (i = 0; i < entity.name.length; i++) {
+            if (x < this.width && x >= 0 && y < this.height && y >= 0) {
+                let tile = this._tiles[x][y];
+                if (tile.entities.length == 1 ||
+                    tile.getTopLetter() == entity.name.charAt(i)) {
+                    tile.addLetter(entity.name.charAt(i));
+                    path.push([x, y]);
+                    x += xStep;
+                    y += yStep;
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        //If so, add entity to tile.
+        if (i == entity.name.length) {
+            let currLocation = [];
+            for (let location of path) {
+                currLocation.push(location);
+                let x = location[0];
+                let y = location[1];
+                this._tiles[x][y].addEntity(entity);
+            }
+            entity.location = currLocation;
+            this._entities.push(entity);
+            return true;
+        }
+        else {
+            for (let location of path) {
+                let x = location[0];
+                let y = location[1];
+                this._tiles[x][y].removeTopLetter();
+            }
+            return false;
+        }
+    }
+    removeEntity(entity) {
+        //TODO
+        let tiles = this.getEntityTiles(entity);
+        if (tiles.length <= 0) {
+            throw ("Entity not found.");
+        }
+        for (let tile of tiles) {
+            tile.removeEntity(entity);
+            tile.removeTopLetter();
+        }
+        game.dead.push(entity);
+        return entity;
+    }
     getTileLocation(tile) {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
@@ -355,7 +484,7 @@ class TileMap {
     }
     getTile(x, y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            console.log("out of bounds....");
+            // console.log("out of bounds....");
             return null;
         }
         return this._tiles[x][y];
@@ -386,6 +515,14 @@ class Entity {
         this._name = name;
         this._location = [];
         this._active = false;
+        this._oldDirs = [];
+    }
+    //override this default method method
+    playerCollision() {
+        // let that = this;
+        // window.setTimeout(function() {
+        // game.tileMap.removeEntity(that);
+        // }, 1000);	
     }
     get name() {
         return this._name;
@@ -430,6 +567,12 @@ class Entity {
     set dir(dir) {
         this._dir = dir;
     }
+    get oldDirs() {
+        return this._oldDirs;
+    }
+    set oldDirs(oldDirs) {
+        this._oldDirs = oldDirs;
+    }
     get reverseDir() {
         return [this._dir[0] * -1, this._dir[1] * -1];
     }
@@ -447,9 +590,19 @@ class Ground extends Entity {
         super(randomLetter);
     }
     playerCollision() {
-        // this.name = " ";
-        // let tile = game.tileMap.tiles[this.location[0][0]][this.location[0][1]];
-        // tile.changeLetter(tile.letters.length-2, this.name);
+        if (this.name != " ") {
+            Game.player.hunger -= 1;
+            let tile = game.tileMap.tiles[this.location[0][0]][this.location[0][1]];
+            let oldName = this.name;
+            this.name = " ";
+            tile.changeLetter(tile.letters.length - 2, this.name);
+        }
+        // this.interval = setInterval(this.revert.bind(this, tile, oldName), 10000);
+    }
+    revert(tile, oldName) {
+        this.name = oldName;
+        tile.changeLetter(tile.letters.length - 1, this.name);
+        clearInterval(this.interval);
     }
 }
 //private static readonly alphabet: string[] = "abcdefghijklmnopqrstuvwxyz".split('');
@@ -466,17 +619,40 @@ class Character extends Entity {
     addItem(item) {
         this._inventory.push(item);
     }
+    removeItem(item) {
+        let index = this._inventory.indexOf(item);
+        this._inventory.splice(index, 1);
+    }
     //TODO
-    die() { }
+    die() {
+        // if (!this.isDead) {
+        // 	if(game.tileMap.removeEntity(this)) {
+        // 		this.isDead = true;
+        // 		game.deadEntities.push(this);
+        // 		return true;
+        // 	}
+        // }
+        for (let item of this._inventory) {
+            game.colliding.push(item);
+        }
+        return false;
+    }
     playerCollision() {
-        while (this.isAlive() && game.player.isAlive()) {
-            game.player.attack(this);
-            this.attack(game.player);
-            console.log("enemy battled");
+        // while (this.isAlive() && Game.player.isAlive()) {
+        // 	Game.player.attack(this);
+        // 	this.attack(Game.player);
+        // 	console.log("enemy battled");
+        // }
+        // if (Game.player.isDead()) {
+        // 	Game.player.die();
+        // }
+        if (!Battle.active) {
+            // let b = new Battle(this._health, this._name, 3);
+            let b = new Battle(this, 3);
+            game.battle = b;
+            Battle.active = true;
         }
-        if (game.player.isDead()) {
-            game.player.die();
-        }
+        super.playerCollision();
     }
     isDead() {
         return !(this._health > 0);
@@ -486,6 +662,9 @@ class Character extends Entity {
     }
     get inventory() {
         return this._inventory;
+    }
+    giveItem(item) {
+        this._inventory.push(item);
     }
     get health() {
         return this._health;
@@ -518,11 +697,25 @@ class Player extends Character {
         super._attackDamage = 1;
         super._active = true;
         this._party = [];
-        this._mana = new Manager("aaaaa");
-        this._skills = [skills.slap];
+        this._mana = new Manager();
+        this._skills = [skills.slap, skills.aegis];
+        this._hunger = 2;
+        this._maxHunger = 10;
     }
     get mana() {
         return this._mana;
+    }
+    get hunger() {
+        return this._hunger;
+    }
+    set hunger(hunger) {
+        this._hunger = hunger;
+    }
+    get maxHunger() {
+        return this._maxHunger;
+    }
+    set maxHunger(maxHunger) {
+        this._maxHunger = maxHunger;
     }
     get skills() {
         return this._skills;
@@ -540,242 +733,6 @@ class Player extends Character {
         }
     }
     playerCollision() { }
-}
-/// <reference path="../_references.ts" />
-let enemies = {
-    Dinosaur: class extends Character {
-        constructor() {
-            super("Dinosaur");
-            super._health = 6;
-            super._attackDamage = 2;
-        }
-    },
-    Goblin: class extends Character {
-        constructor() {
-            super("Goblin");
-            super._health = 6;
-            super._attackDamage = 2;
-        }
-    },
-    Rat: class extends Character {
-        constructor() {
-            super("Rat");
-            super._health = 1;
-            super._attackDamage = 2;
-        }
-    },
-    Robot: class extends Character {
-        constructor() {
-            super("Robot");
-            super._health = 1;
-            super._attackDamage = 2;
-        }
-    },
-    Unicorn: class extends Character {
-        constructor() {
-            super("Unicorn");
-            super._health = 6;
-            super._attackDamage = 2;
-        }
-    },
-    Zombie: class extends Character {
-        constructor() {
-            super("Zombie");
-            super._health = 6;
-            super._attackDamage = 2;
-        }
-    }
-};
-/// <reference path="../_references.ts" />
-class Item extends Entity {
-    constructor(name) {
-        super(name);
-    }
-    playerCollision() {
-        if (!game.player.inventory.includes(this)) {
-            game.player.addItem(this);
-            console.log(this.name + " added to inventory!");
-        }
-    }
-}
-/// <reference path="../_references.ts" />
-class Door extends Entity {
-    constructor() {
-        super("Door");
-    }
-    playerCollision() {
-        for (let item of game.player.inventory) {
-            if (item.name == "Key") {
-                //remove key from inventory, TODO
-                game.newLevel();
-            }
-        }
-    }
-}
-/// <reference path="../_references.ts" />
-let items = {
-    Key: class extends Item {
-        constructor() {
-            super("Key");
-        }
-    }
-};
-/// <reference path="./controller/Game.ts" />
-/// <reference path="./controller/Tile.ts" />
-/// <reference path="./controller/TileMap.ts" />
-/// <reference path="./model/Entity.ts" />
-/// <reference path="./model/Ground.ts" />
-/// <reference path="./model/Character.ts" />
-/// <reference path="./model/Player.ts" />
-/// <reference path="./model/enemies.ts" />
-/// <reference path="./model/Item.ts" />
-/// <reference path="./model/Door.ts" />
-/// <reference path="./model/items.ts" />
-/// <reference path="../_references.ts" />
-class Battle {
-    constructor(health, enemyName, countdown) {
-        this._startingHealth = health;
-        this._health = health;
-        this._enemyName = enemyName;
-        this._countdown = countdown;
-        this._skillQueue = new Array();
-        this._player = game.player;
-        this._log = new Array();
-    }
-    get countdown() {
-        return this._countdown;
-    }
-    get skillQueue() {
-        return this._skillQueue;
-    }
-    get enemyName() {
-        return this._enemyName;
-    }
-    get log() {
-        return this._log;
-    }
-    get totalCost() {
-        let result = new Manager();
-        for (let i = 0; i < this._skillQueue.length; i++) {
-            result.add(this._skillQueue[i].cost);
-        }
-        return result;
-    }
-    get player() {
-        return this._player;
-    }
-    get statuses() {
-        return this._statuses;
-    }
-    addStatus(status) {
-        for (let i = 0; i < this._statuses.length; i++) {
-            if (this._statuses[i].kind == status.kind) {
-                this._statuses[i].increment(status.countdown);
-                return;
-            }
-        }
-        this._statuses.push(status);
-    }
-    changeCountdown(x) {
-        this._countdown += x;
-    }
-    enqueue(s) {
-        this._skillQueue.push(s);
-    }
-    logText(s) {
-        this._log.push(s);
-    }
-    clearQueue() {
-        this._skillQueue = new Array();
-    }
-    endTurn() {
-        for (let i = 0; i < this._skillQueue.length; i++) {
-            this._skillQueue[i].execute(this);
-        }
-        this._player.mana.subtract(this.totalCost);
-        this._skillQueue = [];
-        this.runStatusCallbacks("turnEnd");
-        if (this._health <= 0) {
-            this.victory();
-            return;
-        }
-        this._countdown--;
-        if (this.countdown == 0) {
-            this.gameover();
-        }
-    }
-    damage(x) {
-        this._health -= x;
-        this.runStatusCallbacks("attack");
-    }
-    heal(x) {
-        this._health += x;
-        if (this._health > this._startingHealth) {
-            this._health = this._startingHealth;
-        }
-    }
-    spoils() {
-        let result = new Manager(this._enemyName);
-        let ratio = Math.abs(this._health) / this._startingHealth;
-        ratio = Math.max(1, Math.floor(ratio));
-        result.multiply(ratio);
-        return result;
-    }
-    victory() {
-        //TODO: more victory code goes here
-        this._player.mana.add(this.spoils());
-        console.log("battle won!");
-    }
-    gameover() {
-        //TODO: game over code goes here
-        console.log("battle lost :(");
-    }
-    runStatusCallbacks(callback) {
-        for (let i = 0; i < this._statuses.length; i++) {
-            this._statuses[i][callback](this);
-        }
-        let temp = [];
-        for (let i = 0; i < this._statuses.length; i++) {
-            if (this._statuses[i].countdown != 0) {
-                temp.push(this._statuses[i]);
-            }
-        }
-        this._statuses = temp;
-    }
-}
-//creates a string ascii hp bar
-class HpBar {
-    constructor(max) {
-        this.maxBar = 10; //max number of bars to represent hp in string
-        this.currentHealth = max; //hp is full when bar is created
-        this.maxHealth = max;
-        this.barString = "██████████";
-    }
-    //update will update the currentHealth and reupdate the barString
-    //update will take in cur which is the new current hp hpBar should be updated
-    //with
-    update(cur) {
-        if (cur != this.currentHealth) {
-            this.currentHealth = cur;
-            var tmp = this.currentHealth * 10 / this.maxHealth;
-            var i = 0;
-            this.barString = "";
-            //remaking barString
-            while (i < this.maxBar) {
-                if (i < tmp) {
-                    var re = /░/;
-                    this.barString = this.barString + "█";
-                }
-                else {
-                    this.barString = this.barString + "░";
-                }
-                i = i + 1;
-            }
-        }
-    }
-    get bar() {
-        return this.barString;
-    }
 }
 /// <reference path="../_references.ts" />
 class Manager {
@@ -818,7 +775,7 @@ class Manager {
         this._o = x;
     }
     get u() {
-        return this._a;
+        return this._u;
     }
     set u(x) {
         this._u = x;
@@ -924,12 +881,72 @@ class Manager {
 }
 Manager.vowels = ["a", "e", "i", "o", "u"];
 /// <reference path="../_references.ts" />
+let enemies = {
+    Dinosaur: class extends Character {
+        constructor() {
+            super("Dinosaur");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Ghoul: class extends Character {
+        constructor() {
+            super("Ghoul");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Goblin: class extends Character {
+        constructor() {
+            super("Goblin");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Rat: class extends Character {
+        constructor() {
+            super("Rat");
+            super._health = 2;
+            super._attackDamage = 2;
+        }
+    },
+    Robot: class extends Character {
+        constructor() {
+            super("Robot");
+            super._health = 1;
+            super._attackDamage = 2;
+        }
+    },
+    Unicorn: class extends Character {
+        constructor() {
+            super("Unicorn");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Wizard: class extends Character {
+        constructor() {
+            super("Wizard");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    },
+    Zombie: class extends Character {
+        constructor() {
+            super("Zombie");
+            super._health = 6;
+            super._attackDamage = 2;
+        }
+    }
+};
+/// <reference path="../_references.ts" />
 class Skill {
     constructor(name, desc, effect) {
         this._name = name;
         this._desc = desc;
         this._effect = effect;
         this._cost = new Manager(name);
+        this._camelCaseName = this.generateCamelCaseName();
     }
     get name() {
         return this._name;
@@ -939,6 +956,20 @@ class Skill {
     }
     get cost() {
         return this._cost;
+    }
+    get camelCaseName() {
+        return this._camelCaseName;
+    }
+    generateCamelCaseName() {
+        let splat = this.name.split(" ");
+        let r = splat[0].toLowerCase();
+        for (let i = 0; i < splat.length; i++) {
+            let curr = splat[i].toLowerCase();
+            let firstLetter = curr.substring(0, 1);
+            let backhalf = curr.substring(1);
+            r += firstLetter.toUpperCase() + backhalf;
+        }
+        return r;
     }
     execute(b) {
         this._effect.call(undefined, b);
@@ -1055,12 +1086,12 @@ class UsableOnceSkill extends Skill {
     }
     execute(b) {
         super.execute(b);
-        b.player.revokeSkill(this.name.toLowerCase());
+        b.player.revokeSkill(this.camelCaseName);
     }
 }
 /// <reference path="../_references.ts" />
 let skills = {
-    slap: new Skill("Slap", "Deal 2 damage.", Skill.makeDamageEffect(2)),
+    slap: new Skill("Slap", "Deal 1 damage.", Skill.makeDamageEffect(1)),
     disemvowel: new Skill("Disemvowel", "Deal 999 damage! (Useable only once.)", Skill.makeDamageEffect(999)),
     aegis: new UsableOnceSkill("Aegis of Divine Unmaking", //someone please give this a better name
     "Increase countdown by 5! (Usable once only.)", Skill.makeCountdownEffect(5)),
@@ -1096,16 +1127,409 @@ let skills = {
 // 		Skill.makeCountdownEffect(5)
 // 	),
 // );
+/// <reference path="../_references.ts" />
+class Item extends Entity {
+    constructor(name) {
+        super(name);
+    }
+    playerCollision() {
+        if (!Game.player.inventory.includes(this)) {
+            Game.player.addItem(this);
+            console.log(this.name + " added to inventory!");
+        }
+        super.playerCollision();
+    }
+}
+/// <reference path="../_references.ts" />
+class Door extends Entity {
+    constructor() {
+        super("Door");
+    }
+    playerCollision() {
+        for (let item of Game.player.inventory) {
+            if (item.name == "Key") {
+                Game.player.removeItem(item);
+                game.nextLevel();
+                super.playerCollision();
+            }
+        }
+    }
+}
+/// <reference path="../_references.ts" />
+let items = {
+    Key: class extends Item {
+        constructor() {
+            super("Key");
+        }
+    }
+};
+/// <reference path="../_references.ts" />
+let levels = [
+    function () {
+        let newMap = new TileMap(15, 15);
+        Game.player.addItem(new items.Key);
+        let door = new Door();
+        door.name = "Start";
+        game.entities = [
+            Game.player,
+            new Sign("Rune"),
+            new Sign("Search"),
+            door
+        ];
+        // newMap.insertEntities(game.entities);
+        newMap.insertEntityAt(game.entities[1], 5, 5, 0, 1);
+        newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
+        newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
+        newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
+        main.showEntities(true);
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 10);
+        let rat_key = new enemies.Rat;
+        rat_key.giveItem(new items.Key);
+        game.entities = [
+            Game.player,
+            new enemies.Rat,
+            rat_key,
+            new items.Key,
+            new Door()
+        ];
+        newMap.insertEntities(game.entities);
+        main.changeMusic("Exploratory_Final.mp3");
+        main.showEntities(false);
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 15);
+        game.entities = [
+            Game.player,
+            new enemies.Wizard,
+            new enemies.Goblin,
+            new enemies.Goblin,
+            new enemies.Goblin,
+            new enemies.Rat,
+            new enemies.Rat,
+            new items.Key,
+            new Door()
+        ];
+        newMap.insertEntities(game.entities);
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 15);
+        game.entities = [
+            Game.player,
+            new enemies.Rat,
+            new enemies.Rat,
+            new enemies.Robot,
+            new enemies.Robot,
+            new enemies.Robot,
+            new enemies.Robot,
+            new enemies.Robot,
+            new items.Key,
+            new Door()
+        ];
+        newMap.insertEntities(game.entities);
+        main.changeMusic("Modern_Living.mp3");
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(10, 10);
+        Game.player.addItem(new items.Key);
+        game.entities = [
+            Game.player,
+            new Shopkeep(),
+            new Door(),
+        ];
+        newMap.insertEntities(game.entities);
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(20, 20);
+        game.entities = [
+            Game.player,
+            new enemies.Rat,
+            new enemies.Rat,
+            new enemies.Zombie,
+            new enemies.Zombie,
+            new enemies.Ghoul,
+            new enemies.Ghoul,
+            new items.Key,
+            new Door()
+        ];
+        newMap.insertEntities(game.entities);
+        main.changeMusic("Undeadication.mp3");
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 15);
+        game.entities = [
+            Game.player,
+            new enemies.Rat,
+            new enemies.Rat,
+            new enemies.Dinosaur,
+            new enemies.Dinosaur,
+            new enemies.Dinosaur,
+            new enemies.Wizard,
+            new items.Key,
+            new Door()
+        ];
+        newMap.insertEntities(game.entities);
+        main.changeMusic("Bookends.mp3");
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 15);
+        game.entities = [
+            Game.player,
+            new Sign("Will"),
+            new Sign("May"),
+            new Sign("Rebekah"),
+            new Sign("Helena"),
+            new Sign("Jack"),
+            new Sign("VGDev")
+        ];
+        newMap.insertEntities(game.entities);
+        main.changeMusic("Victory.mp3");
+        main.showEntities(true);
+        return newMap;
+    }
+];
+/// <reference path="./controller/Game.ts" />
+/// <reference path="./controller/Tile.ts" />
+/// <reference path="./controller/TileMap.ts" />
+/// <reference path="./controller/Battle.ts" />
+/// <reference path="./model/Entity.ts" />
+/// <reference path="./model/Ground.ts" />
+/// <reference path="./model/Character.ts" />
+/// <reference path="./model/Player.ts" />
+/// <reference path="./model/Manager.ts" />
+/// <reference path="./model/enemies.ts" />
+/// <reference path="./model/Skill.ts" />
+/// <reference path="./model/StatusEffect.ts" />
+/// <reference path="./model/UsableOnceSkill.ts" />
+/// <reference path="./model/skills.ts" />
+/// <reference path="./model/Item.ts" />
+/// <reference path="./model/Door.ts" />
+/// <reference path="./model/items.ts" />
+/// <reference path="./controller/levels.ts" />
+/// <reference path="../_references.ts" />
+class Battle {
+    // constructor(health: number, enemyName: string, countdown: number) {
+    // 	this._startingHealth = health;
+    // 	this._health = health;
+    // 	this._enemyName = enemyName;
+    // 	this._countdown = countdown;
+    // 	this._skillQueue = new Array<Skill>();
+    // 	this._player = Game.player;
+    // 	this._log = new Array<string>();
+    // 	this._statuses = [];
+    // }
+    constructor(enemy, countdown) {
+        this._enemy = enemy;
+        this._startingHealth = this._enemy.health;
+        this._countdown = countdown;
+        this._skillQueue = new Array();
+        this._player = Game.player;
+        this._log = new Array();
+        this._statuses = [];
+    }
+    get countdown() {
+        return this._countdown;
+    }
+    get skillQueue() {
+        return this._skillQueue;
+    }
+    get enemyName() {
+        return this._enemy.name;
+    }
+    get log() {
+        return this._log;
+    }
+    get totalCost() {
+        let result = new Manager();
+        for (let i = 0; i < this._skillQueue.length; i++) {
+            result.add(this._skillQueue[i].cost);
+        }
+        return result;
+    }
+    get player() {
+        return this._player;
+    }
+    get statuses() {
+        return this._statuses;
+    }
+    static get active() {
+        return Battle._active;
+    }
+    static set active(active) {
+        Battle._active = active;
+    }
+    addStatus(status) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].kind == status.kind) {
+                this._statuses[i].increment(status.countdown);
+                return;
+            }
+        }
+        this._statuses.push(status);
+    }
+    changeCountdown(x) {
+        this._countdown += x;
+    }
+    enqueue(s) {
+        if (s != null) {
+            this._skillQueue.push(s);
+        }
+    }
+    logText(s) {
+        this._log.push(s);
+    }
+    clearQueue() {
+        this._skillQueue = new Array();
+    }
+    endTurn() {
+        for (let i = 0; i < this._skillQueue.length; i++) {
+            this._skillQueue[i].execute(this);
+        }
+        this._player.mana.subtract(this.totalCost);
+        this._skillQueue = [];
+        this.runStatusCallbacks("turnEnd");
+        if (this._enemy.health <= 0) {
+            this.victory();
+            return;
+        }
+        this._countdown--;
+        if (this._countdown == 0) {
+            this.gameover();
+        }
+    }
+    damage(x) {
+        this._enemy.health -= x;
+        this.runStatusCallbacks("attack");
+    }
+    heal(x) {
+        this._enemy.health += x;
+        if (this._enemy.health > this._startingHealth) {
+            this._enemy.health = this._startingHealth;
+        }
+    }
+    spoils() {
+        let result = new Manager(this._enemy.name);
+        let ratio = Math.abs(this._enemy.health) / this._startingHealth;
+        ratio = Math.max(1, Math.floor(ratio));
+        result.multiply(ratio);
+        return result;
+    }
+    victory() {
+        //TODO: more victory code goes here
+        this._player.mana.add(this.spoils());
+        collisionMenu.closeMenu();
+        console.log("battle won!");
+    }
+    gameover() {
+        //TODO: game over code goes here
+        console.log("battle lost :(");
+    }
+    runStatusCallbacks(callback) {
+        for (let i = 0; i < this._statuses.length; i++) {
+            this._statuses[i][callback](this);
+        }
+        let temp = [];
+        for (let i = 0; i < this._statuses.length; i++) {
+            if (this._statuses[i].countdown != 0) {
+                temp.push(this._statuses[i]);
+            }
+        }
+        this._statuses = temp;
+    }
+}
+//creates a string ascii hp bar
+class HpBar {
+    constructor(max) {
+        this.maxBar = 5; //max number of bars to represent hp in string
+        this.currentHealth = max; //hp is full when bar is created
+        this.maxHealth = max;
+        // this.barString = "██████████";
+        this.barString = "<3 <3 <3 <3 <3 ";
+    }
+    //update will update the currentHealth and reupdate the barString
+    //update will take in cur which is the new current hp hpBar should be updated
+    //with
+    update(cur) {
+        if (cur != this.currentHealth) {
+            this.currentHealth = cur;
+            var tmp = this.currentHealth * 10 / this.maxHealth;
+            var i = 0;
+            this.barString = "";
+            //remaking barString
+            // let left = true;
+            while (i < this.maxBar) {
+                if (i < tmp) {
+                    var re = /░/;
+                    // if (left) {
+                    // this.barString = this.barString + "█";
+                    this.barString = this.barString + "<3 ";
+                    // } else {
+                    // this.barString = this.barString + "]";
+                    // }
+                    // left = !left;
+                }
+                else {
+                    // this.barString = this.barString + "░";
+                    this.barString = this.barString + "   ";
+                }
+                i = i + 1;
+            }
+        }
+    }
+    get bar() {
+        return this.barString;
+    }
+}
+/// <reference path="../_references.ts" />
+class Shopkeep extends Entity {
+    constructor() {
+        super("Shopkeep");
+    }
+    playerCollision() {
+        // for (let item of Game.player.inventory) {
+        // 	if (item.name == "Key") {
+        // 		Game.player.removeItem(item);
+        // 		game.nextLevel();
+        // 		super.playerCollision();
+        // 	}
+        // }
+        super.playerCollision();
+    }
+}
+/// <reference path="../_references.ts" />
+class Sign extends Entity {
+    constructor(name) {
+        super(name);
+    }
+    playerCollision() {
+        return;
+    }
+}
 class CollisionMenu {
     constructor() {
         this.element = document.getElementById("collision-menu");
         this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
+        this.visible = false;
+        this.hpBar = null;
+        this.activeSkill = 0;
+        this.entity = this.colliding[this.colliding.length - 1];
     }
     //TODO: only showing the top entity of the last tile, pls fix
     getData() {
         let data;
         if (this.colliding.length > 0) {
             let name = this.colliding[this.colliding.length - 1].constructor.name.toLowerCase();
+            if (name == "sign") {
+                name = this.colliding[this.colliding.length - 1].name.toLowerCase();
+            }
             data = xml.getChild(name);
             if (!data) {
                 data = xml.getChild("default");
@@ -1135,16 +1559,27 @@ class CollisionMenu {
         }
     }
     setMoves() {
-        let skills = game.player.skills;
+        let skills = Game.player.skills;
         let skillList = document.getElementById("move-list").children[0];
         let children = skillList.childNodes;
         while (children[1]) {
             skillList.removeChild(children[1]);
         }
-        for (let skill of skills) {
+        for (let i = 0; i < skills.length; i++) {
             let li = document.createElement('li');
-            li.appendChild(document.createTextNode(skill.name));
+            li.appendChild(document.createTextNode(skills[i].name));
+            li.classList.add("skill");
+            if (i == this.activeSkill) {
+                li.classList.add("active");
+            }
+            console.log(this.activeSkill);
             skillList.appendChild(li);
+            if (i != skills.length - 1) {
+                li = document.createElement('li');
+                li.appendChild(document.createTextNode(" / "));
+                li.classList.add("skill-buffer");
+                skillList.appendChild(li);
+            }
         }
         if (skills.length == 0) {
             let li = document.createElement('li');
@@ -1152,51 +1587,118 @@ class CollisionMenu {
             skillList.appendChild(li);
         }
     }
+    getActiveSkill() {
+        return Game.player.skills[this.activeSkill];
+    }
+    setHealth() {
+        let entity = this.colliding[this.colliding.length - 1];
+        if (this.hpBar == null) {
+            this.hpBar = new HpBar(entity.health);
+        }
+        this.hpBar.update(entity.health);
+        document.getElementById("battle-health-bar").innerHTML = this.hpBar.bar;
+    }
+    setBattle() {
+        if (Battle.active) {
+            this.setMoves();
+            let turns = document.getElementById("turn-count");
+            turns.innerHTML = game.battle.countdown;
+            this.setHealth();
+        }
+    }
     display(data) {
         let ws = document.getElementById("word-search");
-        if (data && showCM) {
+        if ((data != null) && showCM) {
             this.setArt(data);
             this.setName(data);
-            this.setMoves();
-            // this.zoomIn();
-            // ws.style.display = "none";
+            let battle = document.getElementById("battle");
+            if (this.colliding[this.colliding.length - 1] instanceof Character) {
+                battle.style.display = "block";
+                this.setBattle();
+            }
+            else {
+                battle.style.display = "none";
+            }
             this.element.style.display = "inline";
             let that = this;
             window.setTimeout(that.zoomIn, 100);
+            this.visible = true;
         }
         else {
-            // this.zoomOut();
-            // this.element.addEventListener("transitionend", function() {
-            let cm = document.getElementById("collision-menu");
-            cm.style.display = "none";
-            // ws.style.display = "flex";
             this.zoomOut();
-            // 	cm.removeEventListener("transitionend", this);
-            // });
         }
+    }
+    closeMenu() {
+        let entity = this.colliding[this.colliding.length - 1];
+        if (entity instanceof Character) {
+            // if (entity.isDead()) {
+            entity.die();
+            game.tileMap.removeEntity(entity);
+            // }
+        }
+        else if (entity instanceof Item) {
+            game.tileMap.removeEntity(entity);
+        }
+        main.draw();
+        this.visible = false;
+        this.hpBar = null;
+        this.activeSkill = 0;
     }
     zoomIn() {
         let cm = document.getElementById("collision-menu");
         if (!cm.classList.contains("zoom")) {
             cm.classList.add("zoom");
         }
-        let ws = document.getElementById("word-search");
-        if (!ws.classList.contains("blur")) {
-            ws.classList.add("blur");
+        let elements = document.getElementsByClassName("blurrable");
+        for (let i = 0; i < elements.length; i++) {
+            // let ws = document.getElementById("word-search");
+            if (!elements[i].classList.contains("blur")) {
+                elements[i].classList.add("blur");
+            }
         }
+        // let ws = document.getElementById("word-search");
+        // if (!ws.classList.contains("blur")) {
+        // 	ws.classList.add("blur");
+        // }
     }
     zoomOut() {
-        if (this.element.classList.contains("zoom")) {
-            this.element.classList.remove("zoom");
+        let n = 0;
+        let cm = document.getElementById("collision-menu");
+        if (cm.classList.contains("zoom")) {
+            cm.classList.remove("zoom");
+            n += 1;
         }
-        let ws = document.getElementById("word-search");
-        if (ws.classList.contains("blur")) {
-            ws.classList.remove("blur");
+        // let ws = document.getElementById("word-search");
+        // if (ws.classList.contains("blur")) {
+        // 	ws.classList.remove("blur");
+        // 	n += 1;
+        // }
+        let elements = document.getElementsByClassName("blurrable");
+        for (let i = 0; i < elements.length; i++) {
+            // let ws = document.getElementById("word-search");
+            if (elements[i].classList.contains("blur")) {
+                elements[i].classList.remove("blur");
+            }
+            if (i == elements.length) {
+                n += 1;
+            }
+        }
+        if (n == 2) {
+            document.addEventListener("transitionend", function hide(event) {
+                if (event.propertyName == "opacity"
+                    && (cm.style.opacity == 0)
+                    && cm.style.display != "none") {
+                    cm.style.display = "none";
+                }
+                console.log(event);
+                document.removeEventListener("transitionend", hide);
+            });
         }
     }
     //pulling from xml over and over is bad for performance, TODO
     update() {
         this.colliding = game.colliding.filter(entity => entity.constructor.name !== "Ground");
+        this.entity = this.colliding[this.colliding.length - 1];
         let data = this.getData();
         this.display(data);
     }
@@ -1205,10 +1707,13 @@ class PlayerMenu {
     constructor() {
         this.element = document.getElementById("player-menu");
         this.update();
+        this.dialogueKey = "instructions";
+        this.dialogueIndex = 0;
+        this.completedActions = new Set();
     }
     getData() {
         let data;
-        let name = game.player.name.toLowerCase();
+        let name = Game.player.name.toLowerCase();
         data = xml.getChild(name);
         if (!data) {
             data = xml.getChild("default");
@@ -1223,9 +1728,61 @@ class PlayerMenu {
     setInfo() {
         this.setMana();
         this.setInventory();
+        this.setHunger();
+        this.setDialogue();
+    }
+    setHunger() {
+        let hunger = Game.player.hunger;
+        if (hunger > Game.player.maxHunger) {
+            hunger = Game.player.maxHunger;
+        }
+        document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+    }
+    setDialogue() {
+        let dialogueMenu = document.getElementById("player-speech-container");
+        if (this.dialogueKey == "") {
+            dialogueMenu.style.display = "none";
+        }
+        else {
+            if (dialogueMenu.style.display == "none") {
+                dialogueMenu.style.display = "inline";
+            }
+            let k = this.dialogueKey;
+            let dialogueList = dialogueXML.getChild(k).getChildren();
+            if (this.dialogueIndex >= dialogueList.length) {
+                let actionKey = this.dialogueKey + "-f";
+                this.dialogueActions(actionKey);
+                this.dialogueKey = "";
+                this.dialogueIndex = 0;
+            }
+            else {
+                let actionKey = this.dialogueKey + "-d" + (this.dialogueIndex + 1);
+                console.log(actionKey);
+                this.dialogueActions(actionKey);
+                let i = this.dialogueIndex;
+                document.getElementById("player-speech").innerHTML = dialogueList[i].DOM.textContent;
+            }
+        }
+    }
+    dialogueActions(key) {
+        if (this.completedActions.has(key)) {
+            return;
+        }
+        this.completedActions.add(key);
+        switch (key) {
+            case "instructions-f":
+                // try {
+                // 	clearInterval(walker);
+                // } catch {
+                walker = setInterval(main.walk, 1500);
+                // }
+                break;
+            default:
+                return;
+        }
     }
     setMana() {
-        let mana = game.player.mana;
+        let mana = Game.player.mana;
         document.getElementById("a-mana").innerHTML = mana.a;
         document.getElementById("e-mana").innerHTML = mana.e;
         document.getElementById("i-mana").innerHTML = mana.i;
@@ -1233,7 +1790,7 @@ class PlayerMenu {
         document.getElementById("u-mana").innerHTML = mana.u;
     }
     setInventory() {
-        let inventory = game.player.inventory;
+        let inventory = Game.player.inventory;
         let inventoryList = document.getElementById("player-inventory-list");
         let children = inventoryList.childNodes;
         while (children[1]) {
@@ -1261,10 +1818,12 @@ class PlayerMenu {
 /// <reference path="../_references.ts" />
 let game;
 let xml;
+let dialogueXML;
 let playerMenu;
 let collisionMenu;
 let music;
 let showCM;
+let walker;
 let seed = function (sketch) {
     let font;
     let fontSize;
@@ -1274,31 +1833,34 @@ let seed = function (sketch) {
     let showEntities;
     let showMana;
     let locationTest;
+    let paused;
     // Runs first.
     sketch.preload = function () {
-        // customFont = sketch.loadFont("./assets/fonts/Erika_Ormig.ttf");
+        customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
         xml = sketch.loadXML('./assets/game-entities.xml');
-        music = sketch.createAudio('assets/music/Exploratory_Final.mp3');
+        dialogueXML = sketch.loadXML('./assets/game-dialogue.xml');
+        music = sketch.createAudio('./assets/music/Rune_Search.mp3');
         game = new Game();
+        playerMenu = new PlayerMenu();
+        collisionMenu = new CollisionMenu();
     };
     // Runs once after preload().
     sketch.setup = function () {
         music.loop();
-        playerMenu = new PlayerMenu();
-        collisionMenu = new CollisionMenu();
+        // playerMenu = new PlayerMenu();
+        // collisionMenu = new CollisionMenu();
         let canvas = sketch.createCanvas(1000, 1000);
         sketch.noLoop();
         canvas.parent('word-search');
-        // padding = 30;
         marginY = 10;
         marginX = 10;
         fontSize = window.getComputedStyle(document.body).fontSize;
         padding = parseInt(fontSize) * 2;
-        console.log(padding);
-        showEntities = true;
+        showEntities = false;
         showMana = false;
         showCM = true;
         locationTest = false;
+        pausec = false;
         COLORS = {
             // player: sketch.color(0, 0, 0),
             player: sketch.color(255, 255, 255),
@@ -1308,12 +1870,13 @@ let seed = function (sketch) {
         };
         sketch.resize();
         sketch.translate(100, 100);
+        // walker = setInterval(sketch.walk, 500);
+        game.nextLevel();
     };
     //main loop of the application
     sketch.draw = function () {
-        // sketch.background(255);
         sketch.clear();
-        game.checkCollisions(game.player);
+        game.checkCollisions(Game.player);
         for (let x = 0; x < game.tileMap.width; x++) {
             for (let y = 0; y < game.tileMap.height; y++) {
                 let tile = game.tileMap.tiles[x][y];
@@ -1322,6 +1885,49 @@ let seed = function (sketch) {
         }
         collisionMenu.update();
         playerMenu.update();
+        sketch.updateWordBank();
+        // sketch.scrollStyle();
+    };
+    sketch.pause = function () {
+        let game = document.getElementById("game");
+        let pauseMenu = document.getElementById("pause");
+        if (!paused) {
+            clearInterval(walker);
+            music.pause();
+            game.classList.add("blur");
+            pauseMenu.style.display = "flex";
+            paused = true;
+        }
+        else {
+            pauseMenu.style.display = "none";
+            music.loop();
+            game.classList.remove("blur");
+            walker = setInterval(sketch.walk, 1500);
+            paused = false;
+        }
+    };
+    sketch.changeMusic = function (fileName) {
+        fileName = 'assets/music/' + fileName;
+        music.pause();
+        music = sketch.createAudio(fileName);
+        music.loop();
+    };
+    sketch.updateWordBank = function () {
+        let wb = document.getElementById("word-bank");
+        let children = wb.childNodes;
+        while (children[1]) {
+            wb.removeChild(children[1]);
+        }
+        for (let entity of game.entities) {
+            let li = document.createElement('li');
+            li.classList.add("word-bank-item");
+            if (game.dead.includes(entity)) {
+                li.style.setProperty("text-decoration", "line-through");
+                li.style.setProperty("font-style", "italic");
+            }
+            li.appendChild(document.createTextNode(entity.name));
+            wb.appendChild(li);
+        }
     };
     // Displays the rectangle and text of a Tile.
     sketch.displayTile = function (tile, x, y) {
@@ -1331,7 +1937,7 @@ let seed = function (sketch) {
         sketch.setRectStyle(tile);
         sketch.rect(marginX + x * padding + xOff, marginY + y * padding + yOff, padding, padding, 5); //5 is the roundess/radius of the corners
         sketch.setTextStyle(tile);
-        sketch.text(tile.getTopLetter().toUpperCase(), marginX + x * padding + xOff, marginY + y * padding + yOff);
+        sketch.text(tile.getTopLetter().toUpperCase(), marginX + x * padding + xOff, marginY + y * padding + yOff - 2);
     };
     sketch.offsetMap = function (x, y) {
         let theta = (sketch.frameCount + x + y) / 10;
@@ -1339,27 +1945,29 @@ let seed = function (sketch) {
         // return coord; //uncomment to animate
         return [0, 0];
     };
-    // sketch.switchView = function() {
-    // 	let cm = document.getElementById("collision-menu");
-    // 	let ws = document.getElementById("word-search");
-    // 	if (cm.style.display != "none" || cm.style.display == "") {
-    // 		cm.style.display = "none";
-    // 		ws.style.display = "flex";
-    // 	} else if (ws.style.display != "none" || ws.style.display == "") {
-    // 		ws.style.display = "none";
-    // 		cm.style.display = "flex";
-    // 	}
-    // }
+    sketch.walk = function () {
+        // game.headshift(Game.player, -1);
+        if (collisionMenu.colliding.length > 0) {
+            return;
+        }
+        else {
+            let newLocation = game.moveSnake(Game.player, Game.player.dir);
+            let tiles = game.tileMap.getTiles(newLocation);
+            game.move(Game.player, tiles);
+            Game.player.hunger += 1;
+            sketch.draw();
+        }
+    };
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
-        sketch.textSize(parseInt(fontSize));
-        // sketch.textFont(customFont);
-        sketch.textFont("Courier");
+        sketch.textSize(parseInt(fontSize) * 1.2);
+        sketch.textFont(customFont);
+        // sketch.textFont("Courier");
         sketch.textAlign(sketch.CENTER, sketch.CENTER);
         if (tile.getTopLetter() == null) {
             tile.addLetter(" ");
         }
-        if (tile.entities.includes(game.player)) {
+        if (tile.entities.includes(Game.player)) {
             // sketch.fill(255);
             sketch.fill(0);
             sketch.textStyle(sketch.BOLD);
@@ -1369,12 +1977,6 @@ let seed = function (sketch) {
             sketch.fill(255);
             sketch.textStyle(sketch.NORMAL);
         }
-        // sketch.showColliding(tile);
-        // if (showEntities) {
-        // 	sketch.showAllEntities(tile);
-        // } else if (showMana) {
-        // 	sketch.showAllMana(tile);
-        // }
     };
     sketch.setRectStyle = function (tile) {
         sketch.rectMode(sketch.CENTER);
@@ -1384,17 +1986,16 @@ let seed = function (sketch) {
         if (game.selected.includes(tile)) {
             sketch.fill(COLORS.selected);
         }
-        else if (tile.entities.includes(game.player)) {
+        else if (tile.entities.includes(Game.player)) {
             sketch.fill(COLORS.player);
             if (locationTest) {
                 let loc = game.tileMap.getTileLocation(tile);
-                if (game.player.locationIncludes(loc[0], loc[1])) {
+                if (Game.player.locationIncludes(loc[0], loc[1])) {
                     sketch.stroke(sketch.color(0, 255, 255));
                 }
             }
         }
         else {
-            // sketch.fill(COLORS.empty);
             sketch.noFill();
         }
     };
@@ -1406,6 +2007,10 @@ let seed = function (sketch) {
             }
         }
         sketch.textStyle(sketch.NORMAL);
+    };
+    sketch.showEntities = function (bool) {
+        let b = new Boolean(bool);
+        showEntities = b;
     };
     sketch.showAllEntities = function (tile) {
         if (tile.entities.length > 1) {
@@ -1426,41 +2031,69 @@ let seed = function (sketch) {
         }
     };
     sketch.keyPressed = function () {
-        if (sketch.keyCode === sketch.ENTER) {
-            game.move(game.player, game.selected);
+        if (sketch.keyCode == 38) { //up arrow
+            if (!collisionMenu.visible) {
+                sketch.walk();
+            }
         }
-        if (sketch.key == "e") {
+        else if (sketch.key == "e") {
             showEntities = !showEntities;
         }
-        else if (sketch.key == "v") {
-            showMana = !showMana;
-        }
-        else if (sketch.key == "s") {
-            // sketch.switchView();
-            showCM = !showCM;
-        }
-        else if (sketch.key == "z") {
-            // sketch.switchView();
-            sketch.saveGame();
-        }
-        else if (sketch.key == "x") {
-            // sketch.switchView();
-            sketch.loadGame();
-        }
-        else if (sketch.key == "l") { //keyCode 74 = "l"
-            locationTest = !locationTest;
-        }
-        else if (sketch.keyCode === 38) { //down arrow
-            game.headshift(game.player, -1);
-        }
-        else if (sketch.keyCode === 40) { //up arrow
-            game.headshift(game.player, 1);
+        else if (sketch.key == "n") {
+            game.nextLevel();
         }
         else if (sketch.keyCode == 37) { //left arrow
-            game.rotateDir(game.player, true);
+            if (!collisionMenu.visible) {
+                game.rotateDir(Game.player, true);
+                sketch.walk();
+            }
+            else {
+                if (collisionMenu.entity instanceof Character
+                    && collisionMenu.activeSkill > 0) {
+                    collisionMenu.activeSkill += -1;
+                }
+            }
         }
         else if (sketch.keyCode == 39) { //right arrow
-            game.rotateDir(game.player, false);
+            if (!collisionMenu.visible) {
+                game.rotateDir(Game.player, false);
+                sketch.walk();
+            }
+            else {
+                if (collisionMenu.entity instanceof Character
+                    && collisionMenu.activeSkill < Game.player.skills.length) {
+                    collisionMenu.activeSkill += 1;
+                }
+            }
+        }
+        else if (sketch.key == "p") {
+            sketch.pause();
+        }
+        else if (sketch.key == "z") {
+            if (playerMenu.dialogueKey != "") {
+                playerMenu.dialogueIndex += 1;
+            }
+            if (collisionMenu.visible) {
+                collisionMenu.closeMenu();
+            }
+        }
+        else if (paused && sketch.key == "c") {
+            game.changeLevel(levels[levels.length - 1]);
+            sketch.pause();
+        }
+        else if (sketch.key == "m") {
+            if (music.isLooping()) {
+                music.pause();
+            }
+            else {
+                music.loop();
+            }
+        }
+        else if (sketch.key = "b") {
+            if (Battle.active) {
+                game.battle.enqueue(collisionMenu.getActiveSkill());
+                game.battle.endTurn();
+            }
         }
         sketch.draw();
         return false;
@@ -1476,39 +2109,6 @@ let seed = function (sketch) {
         let x = Math.round(sketch.map(screenX, marginX, marginX + (game.tileMap.width + 1) * padding, 0, game.tileMap.width + 1));
         let y = Math.round(sketch.map(screenY, marginY, marginY + (game.tileMap.height + 1) * padding, 0, game.tileMap.height + 1));
         return [x, y];
-    };
-    sketch.mouseDragged = function () {
-        let mouseX = sketch.mouseX;
-        let mouseY = sketch.mouseY;
-        let coord = sketch.screenCoordToTile(mouseX, mouseY);
-        let x = coord[0];
-        let y = coord[1];
-        if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-            let tile = game.tileMap.tiles[x][y];
-            if (!game.selected.includes(tile)) {
-                game.selected.push(tile);
-            }
-        }
-        sketch.draw();
-    };
-    // Repeat of mouseDragged, but for individual presses.
-    sketch.mousePressed = function () {
-        let mouseX = sketch.mouseX;
-        let mouseY = sketch.mouseY;
-        let coord = sketch.screenCoordToTile(mouseX, mouseY);
-        let x = coord[0];
-        let y = coord[1];
-        if (x >= 0 && x < game.tileMap.width && y >= 0 && y < game.tileMap.height) {
-            let tile = game.tileMap.tiles[x][y];
-            if (!game.selected.includes(tile)) {
-                game.selected.push(tile);
-            }
-            else {
-                let index = game.selected.indexOf(tile);
-                game.selected.splice(index, 1);
-            }
-        }
-        sketch.draw();
     };
     // Resizes canvas to match wordsearch length.
     sketch.resize = function () {
@@ -1527,6 +2127,71 @@ let seed = function (sketch) {
         // } catch(err) {
         // 	console.log(err);
         // }
+    };
+    sketch.scrollStyle = function () {
+        let ws = document.getElementById("word-search");
+        let fade = document.getElementById("ws-fade");
+        if (ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
+            console.log("go down");
+            fade.classList.add("fade-bottom");
+        }
+        else {
+            fade.classList.remove("fade-bottom");
+        }
+        if (ws.scrollTop !== 0) {
+            console.log("go up");
+            fade.classList.add("fade-top");
+        }
+        else {
+            fade.classList.remove("fade-top");
+        }
+        if (ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
+            //there is still more to the left 
+            console.log("go right");
+            fade.classList.add("fade-right");
+        }
+        else {
+            fade.classList.remove("fade-right");
+        }
+        if (ws.scrollLeft !== 0) {
+            //there is still more to the left 
+            console.log("go left");
+            fade.classList.add("fade-left");
+        }
+        else {
+            fade.classList.remove("fade-left");
+        }
+    };
+    /* View in fullscreen */
+    sketch.openFullscreen = function () {
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        }
+        else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        }
+        else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            elem.webkitRequestFullscreen();
+        }
+        else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+    };
+    /* Close fullscreen */
+    sketch.closeFullscreen = function () {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+        else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        }
+        else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        }
+        else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
     };
 };
 let main = new p5(seed);
