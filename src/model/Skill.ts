@@ -62,6 +62,12 @@ class Skill {
 		}
 	}
 
+	static makeCountdownSettingEffect(countdownAmount: number): Function {
+		return function(b: Battle) {
+			b.countdown = countdownAmount;
+		}
+	}
+
 	static makeStatusEffect(status: StatusEffect): Function {
 		return function(b: Battle) {
 			b.addStatus(status);

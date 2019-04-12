@@ -97,4 +97,26 @@ class StatusEffect {
 		return status;
 	}
 
+	static hasteStatus(countdown: number) {
+		let status = new StatusEffect("Haste",
+			"Countdown decreases by 2 for the next %countdown% turn(s).",
+			countdown, "haste");
+		status.turnEndCallback = function(b: Battle) {
+			b.changeCountdown(-1);
+			this.countdown--;
+		}
+		return status;
+	}
+
+	static slothStatus(countdown: number) {
+		let status = new StatusEffect("Sloth",
+			"Countdown doesn't decrease for the next %countdown% turn(s).",
+			countdown, "sloth");
+		status.turnEndCallback = function(b: Battle) {
+			b.changeCountdown(1);
+			this.countdown--;
+		}
+		return status;
+	}
+
 }
