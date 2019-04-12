@@ -1126,14 +1126,14 @@ class StatusEffect {
     static fragileStatus(countdown) {
         let status = new StatusEffect("Fragile", "Enemy takes %countdown extra damage from all attacks.", countdown, "fragile");
         status.attackCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
         };
         return status;
     }
     static poisonStatus(countdown) {
         let status = new StatusEffect("Poison", "Enemy takes %countdown damage this turn, then loses 1 Poison.", countdown, "poison");
         status.turnEndCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
             this._countdown--;
         };
         return status;
@@ -1531,9 +1531,11 @@ class Battle {
         }
     }
     damage(x) {
-        console.log(x);
         this._enemy.health -= x;
         this.runStatusCallbacks("attack");
+    }
+    damageBypass(x) {
+        this._enemy.health -= x;
     }
     heal(x) {
         this._enemy.health += x;

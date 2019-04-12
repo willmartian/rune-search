@@ -128,9 +128,12 @@ class Battle {
 	}
 
 	damage(x: number): void {
-		console.log(x);
 		this._enemy.health -= x;
 		this.runStatusCallbacks("attack");
+	}
+
+	damageBypass(x: number): void {
+		this._enemy.health -= x;
 	}
 
 	heal(x: number): void {

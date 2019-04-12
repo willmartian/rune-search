@@ -77,7 +77,7 @@ class StatusEffect {
 			countdown, "fragile"
 		)
 		status.attackCallback = function(b: Battle) {
-			b.damage(this._countdown);
+			b.damageBypass(this._countdown);
 		}
 		return status;
 	}
@@ -87,7 +87,7 @@ class StatusEffect {
 			"Enemy takes %countdown damage this turn, then loses 1 Poison.",
 			countdown, "poison");
 		status.turnEndCallback = function(b: Battle) {
-			b.damage(this._countdown);
+			b.damageBypass(this._countdown);
 			this._countdown--;
 		}
 		return status;
