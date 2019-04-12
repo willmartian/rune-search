@@ -1747,19 +1747,21 @@ class CollisionMenu {
         }
         else if (entity instanceof Door) {
             let i;
+            let keyHad = false;
             for (i = 0; i < Game.player.inventory.length; i++) {
                 if (Game.player.inventory[i].name == "Key") {
                     Game.player.removeItem(Game.player.inventory[i]);
                     game.nextLevel();
+                    keyHad = true;
                     // super.playerCollision();
                     // return;
                     break;
                 }
             }
-            if (i == Game.player.inventory.length) {
+            if (!keyHad) {
                 playerMenu.dialogueKey = "door";
-                // game.tileMap.removeEntity(entity);
-                // game.tileMap.insertEntity(entity);
+                game.tileMap.removeEntity(entity);
+                game.tileMap.insertEntity(entity);
             }
         }
         main.draw();
@@ -2184,7 +2186,7 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 37) { //left arrow
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, true);
-                game.rotateDir(Game.player, true);
+                //game.rotateDir(Game.player, true);
                 sketch.walk();
             }
             else if (collisionMenu.visible
@@ -2196,7 +2198,7 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 39) { //right arrow
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, false);
-                game.rotateDir(Game.player, false);
+                //game.rotateDir(Game.player, false);
                 sketch.walk();
             }
             else if (collisionMenu.visible
