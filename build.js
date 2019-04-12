@@ -1504,8 +1504,8 @@ class Battle {
         return this._statuses;
     }
     static get active() {
-        // return Battle._active;
-        return (game.battle != null) && collisionMenu.visible && (game.battle.enemy.health > 1);
+        return Battle._active;
+        // return (game.battle != null) && collisionMenu.visible && (game.battle.enemy.health > 1);
     }
     static set active(active) {
         Battle._active = active;
