@@ -194,10 +194,6 @@ h1 {
 
 }
 
-#continue {
-  margin-top: 5em;
-  float: inline-end;
-}
 
 #player-title {
   justify-content: center;
@@ -381,6 +377,14 @@ li {
   justify-content: center;
   align-items: center;
   
+}
+
+.next {
+  display: flex;
+  margin-top: 2em;
+  justify-content: center;
+  align-items: center;
+  animation: wind 1s alternate infinite;
 }
 
 .zoomable {

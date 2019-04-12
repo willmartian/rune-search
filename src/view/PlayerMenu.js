@@ -6,6 +6,7 @@ class PlayerMenu {
 		this.dialogueKey = "instructions";
 		this.dialogueIndex = 0;
 		this.completedActions = new Set();
+		this.instructionsOver = false;
 	}
 
 	getData() {
@@ -33,11 +34,13 @@ class PlayerMenu {
 
 	setHunger() {
 		let hunger = Game.player.hunger;
-		if (hunger > Game.player.maxHunger) {
-			hunger = Game.player.maxHunger;
-		}
-		document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+		// if (hunger > Game.player.maxHunger) {
+		// 	hunger = Game.player.maxHunger;
+		// }
+		// document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+		document.getElementById("player-hunger").innerHTML = "Time Lapsed: " + hunger + "s";
 	}
+
 
 	setDialogue() {
 		let dialogueMenu = document.getElementById("player-speech-container");
@@ -74,9 +77,12 @@ class PlayerMenu {
 				// try {
 				// 	clearInterval(walker);
 				// } catch {
-					walker = setInterval(main.walk, 1500);
+					this.tutorialOver = true;
+					// walker = setInterval(main.walk, 1500);
 				// }
 
+				break;
+			case "door-f":
 				break;
 			default:
 				return;

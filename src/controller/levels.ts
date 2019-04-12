@@ -21,7 +21,7 @@ let levels = [
 		newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
 		newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
 		newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
-		main.showEntities(true);
+		main.displayEntities(true);
 		return newMap;
 	},
 
@@ -38,7 +38,7 @@ let levels = [
 		];
 		newMap.insertEntities(game.entities);
 		main.changeMusic("Exploratory_Final.mp3");
-		main.showEntities(false);
+		main.displayEntities(false);
 		return newMap;
 	},
 
@@ -139,7 +139,7 @@ let levels = [
 		];
 		newMap.insertEntities(game.entities);
 		main.changeMusic("Victory.mp3");
-		main.showEntities(true);
+		main.displayEntities(true);
 		return newMap;
 	}
 ]

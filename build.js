@@ -473,6 +473,19 @@ class TileMap {
         game.dead.push(entity);
         return entity;
     }
+    // removeEntityKeepLetters(entity: Entity): Entity {
+    // 	//TODO
+    // 	let tiles: Tile[] = this.getEntityTiles(entity);
+    // 	if (tiles.length <= 0) {
+    // 		throw ("Entity not found.");
+    // 	}
+    // 	for (let tile of tiles) {
+    // 		tile.removeEntity(entity);
+    // 		// tile.removeTopLetter();
+    // 	}
+    // 	game.dead.push(entity);
+    // 	return entity;
+    // }
     getTileLocation(tile) {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
@@ -1146,13 +1159,13 @@ class Door extends Entity {
         super("Door");
     }
     playerCollision() {
-        for (let item of Game.player.inventory) {
-            if (item.name == "Key") {
-                Game.player.removeItem(item);
-                game.nextLevel();
-                super.playerCollision();
-            }
-        }
+        // for (let item of Game.player.inventory) {
+        // 	if (item.name == "Key") {
+        // 		Game.player.removeItem(item);
+        // 		game.nextLevel();
+        super.playerCollision();
+        // 	}
+        // }
     }
 }
 /// <reference path="../_references.ts" />
@@ -1181,7 +1194,7 @@ let levels = [
         newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
         newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
         newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
-        main.showEntities(true);
+        main.displayEntities(true);
         return newMap;
     },
     function () {
@@ -1197,7 +1210,7 @@ let levels = [
         ];
         newMap.insertEntities(game.entities);
         main.changeMusic("Exploratory_Final.mp3");
-        main.showEntities(false);
+        main.displayEntities(false);
         return newMap;
     },
     function () {
@@ -1292,7 +1305,7 @@ let levels = [
         ];
         newMap.insertEntities(game.entities);
         main.changeMusic("Victory.mp3");
-        main.showEntities(true);
+        main.displayEntities(true);
         return newMap;
     }
 ];
@@ -1639,6 +1652,27 @@ class CollisionMenu {
         else if (entity instanceof Item) {
             game.tileMap.removeEntity(entity);
         }
+        else if (entity instanceof Sign) {
+            game.tileMap.removeEntity(entity);
+            //makeEntityNotCollideableandVisible
+        }
+        else if (entity instanceof Door) {
+            let i;
+            for (i = 0; i < Game.player.inventory.length; i++) {
+                if (Game.player.inventory[i].name == "Key") {
+                    Game.player.removeItem(Game.player.inventory[i]);
+                    game.nextLevel();
+                    // super.playerCollision();
+                    // return;
+                    break;
+                }
+            }
+            if (i == Game.player.inventory.length) {
+                playerMenu.dialogueKey = "door";
+                // game.tileMap.removeEntity(entity);
+                // game.tileMap.insertEntity(entity);
+            }
+        }
         main.draw();
         this.visible = false;
         this.hpBar = null;
@@ -1710,6 +1744,7 @@ class PlayerMenu {
         this.dialogueKey = "instructions";
         this.dialogueIndex = 0;
         this.completedActions = new Set();
+        this.instructionsOver = false;
     }
     getData() {
         let data;
@@ -1733,10 +1768,11 @@ class PlayerMenu {
     }
     setHunger() {
         let hunger = Game.player.hunger;
-        if (hunger > Game.player.maxHunger) {
-            hunger = Game.player.maxHunger;
-        }
-        document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+        // if (hunger > Game.player.maxHunger) {
+        // 	hunger = Game.player.maxHunger;
+        // }
+        // document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
+        document.getElementById("player-hunger").innerHTML = "Time Lapsed: " + hunger + "s";
     }
     setDialogue() {
         let dialogueMenu = document.getElementById("player-speech-container");
@@ -1774,8 +1810,11 @@ class PlayerMenu {
                 // try {
                 // 	clearInterval(walker);
                 // } catch {
-                walker = setInterval(main.walk, 1500);
+                this.tutorialOver = true;
+                // walker = setInterval(main.walk, 1500);
                 // }
+                break;
+            case "door-f":
                 break;
             default:
                 return;
@@ -1823,7 +1862,7 @@ let playerMenu;
 let collisionMenu;
 let music;
 let showCM;
-let walker;
+// let walker;
 let seed = function (sketch) {
     let font;
     let fontSize;
@@ -1860,7 +1899,7 @@ let seed = function (sketch) {
         showMana = false;
         showCM = true;
         locationTest = false;
-        pausec = false;
+        paused = false;
         COLORS = {
             // player: sketch.color(0, 0, 0),
             player: sketch.color(255, 255, 255),
@@ -1892,7 +1931,7 @@ let seed = function (sketch) {
         let game = document.getElementById("game");
         let pauseMenu = document.getElementById("pause");
         if (!paused) {
-            clearInterval(walker);
+            // clearInterval(walker);
             music.pause();
             game.classList.add("blur");
             pauseMenu.style.display = "flex";
@@ -1902,7 +1941,7 @@ let seed = function (sketch) {
             pauseMenu.style.display = "none";
             music.loop();
             game.classList.remove("blur");
-            walker = setInterval(sketch.walk, 1500);
+            // walker = setInterval(sketch.walk, 1500);
             paused = false;
         }
     };
@@ -1957,6 +1996,10 @@ let seed = function (sketch) {
             Game.player.hunger += 1;
             sketch.draw();
         }
+        // Game.player.hunger += 1;
+    };
+    sketch.canWalk = function () {
+        return !paused && !collisionMenu.visible && playerMenu.tutorialOver;
     };
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
@@ -1981,8 +2024,16 @@ let seed = function (sketch) {
     sketch.setRectStyle = function (tile) {
         sketch.rectMode(sketch.CENTER);
         if (showEntities) {
-            sketch.showAllEntities(tile);
+            if (tile.entities.length > 1) {
+                // sketch.textStyle(sketch.BOLD);
+                sketch.stroke(255);
+            }
+            else {
+                // sketch.textStyle(sketch.NORMAL);
+                sketch.noStroke();
+            }
         }
+        // sketch.showAllEntities(tile);
         if (game.selected.includes(tile)) {
             sketch.fill(COLORS.selected);
         }
@@ -2008,31 +2059,12 @@ let seed = function (sketch) {
         }
         sketch.textStyle(sketch.NORMAL);
     };
-    sketch.showEntities = function (bool) {
-        let b = new Boolean(bool);
-        showEntities = b;
-    };
-    sketch.showAllEntities = function (tile) {
-        if (tile.entities.length > 1) {
-            // sketch.textStyle(sketch.BOLD);
-            sketch.stroke(255);
-        }
-        else {
-            // sketch.textStyle(sketch.NORMAL);
-            sketch.noStroke();
-        }
-    };
-    sketch.showAllMana = function (tile) {
-        if (tile.getVowels().length > 0) {
-            sketch.textStyle(sketch.BOLD);
-        }
-        else {
-            sketch.textStyle(sketch.NORMAL);
-        }
+    sketch.displayEntities = function (bool) {
+        showEntities = bool;
     };
     sketch.keyPressed = function () {
         if (sketch.keyCode == 38) { //up arrow
-            if (!collisionMenu.visible) {
+            if (sketch.canWalk()) {
                 sketch.walk();
             }
         }
@@ -2043,27 +2075,27 @@ let seed = function (sketch) {
             game.nextLevel();
         }
         else if (sketch.keyCode == 37) { //left arrow
-            if (!collisionMenu.visible) {
+            if (sketch.canWalk()) {
+                game.rotateDir(Game.player, true);
                 game.rotateDir(Game.player, true);
                 sketch.walk();
             }
-            else {
-                if (collisionMenu.entity instanceof Character
-                    && collisionMenu.activeSkill > 0) {
-                    collisionMenu.activeSkill += -1;
-                }
+            else if (collisionMenu.visible
+                && collisionMenu.entity instanceof Character
+                && collisionMenu.activeSkill > 0) {
+                collisionMenu.activeSkill += -1;
             }
         }
         else if (sketch.keyCode == 39) { //right arrow
-            if (!collisionMenu.visible) {
+            if (sketch.canWalk()) {
+                game.rotateDir(Game.player, false);
                 game.rotateDir(Game.player, false);
                 sketch.walk();
             }
-            else {
-                if (collisionMenu.entity instanceof Character
-                    && collisionMenu.activeSkill < Game.player.skills.length) {
-                    collisionMenu.activeSkill += 1;
-                }
+            else if (collisionMenu.visible
+                && collisionMenu.entity instanceof Character
+                && collisionMenu.activeSkill < Game.player.skills.length) {
+                collisionMenu.activeSkill += 1;
             }
         }
         else if (sketch.key == "p") {
@@ -2114,84 +2146,74 @@ let seed = function (sketch) {
     sketch.resize = function () {
         sketch.resizeCanvas(game.tileMap.width * padding + marginX, game.tileMap.height * padding + marginY);
     };
-    //TODO
-    sketch.saveGame = function () {
-        let saveState = JSON.stringify(game.toJSON());
-        localStorage.setItem("saveState", saveState);
-    };
-    //TODO
-    sketch.loadGame = function () {
-        // try {
-        let gameSeed = JSON.parse(localStorage.getItem("saveState"));
-        let game = new Game(gameSeed);
-        // } catch(err) {
-        // 	console.log(err);
-        // }
-    };
-    sketch.scrollStyle = function () {
-        let ws = document.getElementById("word-search");
-        let fade = document.getElementById("ws-fade");
-        if (ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
-            console.log("go down");
-            fade.classList.add("fade-bottom");
-        }
-        else {
-            fade.classList.remove("fade-bottom");
-        }
-        if (ws.scrollTop !== 0) {
-            console.log("go up");
-            fade.classList.add("fade-top");
-        }
-        else {
-            fade.classList.remove("fade-top");
-        }
-        if (ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
-            //there is still more to the left 
-            console.log("go right");
-            fade.classList.add("fade-right");
-        }
-        else {
-            fade.classList.remove("fade-right");
-        }
-        if (ws.scrollLeft !== 0) {
-            //there is still more to the left 
-            console.log("go left");
-            fade.classList.add("fade-left");
-        }
-        else {
-            fade.classList.remove("fade-left");
-        }
-    };
+    // //TODO
+    // sketch.saveGame = function() {
+    // 	let saveState = JSON.stringify(game.toJSON());
+    // 	localStorage.setItem("saveState", saveState);
+    // }
+    // //TODO
+    // sketch.loadGame = function() {
+    // 	// try {
+    // 		let gameSeed = JSON.parse(localStorage.getItem("saveState"));
+    // 		let game = new Game(gameSeed);
+    // 	// } catch(err) {
+    // 	// 	console.log(err);
+    // 	// }
+    // }
+    // sketch.scrollStyle = function() {
+    // 	let ws = document.getElementById("word-search");
+    // 	let fade = document.getElementById("ws-fade");
+    // 	if(ws.scrollHeight - ws.scrollTop !== ws.clientHeight) {
+    // 		console.log("go down");
+    // 		fade.classList.add("fade-bottom");
+    // 	} else {
+    // 		fade.classList.remove("fade-bottom");
+    // 	}
+    // 	if(ws.scrollTop !== 0) {
+    // 		console.log("go up");
+    // 		fade.classList.add("fade-top");
+    // 	} else {
+    // 		fade.classList.remove("fade-top");
+    // 	}
+    // 	if(ws.scrollWidth - ws.scrollLeft !== ws.clientWidth) {
+    // 		//there is still more to the left 
+    // 		console.log("go right");
+    // 		fade.classList.add("fade-right");
+    // 	} else {
+    // 		fade.classList.remove("fade-right");
+    // 	}
+    // 	if(ws.scrollLeft !== 0) {
+    // 		//there is still more to the left 
+    // 		console.log("go left");
+    // 		fade.classList.add("fade-left");
+    // 	} else {
+    // 		fade.classList.remove("fade-left");
+    // 	}
+    // }
     /* View in fullscreen */
-    sketch.openFullscreen = function () {
-        let elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        }
-        else if (elem.mozRequestFullScreen) { /* Firefox */
-            elem.mozRequestFullScreen();
-        }
-        else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-            elem.webkitRequestFullscreen();
-        }
-        else if (elem.msRequestFullscreen) { /* IE/Edge */
-            elem.msRequestFullscreen();
-        }
-    };
-    /* Close fullscreen */
-    sketch.closeFullscreen = function () {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-        else if (document.mozCancelFullScreen) { /* Firefox */
-            document.mozCancelFullScreen();
-        }
-        else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-            document.webkitExitFullscreen();
-        }
-        else if (document.msExitFullscreen) { /* IE/Edge */
-            document.msExitFullscreen();
-        }
-    };
+    // sketch.openFullscreen = function() {
+    //   let elem = document.documentElement;
+    //   if (elem.requestFullscreen) {
+    //     elem.requestFullscreen();
+    //   } else if (elem.mozRequestFullScreen) { /* Firefox */
+    //     elem.mozRequestFullScreen();
+    //   } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    //     elem.webkitRequestFullscreen();
+    //   } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    //     elem.msRequestFullscreen();
+    //   }
+    // }
+    // /* Close fullscreen */
+    // sketch.closeFullscreen = function() {
+    //   if (document.exitFullscreen) {
+    //     document.exitFullscreen();
+    //   } else if (document.mozCancelFullScreen) { /* Firefox */
+    //     document.mozCancelFullScreen();
+    //   } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+    //     document.webkitExitFullscreen();
+    //   } else if (document.msExitFullscreen) { /* IE/Edge */
+    //     document.msExitFullscreen();
+    //   }
+    // }
 };
 let main = new p5(seed);

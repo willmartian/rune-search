@@ -202,8 +202,23 @@ class TileMap {
 
 		game.dead.push(entity);
 		return entity;
-
 	}
+
+	// removeEntityKeepLetters(entity: Entity): Entity {
+	// 	//TODO
+	// 	let tiles: Tile[] = this.getEntityTiles(entity);
+	// 	if (tiles.length <= 0) {
+	// 		throw ("Entity not found.");
+	// 	}
+	// 	for (let tile of tiles) {
+	// 		tile.removeEntity(entity);
+	// 		// tile.removeTopLetter();
+	// 	}
+
+	// 	game.dead.push(entity);
+	// 	return entity;
+
+	// }
 
 	getTileLocation(tile: Tile): number[] {
 		for (let x = 0; x < this._width; x++) {

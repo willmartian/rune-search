@@ -9,4 +9,12 @@
     <d5>If YOU need to go eat something, press 'p' to pause the game.</d5>
     <d6>Ready?</d6>
   </instructions>
+  <door>
+  	<d1>WHAT ARE YOU DOOOOOINNGGG!??!</d1>
+  	<d2>You can't just open a door without a key!!! You scared it away!</d2>
+  	<d3>(Everyone knows that.......)</d3>
+  	
+
+
+  </door>
 </game-dialogue>

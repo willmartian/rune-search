@@ -6,12 +6,12 @@ class Door extends Entity {
 	}
 
 	playerCollision(): void {
-		for (let item of Game.player.inventory) {
-			if (item.name == "Key") {
-				Game.player.removeItem(item);
-				game.nextLevel();
+		// for (let item of Game.player.inventory) {
+		// 	if (item.name == "Key") {
+		// 		Game.player.removeItem(item);
+		// 		game.nextLevel();
 				super.playerCollision();
-			}
-		}
+		// 	}
+		// }
 	}
 }
