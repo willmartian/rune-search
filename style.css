@@ -381,7 +381,7 @@ li {
 
 .next {
   display: flex;
-  margin-top: 2em;
+  margin-top: 1em;
   justify-content: center;
   align-items: center;
   animation: wind 1s alternate infinite;
@@ -462,6 +462,10 @@ li {
 #move-list p {
   padding: .15em;
   margin: 0;
+}
+
+#move-description {
+  padding-top: 1em;
 }
 
 .skill {

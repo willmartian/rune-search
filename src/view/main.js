@@ -33,7 +33,7 @@ let seed = function(sketch) {
 
 	// Runs once after preload().
 	sketch.setup = function() {
-		music.loop();
+		// music.loop();
 		// playerMenu = new PlayerMenu();
 		// collisionMenu = new CollisionMenu();
 		let canvas = sketch.createCanvas(1000,1000);
@@ -96,6 +96,10 @@ let seed = function(sketch) {
 	}
 
 	sketch.changeMusic = function(fileName) {
+		if (fileName == null) {
+			music.pause();
+			return;
+		}
 		fileName = 'assets/music/' + fileName;
 		music.pause();
 		music = sketch.createAudio(fileName);
@@ -258,12 +262,14 @@ let seed = function(sketch) {
 		} else if (sketch.key == "z") {
 			if (playerMenu.dialogueKey != "") {
 				playerMenu.dialogueIndex += 1;
-			}
-			if (collisionMenu.visible) {
+			} else if (Battle.active) {
+				game.battle.enqueue(collisionMenu.getActiveSkill());
+				game.battle.endTurn();
+			} else if (collisionMenu.visible) {
 				collisionMenu.closeMenu();
 			}
 		} else if (paused && sketch.key == "c") {
-			game.changeLevel(levels[levels.length - 1]);
+			game.changeLevel(levels[levels.length - 2]);
 			sketch.pause();
 		} else if (sketch.key == "m") {
 			if (music.isLooping()) {
@@ -271,11 +277,14 @@ let seed = function(sketch) {
 			} else {
 				music.loop();
 			}
-		} else if (sketch.key = "b") {
-			if (Battle.active) {
-				game.battle.enqueue(collisionMenu.getActiveSkill());
-				game.battle.endTurn();
-			}
+		} else if (sketch.key == "h") {
+			// game.changeLevel(levels[0]);
+			// sketch.pause();
+			location.reload(); 
+		} else if (sketch.key == "s") {
+			sketch.pause();
+			game.changeLevel(levels[levels.length - 1]);
+
 		}
  
 		sketch.draw();

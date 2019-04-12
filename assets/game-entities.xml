@@ -3,24 +3,7 @@
 <game-entities>
   <default>
     <description>Nothing to see here.</description>
-    <art><![CDATA[ ____________________
-/                    \
-!      Missing       !
-!       Asset :(     !
-!                    !
-\____________________/
-         !  !
-         !  !
-         L_ !
-        / _)!
-       / /__L
- _____/ (____)
-        (____)
- _____  (____)
-      \_(____)
-         !  !
-         !  !
-         \__/]]></art>
+    <art> </art>
   </default>
 
   <ground>

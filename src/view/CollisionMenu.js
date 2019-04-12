@@ -59,7 +59,6 @@ class CollisionMenu {
 			if (i == this.activeSkill) {
 				li.classList.add("active");
 			}
-			console.log(this.activeSkill);
 
 			skillList.appendChild(li);
 
@@ -76,6 +75,8 @@ class CollisionMenu {
 			li.appendChild(document.createTextNode("Empty :("));
 			skillList.appendChild(li);
 		}
+
+		document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
 	}
 
 	getActiveSkill() {

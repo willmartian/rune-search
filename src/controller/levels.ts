@@ -21,6 +21,7 @@ let levels = [
 		newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
 		newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
 		newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
+		main.changeMusic("Rune_Search.mp3");
 		main.displayEntities(true);
 		return newMap;
 	},
@@ -140,6 +141,28 @@ let levels = [
 		newMap.insertEntities(game.entities);
 		newMap.insertPlayer(Game.player);
 		main.changeMusic("Victory.mp3");
+		main.displayEntities(true);
+		return newMap;
+	},
+
+	function(): TileMap {
+		let newMap = new TileMap(30,15);
+		game.entities = [
+			new Sign("Rune_Search"),
+			new Sign("Exploratory_Final"),
+			new Sign("Modern_Living"),
+			new Sign("Undeadication"),
+			new Sign("Bookends"),
+			new Sign("Victory")
+		];
+		for (let e of game.entities) {
+			e.addFunc(function() {
+				main.changeMusic(e.name + ".mp3")
+			});
+		}
+		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
+		main.changeMusic(null);
 		main.displayEntities(true);
 		return newMap;
 	}
