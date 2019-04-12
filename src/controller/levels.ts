@@ -7,7 +7,7 @@ let levels = [
 
 		let newMap = new TileMap(15,15);
 		Game.player.addItem(new items.Key);
-		let door: Door = new Door();
+		let door: Door = new WipeDoor();
 		door.name = "Start";
 		game.entities = [
 			Game.player,

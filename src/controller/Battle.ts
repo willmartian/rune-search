@@ -95,6 +95,9 @@ class Battle {
 	enqueue(s: Skill): void {
 		if (s != null) {
 			this._skillQueue.push(s);
+			if (!this.totalCost.fitsInto(this.player.mana)) {
+				this.skillQueue.pop();
+			}
 		}
 	}
 

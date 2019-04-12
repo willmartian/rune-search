@@ -758,7 +758,7 @@ class Player extends Character {
         super._health = 10;
         super._attackDamage = 1;
         // super._active = true;
-        this._mana = new Manager();
+        this._mana = new Manager("AAA");
         this._skills = [skills.slap];
         this._hunger = 2;
         this._maxHunger = 10;
@@ -1274,7 +1274,7 @@ let levels = [
     function () {
         let newMap = new TileMap(15, 15);
         Game.player.addItem(new items.Key);
-        let door = new Door();
+        let door = new WipeDoor();
         door.name = "Start";
         game.entities = [
             Game.player,
@@ -1490,6 +1490,9 @@ class Battle {
     enqueue(s) {
         if (s != null) {
             this._skillQueue.push(s);
+            if (!this.totalCost.fitsInto(this.player.mana)) {
+                this.skillQueue.pop();
+            }
         }
     }
     logText(s) {
@@ -1611,6 +1614,15 @@ class Sign extends Entity {
     }
     playerCollision() {
         return;
+    }
+}
+/// <reference path="../_references.ts" />
+class WipeDoor extends Entity {
+    constructor() {
+        super("Door");
+    }
+    playerCollision() {
+        super.playerCollision();
     }
 }
 class CollisionMenu {
@@ -1761,6 +1773,10 @@ class CollisionMenu {
                 game.tileMap.removeEntity(entity);
                 game.tileMap.insertEntity(entity);
             }
+        }
+        else if (entity instanceof WipeDoor) {
+            Game.player = new Player(Game.player.name);
+            game.nextLevel();
         }
         main.draw();
         this.visible = false;
@@ -2231,7 +2247,9 @@ let seed = function (sketch) {
         else if (sketch.key = "b") {
             if (Battle.active) {
                 game.battle.enqueue(collisionMenu.getActiveSkill());
-                game.battle.endTurn();
+                if (game.battle.skillQueue.length > 0) {
+                    game.battle.endTurn();
+                }
             }
         }
         sketch.draw();

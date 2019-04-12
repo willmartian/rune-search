@@ -274,7 +274,9 @@ let seed = function(sketch) {
 		} else if (sketch.key = "b") {
 			if (Battle.active) {
 				game.battle.enqueue(collisionMenu.getActiveSkill());
-				game.battle.endTurn();
+				if (game.battle.skillQueue.length > 0) {
+					game.battle.endTurn();
+				}
 			}
 		}
  
