@@ -12,7 +12,7 @@ class Player extends Character {
 		super._attackDamage = 1;
 		// super._active = true;
 		this._mana = new Manager("aaaaa");
-		this._skills = [skills.slap];
+		this._skills = [skills.slap, skills.snek, skills.stick, skills.bop, skills.hug];
 		this._hunger = 2;
 		this._maxHunger = 10;
 	}

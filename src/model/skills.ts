@@ -37,8 +37,8 @@ let skills = {
 		)
 	),
 
-	hurt: new Skill(
-		"Hurt",
+	hug: new Skill(
+		"Hug",
 		"Deal 5 damage.",
 		Skill.makeDamageEffect(5)
 	),

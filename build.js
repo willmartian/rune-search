@@ -183,7 +183,7 @@ class Game {
         entity.location = curLocation;
         this._selected = [];
         if (entity == Game._player) {
-            this.updatePlayerMana(newLocation);
+            // this.updatePlayerMana(newLocation);
         }
         return true;
     }
@@ -741,7 +741,7 @@ class Player extends Character {
         super._attackDamage = 1;
         // super._active = true;
         this._mana = new Manager("aaaaa");
-        this._skills = [skills.slap];
+        this._skills = [skills.slap, skills.snek, skills.stick, skills.bop, skills.hug];
         this._hunger = 2;
         this._maxHunger = 10;
     }
@@ -1188,7 +1188,7 @@ let skills = {
     stick: new Skill("Stick", "Deal 3 damage.", Skill.makeDamageEffect(3)),
     bop: new Skill("Bop", "Deal 4 damage.", Skill.makeDamageEffect(4)),
     boop: new Skill("Boop", "Deal 4 damage twice.", Skill.makeRepeatedEffect(Skill.makeDamageEffect(4), 2)),
-    hurt: new Skill("Hurt", "Deal 5 damage.", Skill.makeDamageEffect(5)),
+    hug: new Skill("Hug", "Deal 5 damage.", Skill.makeDamageEffect(5)),
     disemvowel: new UsableOnceSkill("Disemvowel", "Deal 999 damage! (Useable only once.)", Skill.makeDamageEffect(999)),
     aegis: new UsableOnceSkill("Aegis of the Divines Unbidden", //someone please give this a better name
     "Increase countdown by 5! (Usable once only.)", Skill.makeCountdownEffect(5)),
@@ -1849,6 +1849,8 @@ class CollisionMenu {
         this.visible = false;
         this.hpBar = null;
         this.activeSkill = 0;
+        this.showVictory = false;
+        this.showDefeat = false;
     }
     zoomIn() {
         let cm = document.getElementById("collision-menu");

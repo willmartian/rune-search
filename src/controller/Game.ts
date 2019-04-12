@@ -226,7 +226,7 @@ class Game {
 		this._selected = [];
 
 		if (entity == Game._player) {
-			this.updatePlayerMana(newLocation);
+			// this.updatePlayerMana(newLocation);
 		}
 		return true;
 	}

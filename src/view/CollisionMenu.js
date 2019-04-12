@@ -192,6 +192,8 @@ class CollisionMenu {
 		this.visible = false;
 		this.hpBar = null;
 		this.activeSkill = 0;
+		this.showVictory = false;
+		this.showDefeat = false;
 	}
 
 	zoomIn() {
