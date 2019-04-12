@@ -11,8 +11,8 @@ class Player extends Character {
 		super._health = 10;
 		super._attackDamage = 1;
 		// super._active = true;
-		this._mana = new Manager("aaaaa");
-		this._skills = [skills.slap, skills.snek, skills.stick, skills.bop, skills.hug];
+		this._mana = new Manager("AAAAAAAAAA");
+		this._skills = [skills.slap, skills.yell, skills.pinch, skills.bop, skills.hug];
 		this._hunger = 2;
 		this._maxHunger = 10;
 	}
@@ -63,11 +63,12 @@ class Player extends Character {
 		}
 	}
 
-	revokeSkill(n: string): void {
-		let s = skills[n];
+	revokeSkill(s: Skill): void {
 		let index = this._skills.indexOf(s);
 		if (index != -1) {
 			this._skills.splice(index, 1);
+		} else {
+			console.log("unspliceable");
 		}
 	}
 

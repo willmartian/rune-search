@@ -76,6 +76,7 @@ class Battle {
 
 	static get active(): boolean {
 		return Battle._active;
+		// return (game.battle != null) && collisionMenu.visible && (game.battle.enemy.health > 1);
 	}
 
 	static set active(active: boolean) {
@@ -140,6 +141,10 @@ class Battle {
 		this.runStatusCallbacks("attack");
 	}
 
+	damageBypass(x: number): void {
+		this._enemy.health -= x;
+	}
+
 	heal(x: number): void {
 		this._enemy.health += x;
 		if (this._enemy.health > this._startingHealth) {
@@ -157,6 +162,7 @@ class Battle {
 
 	victory(): void {
 		//TODO: more victory code goes here
+		collisionMenu.showDefeat = false;
 		collisionMenu.showVictory = true;
 		collisionMenu.spoils = this.spoils();
 		Game.player.mana.add(collisionMenu.spoils);
@@ -166,6 +172,7 @@ class Battle {
 
 	gameover(): void {
 		//TODO: game over code goes here
+		collisionMenu.showVictory = false;
 		collisionMenu.showDefeat = true;
 		collisionMenu.spoils = this.spoils();
 		Game.player.mana.subtract(collisionMenu.spoils);
@@ -179,7 +186,7 @@ class Battle {
 		}
 		let temp = [];
 		for (let i = 0; i < this._statuses.length; i++) {
-			if (this._statuses[i].countdown != 0) {
+			if (this._statuses[i].countdown > 0) {
 				temp.push(this._statuses[i]);
 			}
 		}

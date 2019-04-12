@@ -101,6 +101,7 @@ class PlayerMenu {
 		this.completedActions.add(key);
 		switch(key) {
 			case "instructions-f":
+				main.changeMusic("Rune_Search.mp3");
 				break;
 			case "door-f":
 				break;

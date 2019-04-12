@@ -187,6 +187,9 @@ class CollisionMenu {
 				game.tileMap.removeEntity(entity);
 				game.tileMap.insertEntity(entity);
 			}
+		} else if (entity instanceof WipeDoor) {
+			Game.player = new Player(Game.player.name);
+			game.nextLevel();
 		}
 		main.draw();
 		this.visible = false;

@@ -9,6 +9,12 @@ let skills = {
 		Skill.makeDamageEffect(1)
 	),
 
+	yell: new Skill(
+		"Yell",
+		"Deal 2 damage.",
+		Skill.makeDamageEffect(2)
+	),
+
 	snek: new Skill(
 		"Snek",
 		"Inflict 1 poison.",
@@ -17,8 +23,8 @@ let skills = {
 		)
 	),
 
-	stick: new Skill(
-		"Stick",
+	pinch: new Skill(
+		"Pinch",
 		"Deal 3 damage.",
 		Skill.makeDamageEffect(3)
 	),

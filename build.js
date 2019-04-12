@@ -740,8 +740,8 @@ class Player extends Character {
         super._health = 10;
         super._attackDamage = 1;
         // super._active = true;
-        this._mana = new Manager("aaaaa");
-        this._skills = [skills.slap, skills.snek, skills.stick, skills.bop, skills.hug];
+        this._mana = new Manager("AAAAAAAAAA");
+        this._skills = [skills.slap, skills.yell, skills.pinch, skills.bop, skills.hug];
         this._hunger = 2;
         this._maxHunger = 10;
     }
@@ -783,11 +783,13 @@ class Player extends Character {
             return false;
         }
     }
-    revokeSkill(n) {
-        let s = skills[n];
+    revokeSkill(s) {
         let index = this._skills.indexOf(s);
         if (index != -1) {
             this._skills.splice(index, 1);
+        }
+        else {
+            console.log("unspliceable");
         }
     }
     playerCollision() { }
@@ -956,56 +958,56 @@ let enemies = {
     Dinosaur: class extends Character {
         constructor() {
             super("Dinosaur");
-            super._health = 6;
+            super._health = 9;
             super._attackDamage = 2;
         }
     },
     Ghoul: class extends Character {
         constructor() {
             super("Ghoul");
-            super._health = 6;
+            super._health = 4;
             super._attackDamage = 2;
         }
     },
     Goblin: class extends Character {
         constructor() {
             super("Goblin");
-            super._health = 6;
+            super._health = 3;
             super._attackDamage = 2;
         }
     },
     Rat: class extends Character {
         constructor() {
             super("Rat");
-            super._health = 2;
+            super._health = 1;
             super._attackDamage = 2;
         }
     },
     Robot: class extends Character {
         constructor() {
             super("Robot");
-            super._health = 1;
+            super._health = 6;
             super._attackDamage = 2;
         }
     },
     Unicorn: class extends Character {
         constructor() {
             super("Unicorn");
-            super._health = 6;
+            super._health = 8;
             super._attackDamage = 2;
         }
     },
     Wizard: class extends Character {
         constructor() {
             super("Wizard");
-            super._health = 6;
+            super._health = 5;
             super._attackDamage = 2;
         }
     },
     Zombie: class extends Character {
         constructor() {
             super("Zombie");
-            super._health = 6;
+            super._health = 7;
             super._attackDamage = 2;
         }
     }
@@ -1062,7 +1064,7 @@ class Skill {
     }
     static makeStatusEffect(status) {
         return function (b) {
-            b.addStatus(status);
+            b.addStatus(status.clone());
         };
     }
     static makeRepeatedEffect(effect, repetitions) {
@@ -1081,7 +1083,7 @@ class Skill {
     }
     static revokeSkill(skillName) {
         return function (b) {
-            b.player.revokeSkill(skillName);
+            b.player.revokeSkill(skills[skillName]);
         };
     }
 }
@@ -1095,6 +1097,12 @@ class StatusEffect {
         this._kind = k;
         this._turnEndCallback = this.trivialFunction();
         this._attackCallback = this.trivialFunction();
+    }
+    clone() {
+        let clone = new StatusEffect(this._name, this._desc, this._countdown, this._kind);
+        clone._turnEndCallback = this._turnEndCallback;
+        clone._attackCallback = this._attackCallback;
+        return clone;
     }
     get countdown() {
         return this._countdown;
@@ -1134,14 +1142,14 @@ class StatusEffect {
     static fragileStatus(countdown) {
         let status = new StatusEffect("Fragile", "Enemy takes %countdown extra damage from all attacks.", countdown, "fragile");
         status.attackCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
         };
         return status;
     }
     static poisonStatus(countdown) {
         let status = new StatusEffect("Poison", "Enemy takes %countdown damage this turn, then loses 1 Poison.", countdown, "poison");
         status.turnEndCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
             this._countdown--;
         };
         return status;
@@ -1178,14 +1186,15 @@ class UsableOnceSkill extends Skill {
     }
     execute(b) {
         super.execute(b);
-        b.player.revokeSkill(this.camelCaseName);
+        b.player.revokeSkill(this);
     }
 }
 /// <reference path="../_references.ts" />
 let skills = {
     slap: new Skill("Slap", "Deal 1 damage.", Skill.makeDamageEffect(1)),
+    yell: new Skill("Yell", "Deal 2 damage.", Skill.makeDamageEffect(2)),
     snek: new Skill("Snek", "Inflict 1 poison.", Skill.makeStatusEffect(StatusEffect.poisonStatus(1))),
-    stick: new Skill("Stick", "Deal 3 damage.", Skill.makeDamageEffect(3)),
+    pinch: new Skill("Pinch", "Deal 3 damage.", Skill.makeDamageEffect(3)),
     bop: new Skill("Bop", "Deal 4 damage.", Skill.makeDamageEffect(4)),
     boop: new Skill("Boop", "Deal 4 damage twice.", Skill.makeRepeatedEffect(Skill.makeDamageEffect(4), 2)),
     hug: new Skill("Hug", "Deal 5 damage.", Skill.makeDamageEffect(5)),
@@ -1272,7 +1281,7 @@ let levels = [
     function () {
         let newMap = new TileMap(15, 15);
         Game.player.addItem(new items.Key);
-        let door = new Door();
+        let door = new WipeDoor();
         door.name = "Start";
         game.entities = [
             Game.player,
@@ -1285,7 +1294,6 @@ let levels = [
         newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
         newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
         newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
-        main.changeMusic("Rune_Search.mp3");
         main.displayEntities(true);
         return newMap;
     },
@@ -1348,6 +1356,7 @@ let levels = [
         ];
         newMap.insertEntities(game.entities);
         newMap.insertPlayer(Game.player);
+        main.changeMusic("Shopkeep.mp3");
         return newMap;
     },
     function () {
@@ -1494,7 +1503,8 @@ class Battle {
         return this._statuses;
     }
     static get active() {
-        return Battle._active;
+        // return Battle._active;
+        return (game.battle != null) && collisionMenu.visible && (game.battle.enemy.health > 1);
     }
     static set active(active) {
         Battle._active = active;
@@ -1551,6 +1561,9 @@ class Battle {
         this._enemy.health -= x;
         this.runStatusCallbacks("attack");
     }
+    damageBypass(x) {
+        this._enemy.health -= x;
+    }
     heal(x) {
         this._enemy.health += x;
         if (this._enemy.health > this._startingHealth) {
@@ -1566,6 +1579,7 @@ class Battle {
     }
     victory() {
         //TODO: more victory code goes here
+        collisionMenu.showDefeat = false;
         collisionMenu.showVictory = true;
         collisionMenu.spoils = this.spoils();
         Game.player.mana.add(collisionMenu.spoils);
@@ -1574,6 +1588,7 @@ class Battle {
     }
     gameover() {
         //TODO: game over code goes here
+        collisionMenu.showVictory = false;
         collisionMenu.showDefeat = true;
         collisionMenu.spoils = this.spoils();
         Game.player.mana.subtract(collisionMenu.spoils);
@@ -1586,7 +1601,7 @@ class Battle {
         }
         let temp = [];
         for (let i = 0; i < this._statuses.length; i++) {
-            if (this._statuses[i].countdown != 0) {
+            if (this._statuses[i].countdown > 0) {
                 temp.push(this._statuses[i]);
             }
         }
@@ -1661,6 +1676,15 @@ class Sign extends Entity {
     }
     addFunc(func) {
         this._funcs.push(func);
+    }
+}
+/// <reference path="../_references.ts" />
+class WipeDoor extends Entity {
+    constructor() {
+        super("Door");
+    }
+    playerCollision() {
+        super.playerCollision();
     }
 }
 class CollisionMenu {
@@ -1845,6 +1869,10 @@ class CollisionMenu {
                 game.tileMap.insertEntity(entity);
             }
         }
+        else if (entity instanceof WipeDoor) {
+            Game.player = new Player(Game.player.name);
+            game.nextLevel();
+        }
         main.draw();
         this.visible = false;
         this.hpBar = null;
@@ -2003,6 +2031,7 @@ class PlayerMenu {
         this.completedActions.add(key);
         switch (key) {
             case "instructions-f":
+                main.changeMusic("Rune_Search.mp3");
                 break;
             case "door-f":
                 break;
