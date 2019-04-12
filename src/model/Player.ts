@@ -43,9 +43,21 @@ class Player extends Character {
 		return this._skills;
 	}
 
-	giveSkill(s: Skill): void {
-		if (this._skills.indexOf(s) == -1) {
+	giveRandomSkill(): Skill {
+		let keepGoing = true;
+		while (keepGoing) {
+			let skill = allSkillNames[Math.floor(Math.random() * allSkillNames.length)];
+			keepGoing = !this.giveSkill(skills[skill]);
+			return skills[skill];
+		}
+	}
+
+	giveSkill(s: Skill): boolean {
+		if (this._skills.indexOf(s) == -1 || s.constructor.name == "UsableOnceSkill") {
 			this._skills.push(s);
+			return true;
+		} else {
+			return false;
 		}
 	}
 

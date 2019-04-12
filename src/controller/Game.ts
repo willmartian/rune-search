@@ -85,6 +85,8 @@ class Game {
 		}
 		this.changeLevel(next);
 		this._currentLevel += 1;
+		let skillGiven = Game.player.giveRandomSkill();
+		//TODO: Somehow tell the player what skill they have been given
 		return true;
 	}
 

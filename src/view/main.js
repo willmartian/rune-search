@@ -142,6 +142,7 @@ let seed = function(sketch) {
 	}
 
 	sketch.walk = function() {
+		console.trace();
 		// game.headshift(Game.player, -1);
 		if (collisionMenu.colliding.length > 0) {
 			return;
@@ -233,7 +234,7 @@ let seed = function(sketch) {
 	sketch.keyPressed = function() {
 		if (sketch.keyCode == 38) { //up arrow
 			if (!collisionMenu.visible) {
-				sketch.walk();
+				//sketch.walk();
 			}
 		} else if (sketch.key == "e") {
 			showEntities = !showEntities;
@@ -242,7 +243,7 @@ let seed = function(sketch) {
 		} else if (sketch.keyCode == 37) { //left arrow
 			if (!collisionMenu.visible) {
 				game.rotateDir(Game.player, true);
-				// sketch.walk();
+				//sketch.walk();
 			} else {
 				if (collisionMenu.entity instanceof Character 
 						&& collisionMenu.activeSkill > 0) {
