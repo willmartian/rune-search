@@ -153,7 +153,8 @@ let levels = [
 			new Sign("Modern_Living"),
 			new Sign("Undeadication"),
 			new Sign("Bookends"),
-			new Sign("Victory")
+			new Sign("Victory"),
+			new Sign("Shopkeep"),
 		];
 		for (let e of game.entities) {
 			e.addFunc(function() {
