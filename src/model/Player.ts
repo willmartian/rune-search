@@ -59,11 +59,12 @@ class Player extends Character {
 		}
 	}
 
-	revokeSkill(n: string): void {
-		let s = skills[n];
+	revokeSkill(s: Skill): void {
 		let index = this._skills.indexOf(s);
 		if (index != -1) {
 			this._skills.splice(index, 1);
+		} else {
+			console.log("unspliceable");
 		}
 	}
 

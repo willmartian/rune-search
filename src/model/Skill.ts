@@ -92,7 +92,7 @@ class Skill {
 
 	static revokeSkill(skillName: string): Function {
 		return function(b: Battle) {
-			b.player.revokeSkill(skillName);
+			b.player.revokeSkill(skills[skillName]);
 		}
 	}
 

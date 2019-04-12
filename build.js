@@ -780,11 +780,13 @@ class Player extends Character {
             return false;
         }
     }
-    revokeSkill(n) {
-        let s = skills[n];
+    revokeSkill(s) {
         let index = this._skills.indexOf(s);
         if (index != -1) {
             this._skills.splice(index, 1);
+        }
+        else {
+            console.log("unspliceable");
         }
     }
     playerCollision() { }
@@ -1065,7 +1067,7 @@ class Skill {
     }
     static revokeSkill(skillName) {
         return function (b) {
-            b.player.revokeSkill(skillName);
+            b.player.revokeSkill(skills[skillName]);
         };
     }
 }
@@ -1168,7 +1170,7 @@ class UsableOnceSkill extends Skill {
     }
     execute(b) {
         super.execute(b);
-        b.player.revokeSkill(this.camelCaseName);
+        b.player.revokeSkill(this);
     }
 }
 /// <reference path="../_references.ts" />
