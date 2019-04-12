@@ -259,9 +259,9 @@ let seed = function(sketch) {
 				sketch.walk();
 			}
 		} else if (sketch.key == "e") {
-			showEntities = !showEntities;
+			// showEntities = !showEntities;
 		} else if (sketch.key == "n") {
-			game.nextLevel();
+			// game.nextLevel();
 		} else if (sketch.keyCode == 37) { //left arrow
 			if (sketch.canWalk()) {
 				game.rotateDir(Game.player, true);
