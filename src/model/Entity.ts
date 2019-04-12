@@ -3,7 +3,7 @@
 abstract class Entity {
 	protected _name: string;
 	protected _location: number[][]; //x,y pairs
-	protected _active: boolean;
+	// protected _active: boolean;
 	protected _head: number[]; //x,y
 	protected _dir: number[]; //xstep,ystep - head's x + dir's x = next x coord
 	protected _oldDirs: number[][];
@@ -11,7 +11,7 @@ abstract class Entity {
 	constructor(name: string) {
 		this._name = name;
 		this._location = [];
-		this._active = false;
+		// this._active = false;
 		this._oldDirs = [];
 	}
 
@@ -89,11 +89,11 @@ abstract class Entity {
 		return [this._dir[0] * -1, this._dir[1] * -1];
 	}
 
-	get active(): boolean {
-		return this._active;
-	}
+	// get active(): boolean {
+	// 	return this._active;
+	// }
 
-	set active(active: boolean) {
-		this._active = active;
-	}
+	// set active(active: boolean) {
+	// 	this._active = active;
+	// }
 }

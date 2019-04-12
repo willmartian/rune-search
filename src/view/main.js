@@ -155,7 +155,7 @@ let seed = function(sketch) {
 	}
 
 	sketch.canWalk = function() {
-		return !paused && !collisionMenu.visible && playerMenu.tutorialOver; 
+		return !paused && !collisionMenu.visible && playerMenu.dialogueKey == ""; 
 	}
 
 
@@ -249,7 +249,7 @@ let seed = function(sketch) {
 				sketch.walk();
 			} else if (collisionMenu.visible 
 						&& collisionMenu.entity instanceof Character 
-						&& collisionMenu.activeSkill < Game.player.skills.length) {
+						&& collisionMenu.activeSkill < Game.player.skills.length - 1) {
 					collisionMenu.activeSkill += 1;
 			}
 		} else if (sketch.key == "p") {

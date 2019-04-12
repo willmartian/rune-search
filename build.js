@@ -11,6 +11,7 @@ class Game {
         ];
         this._tileMap.insertEntities(this._entities);
         this._currentLevel = -1;
+        this._timeScores = [];
     }
     //Only adding one entity to colliding, TODO
     checkCollisions(entity) {
@@ -72,6 +73,8 @@ class Game {
         let newMap = level.call(this);
         this._tileMap = newMap;
         Game.player.hunger = 1;
+        this._timeScores.push(playerMenu.time);
+        playerMenu.time = [0, 0, 0];
         main.draw();
         // if (level == levels[0]) {
         main.resize();
@@ -361,6 +364,8 @@ class TileMap {
         }
         return locations;
     }
+    //inseerts the player at a random blank space
+    // draws player horizontally
     insertPlayer(entity) {
         let pos = this.randomPosDir();
         let x = pos[0], y = pos[1];
@@ -575,7 +580,7 @@ class Entity {
     constructor(name) {
         this._name = name;
         this._location = [];
-        this._active = false;
+        // this._active = false;
         this._oldDirs = [];
     }
     //override this default method method
@@ -636,12 +641,6 @@ class Entity {
     }
     get reverseDir() {
         return [this._dir[0] * -1, this._dir[1] * -1];
-    }
-    get active() {
-        return this._active;
-    }
-    set active(active) {
-        this._active = active;
     }
 }
 /// <reference path="../_references.ts" />
@@ -756,10 +755,9 @@ class Player extends Character {
         super(name);
         super._health = 10;
         super._attackDamage = 1;
-        super._active = true;
-        this._party = [];
+        // super._active = true;
         this._mana = new Manager();
-        this._skills = [skills.slap, skills.aegis];
+        this._skills = [skills.slap];
         this._hunger = 2;
         this._maxHunger = 10;
     }
@@ -1511,39 +1509,30 @@ class HpBar {
     constructor(max) {
         this.maxBar = 5; //max number of bars to represent hp in string
         this.currentHealth = max; //hp is full when bar is created
-        this.maxHealth = max;
+        // this.maxHealth = max;
         // this.barString = "██████████";
-        this.barString = "<3 <3 <3 <3 <3 ";
+        this.barString = "<3 ".repeat(this.currentHealth);
     }
     //update will update the currentHealth and reupdate the barString
     //update will take in cur which is the new current hp hpBar should be updated
     //with
     update(cur) {
-        if (cur != this.currentHealth) {
-            this.currentHealth = cur;
-            var tmp = this.currentHealth * 10 / this.maxHealth;
-            var i = 0;
-            this.barString = "";
-            //remaking barString
-            // let left = true;
-            while (i < this.maxBar) {
-                if (i < tmp) {
-                    var re = /░/;
-                    // if (left) {
-                    // this.barString = this.barString + "█";
-                    this.barString = this.barString + "<3 ";
-                    // } else {
-                    // this.barString = this.barString + "]";
-                    // }
-                    // left = !left;
-                }
-                else {
-                    // this.barString = this.barString + "░";
-                    this.barString = this.barString + "   ";
-                }
-                i = i + 1;
-            }
-        }
+        // if(cur != this.currentHealth){
+        //   this.currentHealth = cur;
+        //   var tmp: number = this.currentHealth * 10/this.maxHealth;
+        //   var i: number = 0;
+        //   this.barString = "";
+        //   //remaking barString
+        //   while(i < this.maxBar){
+        //      if(i < tmp) {
+        //           this.barString = this.barString + "<3 ";
+        //      } else {
+        //         this.barString = this.barString + "   ";
+        //      }
+        //      i = i+1;
+        //   }
+        // }
+        this.barString = "<3 ".repeat(cur);
     }
     get bar() {
         return this.barString;
@@ -1793,6 +1782,8 @@ class PlayerMenu {
         this.dialogueIndex = 0;
         this.completedActions = new Set();
         this.instructionsOver = false;
+        this.timer = setInterval(this.setTimer, 1000);
+        this.time = [0, 0, 0];
     }
     getData() {
         let data;
@@ -1811,16 +1802,36 @@ class PlayerMenu {
     setInfo() {
         this.setMana();
         this.setInventory();
-        this.setHunger();
         this.setDialogue();
     }
-    setHunger() {
-        let hunger = Game.player.hunger;
+    setTimer() {
+        // let hunger = Game.player.hunger;
         // if (hunger > Game.player.maxHunger) {
         // 	hunger = Game.player.maxHunger;
         // }
         // document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
-        document.getElementById("player-hunger").innerHTML = "Time Lapsed: " + hunger + "s";
+        if (main.canWalk()) {
+            playerMenu.time[2] += 1;
+        }
+        if (playerMenu.time[2] == 60) {
+            playerMenu.time[1] += 1;
+            playerMenu.time[2] = 0;
+        }
+        if (playerMenu.time[1] == 60) {
+            playerMenu.time[0] += 1;
+            playerMenu.time[1] = 0;
+        }
+        let displayTime;
+        if (playerMenu.time[0] != 0) {
+            displayTime = playerMenu.time[0] + "h " + playerMenu.time[1] + "m " + playerMenu.time[2] + "s";
+        }
+        else if (playerMenu.time[1] != 0) {
+            displayTime = playerMenu.time[1] + "m " + playerMenu.time[2] + "s";
+        }
+        else {
+            displayTime = playerMenu.time[2] + "s";
+        }
+        document.getElementById("player-timer").innerHTML = "Time Lapsed: " + displayTime;
     }
     setDialogue() {
         let dialogueMenu = document.getElementById("player-speech-container");
@@ -1855,12 +1866,7 @@ class PlayerMenu {
         this.completedActions.add(key);
         switch (key) {
             case "instructions-f":
-                // try {
-                // 	clearInterval(walker);
-                // } catch {
                 this.tutorialOver = true;
-                // walker = setInterval(main.walk, 1500);
-                // }
                 break;
             case "door-f":
                 break;
@@ -2047,7 +2053,7 @@ let seed = function (sketch) {
         // Game.player.hunger += 1;
     };
     sketch.canWalk = function () {
-        return !paused && !collisionMenu.visible && playerMenu.tutorialOver;
+        return !paused && !collisionMenu.visible && playerMenu.dialogueKey == "";
     };
     sketch.setTextStyle = function (tile) {
         sketch.noStroke();
@@ -2126,7 +2132,7 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, true);
                 game.rotateDir(Game.player, true);
-                // sketch.walk();
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
@@ -2138,11 +2144,11 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, false);
                 game.rotateDir(Game.player, false);
-                // sketch.walk();
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
-                && collisionMenu.activeSkill < Game.player.skills.length) {
+                && collisionMenu.activeSkill < Game.player.skills.length - 1) {
                 collisionMenu.activeSkill += 1;
             }
         }

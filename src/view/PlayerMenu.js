@@ -7,6 +7,8 @@ class PlayerMenu {
 		this.dialogueIndex = 0;
 		this.completedActions = new Set();
 		this.instructionsOver = false;
+		this.timer = setInterval(this.setTimer, 1000);
+		this.time = [0,0,0];
 	}
 
 	getData() {
@@ -28,17 +30,40 @@ class PlayerMenu {
 	setInfo() {
 		this.setMana();
 		this.setInventory();
-		this.setHunger();
 		this.setDialogue();
 	}
 
-	setHunger() {
-		let hunger = Game.player.hunger;
+	setTimer() {
+		// let hunger = Game.player.hunger;
 		// if (hunger > Game.player.maxHunger) {
 		// 	hunger = Game.player.maxHunger;
 		// }
 		// document.getElementById("player-hunger").innerHTML = "Hunger: " + hunger + "/" + Game.player.maxHunger;
-		document.getElementById("player-hunger").innerHTML = "Time Lapsed: " + hunger + "s";
+		if (main.canWalk()) {
+			playerMenu.time[2] += 1;
+		}
+
+		if (playerMenu.time[2] == 60) {
+			playerMenu.time[1] += 1;
+			playerMenu.time[2] = 0;
+		} 
+
+		if (playerMenu.time[1] == 60) {
+			playerMenu.time[0] += 1;
+			playerMenu.time[1] = 0;
+		}
+
+		let displayTime; 
+
+		if (playerMenu.time[0] != 0) {
+			displayTime = playerMenu.time[0] + "h " + playerMenu.time[1] + "m " + playerMenu.time[2] + "s";
+		} else if (playerMenu.time[1] != 0) {
+			displayTime = playerMenu.time[1] + "m " + playerMenu.time[2] + "s";
+		} else {
+			displayTime = playerMenu.time[2] + "s";
+		}
+
+		document.getElementById("player-timer").innerHTML = "Time Lapsed: " + displayTime;
 	}
 
 
@@ -74,13 +99,7 @@ class PlayerMenu {
 		this.completedActions.add(key);
 		switch(key) {
 			case "instructions-f":
-				// try {
-				// 	clearInterval(walker);
-				// } catch {
 					this.tutorialOver = true;
-					// walker = setInterval(main.walk, 1500);
-				// }
-
 				break;
 			case "door-f":
 				break;
