@@ -1463,6 +1463,7 @@ class Battle {
     // 	this._statuses = [];
     // }
     constructor(enemy, countdown) {
+        Battle._active = true;
         this._enemy = enemy;
         this._startingHealth = this._enemy.health;
         this._countdown = countdown;

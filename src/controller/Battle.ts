@@ -25,6 +25,7 @@ class Battle {
 	// }
 
 	constructor(enemy: Character, countdown: number) {
+		Battle._active = true;
 		this._enemy = enemy;
 		this._startingHealth = this._enemy.health;
 		this._countdown = countdown;
