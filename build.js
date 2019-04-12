@@ -1293,7 +1293,6 @@ let levels = [
         newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
         newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
         newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
-        main.changeMusic("Rune_Search.mp3");
         main.displayEntities(true);
         return newMap;
     },
@@ -1356,6 +1355,7 @@ let levels = [
         ];
         newMap.insertEntities(game.entities);
         newMap.insertPlayer(Game.player);
+        main.changeMusic("Shopkeep.mp3");
         return newMap;
     },
     function () {
@@ -2025,6 +2025,7 @@ class PlayerMenu {
         this.completedActions.add(key);
         switch (key) {
             case "instructions-f":
+                main.changeMusic("Rune_Search.mp3");
                 break;
             case "door-f":
                 break;
