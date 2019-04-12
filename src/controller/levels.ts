@@ -89,6 +89,7 @@ let levels = [
 		
 		newMap.insertEntities(game.entities);
 		newMap.insertPlayer(Game.player);
+		main.changeMusic("Shopkeep.mp3");
 		return newMap;
 	},
 
