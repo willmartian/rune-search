@@ -137,19 +137,21 @@ class CollisionMenu {
 			//makeEntityNotCollideableandVisible
 		} else if (entity instanceof Door) {
 			let i;
+			let keyHad = false;
 			for (i = 0; i < Game.player.inventory.length; i++) {
 				if (Game.player.inventory[i].name == "Key") {
 					Game.player.removeItem(Game.player.inventory[i]);
 					game.nextLevel();
+					keyHad = true;
 					// super.playerCollision();
 					// return;
 					break;
 				}
 			}
-			if (i == Game.player.inventory.length) {
+			if (!keyHad) {
 				playerMenu.dialogueKey = "door";
-				// game.tileMap.removeEntity(entity);
-				// game.tileMap.insertEntity(entity);
+				game.tileMap.removeEntity(entity);
+				game.tileMap.insertEntity(entity);
 			}
 		}
 		main.draw();
