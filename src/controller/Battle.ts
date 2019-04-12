@@ -54,7 +54,7 @@ class Battle {
 		return this._log;
 	}
 
-	get totalCost(): Manager {
+	totalCost(): Manager {
 		let result = new Manager();
 		for (let i = 0; i < this._skillQueue.length; i++) {
 			result.add(this._skillQueue[i].cost);
@@ -113,7 +113,8 @@ class Battle {
 		for (let i = 0; i < this._skillQueue.length; i++) {
 			this._skillQueue[i].execute(this);
 		}
-		this._player.mana.subtract(this.totalCost);
+		let temp: Manager = this.totalCost();
+		this._player.mana.subtract(temp);
 		this._skillQueue = [];
 		this.runStatusCallbacks("turnEnd");
 		if (this._enemy.health <= 0) {
@@ -150,6 +151,7 @@ class Battle {
 		//TODO: more victory code goes here
 		this._player.mana.add(this.spoils());
 		collisionMenu.closeMenu();
+		Battle.active = false;
 		console.log("battle won!");
 	}
 
