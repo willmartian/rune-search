@@ -215,24 +215,6 @@ class Game {
         // return this.changeDir(entity, newdir);
         return true;
     }
-    toJSON() {
-        const proto = Object.getPrototypeOf(this);
-        const jsonObj = Object.assign({}, this);
-        Object.entries(Object.getOwnPropertyDescriptors(proto))
-            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-            .map(([key, descriptor]) => {
-            if (descriptor && key[0] !== '_') {
-                try {
-                    const val = this[key];
-                    jsonObj[key] = val;
-                }
-                catch (error) {
-                    console.error(`Error calling getter ${key}`, error);
-                }
-            }
-        });
-        return jsonObj;
-    }
 }
 /// <reference path="../_references.ts" />
 class Tile {
@@ -1025,7 +1007,7 @@ class Skill {
         return this._name;
     }
     get desc() {
-        return this._name;
+        return this._desc;
     }
     get cost() {
         return this._cost;
@@ -1287,6 +1269,7 @@ let levels = [
         newMap.insertEntityAt(game.entities[2], 4, 8, 1, 0);
         newMap.insertEntityAt(game.entities[3], 6, 12, 1, 0);
         newMap.insertEntityAt(game.entities[0], 10, 1, 1, 0);
+        main.changeMusic("Rune_Search.mp3");
         main.displayEntities(true);
         return newMap;
     },
@@ -1398,6 +1381,27 @@ let levels = [
         newMap.insertEntities(game.entities);
         newMap.insertPlayer(Game.player);
         main.changeMusic("Victory.mp3");
+        main.displayEntities(true);
+        return newMap;
+    },
+    function () {
+        let newMap = new TileMap(30, 15);
+        game.entities = [
+            new Sign("Rune_Search"),
+            new Sign("Exploratory_Final"),
+            new Sign("Modern_Living"),
+            new Sign("Undeadication"),
+            new Sign("Bookends"),
+            new Sign("Victory")
+        ];
+        for (let e of game.entities) {
+            e.addFunc(function () {
+                main.changeMusic(e.name + ".mp3");
+            });
+        }
+        newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
+        main.changeMusic(null);
         main.displayEntities(true);
         return newMap;
     }
@@ -1610,9 +1614,20 @@ class Shopkeep extends Entity {
 class Sign extends Entity {
     constructor(name) {
         super(name);
+        this._funcs = [];
     }
     playerCollision() {
+        for (let func of this._funcs) {
+            // try {
+            func.call(null);
+            // } catch {
+            console.log("too bad so sad");
+            // }
+        }
         return;
+    }
+    addFunc(func) {
+        this._funcs.push(func);
     }
 }
 class CollisionMenu {
@@ -1674,7 +1689,6 @@ class CollisionMenu {
             if (i == this.activeSkill) {
                 li.classList.add("active");
             }
-            console.log(this.activeSkill);
             skillList.appendChild(li);
             if (i != skills.length - 1) {
                 li = document.createElement('li');
@@ -1688,6 +1702,7 @@ class CollisionMenu {
             li.appendChild(document.createTextNode("Empty :("));
             skillList.appendChild(li);
         }
+        document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
     }
     getActiveSkill() {
         return Game.player.skills[this.activeSkill];
@@ -1993,7 +2008,7 @@ let seed = function (sketch) {
     };
     // Runs once after preload().
     sketch.setup = function () {
-        music.loop();
+        // music.loop();
         // playerMenu = new PlayerMenu();
         // collisionMenu = new CollisionMenu();
         let canvas = sketch.createCanvas(1000, 1000);
@@ -2054,6 +2069,10 @@ let seed = function (sketch) {
         }
     };
     sketch.changeMusic = function (fileName) {
+        if (fileName == null) {
+            music.pause();
+            return;
+        }
         fileName = 'assets/music/' + fileName;
         music.pause();
         music = sketch.createAudio(fileName);
@@ -2223,7 +2242,7 @@ let seed = function (sketch) {
             }
         }
         else if (paused && sketch.key == "c") {
-            game.changeLevel(levels[levels.length - 1]);
+            game.changeLevel(levels[levels.length - 2]);
             sketch.pause();
         }
         else if (sketch.key == "m") {
@@ -2233,6 +2252,15 @@ let seed = function (sketch) {
             else {
                 music.loop();
             }
+        }
+        else if (sketch.key == "h") {
+            // game.changeLevel(levels[0]);
+            // sketch.pause();
+            location.reload();
+        }
+        else if (sketch.key == "s") {
+            sketch.pause();
+            game.changeLevel(levels[levels.length - 1]);
         }
         sketch.draw();
         return false;

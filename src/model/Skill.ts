@@ -23,7 +23,7 @@ class Skill {
 	}
 
 	get desc(): string {
-		return this._name;
+		return this._desc;
 	}
 
 	get cost(): Manager {
