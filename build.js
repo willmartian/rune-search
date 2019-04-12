@@ -758,7 +758,7 @@ class Player extends Character {
         super._health = 10;
         super._attackDamage = 1;
         // super._active = true;
-        this._mana = new Manager();
+        this._mana = new Manager("aaaaa");
         this._skills = [skills.slap];
         this._hunger = 2;
         this._maxHunger = 10;
@@ -1456,7 +1456,7 @@ class Battle {
     get log() {
         return this._log;
     }
-    get totalCost() {
+    totalCost() {
         let result = new Manager();
         for (let i = 0; i < this._skillQueue.length; i++) {
             result.add(this._skillQueue[i].cost);
@@ -1502,7 +1502,8 @@ class Battle {
         for (let i = 0; i < this._skillQueue.length; i++) {
             this._skillQueue[i].execute(this);
         }
-        this._player.mana.subtract(this.totalCost);
+        let temp = this.totalCost();
+        this._player.mana.subtract(temp);
         this._skillQueue = [];
         this.runStatusCallbacks("turnEnd");
         if (this._enemy.health <= 0) {
@@ -1535,6 +1536,7 @@ class Battle {
         //TODO: more victory code goes here
         this._player.mana.add(this.spoils());
         collisionMenu.closeMenu();
+        Battle.active = false;
         console.log("battle won!");
     }
     gameover() {
@@ -1919,7 +1921,6 @@ class PlayerMenu {
                 this.tutorialOver = true;
                 break;
             case "door-f":
-
                 break;
             default:
                 return;
@@ -2184,7 +2185,7 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, true);
                 game.rotateDir(Game.player, true);
-                //sketch.walk();
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
@@ -2196,7 +2197,7 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, false);
                 game.rotateDir(Game.player, false);
-                // sketch.walk();
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
@@ -2211,7 +2212,11 @@ let seed = function (sketch) {
             if (playerMenu.dialogueKey != "") {
                 playerMenu.dialogueIndex += 1;
             }
-            if (collisionMenu.visible) {
+            else if (Battle.active) {
+                game.battle.enqueue(collisionMenu.getActiveSkill());
+                game.battle.endTurn();
+            }
+            else if (collisionMenu.visible) {
                 collisionMenu.closeMenu();
             }
         }
@@ -2225,12 +2230,6 @@ let seed = function (sketch) {
             }
             else {
                 music.loop();
-            }
-        }
-        else if (sketch.key = "b") {
-            if (Battle.active) {
-                game.battle.enqueue(collisionMenu.getActiveSkill());
-                game.battle.endTurn();
             }
         }
         sketch.draw();

@@ -258,8 +258,10 @@ let seed = function(sketch) {
 		} else if (sketch.key == "z") {
 			if (playerMenu.dialogueKey != "") {
 				playerMenu.dialogueIndex += 1;
-			}
-			if (collisionMenu.visible) {
+			} else if (Battle.active) {
+				game.battle.enqueue(collisionMenu.getActiveSkill());
+				game.battle.endTurn();
+			} else if (collisionMenu.visible) {
 				collisionMenu.closeMenu();
 			}
 		} else if (paused && sketch.key == "c") {
@@ -270,11 +272,6 @@ let seed = function(sketch) {
 				music.pause();
 			} else {
 				music.loop();
-			}
-		} else if (sketch.key = "b") {
-			if (Battle.active) {
-				game.battle.enqueue(collisionMenu.getActiveSkill());
-				game.battle.endTurn();
 			}
 		}
  
