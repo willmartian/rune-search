@@ -6,6 +6,9 @@ class CollisionMenu {
 		this.hpBar = null;
 		this.activeSkill = 0; 
 		this.entity = this.colliding[this.colliding.length - 1];
+		this.showVictory = false;
+		this.showDefeat = false;
+		this.spoils = null;
 	}
 
 //TODO: only showing the top entity of the last tile, pls fix
@@ -58,6 +61,7 @@ class CollisionMenu {
 			li.classList.add("skill");
 			if (i == this.activeSkill) {
 				li.classList.add("active");
+				game.battle.logText(this.getActiveSkill().desc);
 			}
 
 			skillList.appendChild(li);
@@ -76,11 +80,23 @@ class CollisionMenu {
 			skillList.appendChild(li);
 		}
 
-		document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
+		// document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
+		
+
 	}
 
 	getActiveSkill() {
 		return Game.player.skills[this.activeSkill];
+	}
+
+	updateLog(text) {
+		let t;
+		if (!text) {
+			t = game.battle.topOfLog();
+		} else {
+			t = text;
+		}
+		document.getElementById("move-description").innerHTML = t;
 	}
 
 	setHealth() {
@@ -99,6 +115,23 @@ class CollisionMenu {
 			let turns = document.getElementById("turn-count");
 			turns.innerHTML = game.battle.countdown;
 			this.setHealth();
+			this.updateLog();
+			if (this.showVictory) {
+				document.getElementById("battle-victory").style.display = "flex";
+				if (this.spoils != null) {
+					document.getElementById("spoils").innerHTML = "Spoils: " + this.spoils.toString();
+				}
+			} else {
+				document.getElementById("battle-victory").style.display = "none";
+			}
+			if (this.showDefeat) {
+				document.getElementById("battle-defeat").style.display = "flex";
+				if (this.spoils != null) {
+					document.getElementById("spoils").innerHTML = "Loss: " + this.spoils.toString();
+				}
+			} else {
+				document.getElementById("battle-defeat").style.display = "none";
+			}
 		}
 
 	}

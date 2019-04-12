@@ -82,6 +82,9 @@ class Manager { //Mana-ger. Get it?
 	}
 
 	setAmount(which: string, x: number): void {
+		if (x < 0) {
+			x = 0;
+		}
 		switch (which.toLowerCase()) {
 			case "a":
 				this._a = x;
@@ -102,71 +105,82 @@ class Manager { //Mana-ger. Get it?
 	}
 
 	increase(which: string, x: number): void {
-		switch (which.toLowerCase()) {
-			case "a":
-				this._a += x;
-				break;
-			case "e":
-				this._e += x;
-				break;
-			case "i":
-				this._i += x;
-				break;
-			case "o":
-				this._o += x;
-				break;
-			case "u":
-				this._u += x;
-				break;
-		}
+		this.setAmount(which, this.getAmount(which) + x);
+		// switch (which.toLowerCase()) {
+		// 	case "a":
+		// 		this._a += x;
+		// 		break;
+		// 	case "e":
+		// 		this._e += x;
+		// 		break;
+		// 	case "i":
+		// 		this._i += x;
+		// 		break;
+		// 	case "o":
+		// 		this._o += x;
+		// 		break;
+		// 	case "u":
+		// 		this._u += x;
+		// 		break;
+		// }
 	}
 
 	decrease(which: string, x: number): void {
-		switch (which.toLowerCase()) {
-			case "a":
-				this._a -= x;
-				break;
-			case "e":
-				this._e -= x;
-				break;
-			case "i":
-				this._i -= x;
-				break;
-			case "o":
-				this._o -= x;
-				break;
-			case "u":
-				this._u -= x;
-				break;
-		}
+		this.setAmount(which, this.getAmount(which) - x);
+		// switch (which.toLowerCase()) {
+		// 	case "a":
+		// 		this._a -= x;
+		// 		break;
+		// 	case "e":
+		// 		this._e -= x;
+		// 		break;
+		// 	case "i":
+		// 		this._i -= x;
+		// 		break;
+		// 	case "o":
+		// 		this._o -= x;
+		// 		break;
+		// 	case "u":
+		// 		this._u -= x;
+		// 		break;
+		// }
 	}
 
-	add(other: Manager): void {
-		for (let letter in Manager.vowels) {
+	add(other: Manager): Manager {
+		for (let letter of Manager.vowels) {
+			console.log(letter);
+			console.log(other.getAmount(letter));
 			this.increase(letter, other.getAmount(letter));
 		}
+		return this;
 	}
 
-	subtract(other: Manager): void {
-		for (let letter in Manager.vowels) {
+	subtract(other: Manager): Manager {
+		for (let letter of Manager.vowels) {
 			this.decrease(letter, other.getAmount(letter));
 		}
+		return this;
 	}
 
-	multiply(scalar: number): void {
+	multiply(scalar: number): Manager {
 		scalar = Math.round(scalar);
 		for (let letter in Manager.vowels) {
 			this.setAmount(letter, this.getAmount(letter) * scalar);
 		}
+		return this;
 	}
 
 	fitsInto(other: Manager): boolean {
-		for (let letter in Manager.vowels) {
+		for (let letter of Manager.vowels) {
 			if (this.getAmount(letter) > other.getAmount(letter)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	isEmpty(): boolean {
+		return this.fitsInto(new Manager());
 	}
 
 	toString(): string {

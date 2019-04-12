@@ -19,6 +19,7 @@ let seed = function(sketch) {
 	let showMana;
 	let locationTest;
 	let paused;
+	let playerDead;
 
 	// Runs first.
 	sketch.preload = function() {
@@ -48,6 +49,7 @@ let seed = function(sketch) {
 		showCM = true;
 		locationTest = false;
 		paused = false;
+		playerDead = false;
 		COLORS = {
 			// player: sketch.color(0, 0, 0),
 			player: sketch.color(255, 255, 255),
@@ -74,6 +76,10 @@ let seed = function(sketch) {
 		collisionMenu.update();
 		playerMenu.update();
 		sketch.updateWordBank();
+		if (Game.player.mana.isEmpty()) {
+			sketch.end();
+			sketch.draw();
+		}
 		// sketch.scrollStyle();
 	};
 
@@ -93,6 +99,15 @@ let seed = function(sketch) {
 			// walker = setInterval(sketch.walk, 1500);
 			paused = false;
 		}
+	}
+
+	sketch.end = function() {
+		let game = document.getElementById("game");
+		let endMenu = document.getElementById("end-menu");
+		music.pause();
+		game.classList.add("blur");
+		endMenu.style.display = "flex";
+		playerDead = true;
 	}
 
 	sketch.changeMusic = function(fileName) {
@@ -229,6 +244,15 @@ let seed = function(sketch) {
 	}
 
 	sketch.keyPressed = function() {
+		if (playerDead) {
+			if (sketch.key == 'h') {
+				location.reload();
+			} else {
+				return false;
+			}
+		}
+
+
 		if (sketch.keyCode == 38) { //up arrow
 			if (sketch.canWalk()) {
 				sketch.walk();
@@ -262,26 +286,34 @@ let seed = function(sketch) {
 		} else if (sketch.key == "z") {
 			if (playerMenu.dialogueKey != "") {
 				playerMenu.dialogueIndex += 1;
+			} else if (collisionMenu.showVictory || collisionMenu.showDefeat) {
+				collisionMenu.showVictory = false;
+				collisionMenu.showDefeat = false;
+				collisionMenu.closeMenu();
 			} else if (Battle.active) {
-				game.battle.enqueue(collisionMenu.getActiveSkill());
-				game.battle.endTurn();
+				if (game.battle.enqueue(collisionMenu.getActiveSkill())) {
+					game.battle.endTurn();
+				} else {
+					collisionMenu.updateLog();
+					return false;
+				}
 			} else if (collisionMenu.visible) {
 				collisionMenu.closeMenu();
 			}
 		} else if (paused && sketch.key == "c") {
 			game.changeLevel(levels[levels.length - 2]);
 			sketch.pause();
-		} else if (sketch.key == "m") {
-			if (music.isPlaying()) {
+		} else if (paused && sketch.key == "m") {
+			if (music.isLooping()) {
 				music.pause();
 			} else {
 				music.loop();
 			}
-		} else if (sketch.key == "h") {
+		} else if (paused && sketch.key == "h") {
 			// game.changeLevel(levels[0]);
 			// sketch.pause();
 			location.reload(); 
-		} else if (sketch.key == "s") {
+		} else if (paused && sketch.key == "s") {
 			sketch.pause();
 			game.changeLevel(levels[levels.length - 1]);
 

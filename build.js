@@ -748,6 +748,9 @@ class Player extends Character {
     get mana() {
         return this._mana;
     }
+    set mana(mana) {
+        this._mana = mana;
+    }
     get hunger() {
         return this._hunger;
     }
@@ -852,6 +855,9 @@ class Manager {
         }
     }
     setAmount(which, x) {
+        if (x < 0) {
+            x = 0;
+        }
         switch (which.toLowerCase()) {
             case "a":
                 this._a = x;
@@ -871,66 +877,76 @@ class Manager {
         }
     }
     increase(which, x) {
-        switch (which.toLowerCase()) {
-            case "a":
-                this._a += x;
-                break;
-            case "e":
-                this._e += x;
-                break;
-            case "i":
-                this._i += x;
-                break;
-            case "o":
-                this._o += x;
-                break;
-            case "u":
-                this._u += x;
-                break;
-        }
+        this.setAmount(which, this.getAmount(which) + x);
+        // switch (which.toLowerCase()) {
+        // 	case "a":
+        // 		this._a += x;
+        // 		break;
+        // 	case "e":
+        // 		this._e += x;
+        // 		break;
+        // 	case "i":
+        // 		this._i += x;
+        // 		break;
+        // 	case "o":
+        // 		this._o += x;
+        // 		break;
+        // 	case "u":
+        // 		this._u += x;
+        // 		break;
+        // }
     }
     decrease(which, x) {
-        switch (which.toLowerCase()) {
-            case "a":
-                this._a -= x;
-                break;
-            case "e":
-                this._e -= x;
-                break;
-            case "i":
-                this._i -= x;
-                break;
-            case "o":
-                this._o -= x;
-                break;
-            case "u":
-                this._u -= x;
-                break;
-        }
+        this.setAmount(which, this.getAmount(which) - x);
+        // switch (which.toLowerCase()) {
+        // 	case "a":
+        // 		this._a -= x;
+        // 		break;
+        // 	case "e":
+        // 		this._e -= x;
+        // 		break;
+        // 	case "i":
+        // 		this._i -= x;
+        // 		break;
+        // 	case "o":
+        // 		this._o -= x;
+        // 		break;
+        // 	case "u":
+        // 		this._u -= x;
+        // 		break;
+        // }
     }
     add(other) {
-        for (let letter in Manager.vowels) {
+        for (let letter of Manager.vowels) {
+            console.log(letter);
+            console.log(other.getAmount(letter));
             this.increase(letter, other.getAmount(letter));
         }
+        return this;
     }
     subtract(other) {
-        for (let letter in Manager.vowels) {
+        for (let letter of Manager.vowels) {
             this.decrease(letter, other.getAmount(letter));
         }
+        return this;
     }
     multiply(scalar) {
         scalar = Math.round(scalar);
         for (let letter in Manager.vowels) {
             this.setAmount(letter, this.getAmount(letter) * scalar);
         }
+        return this;
     }
     fitsInto(other) {
-        for (let letter in Manager.vowels) {
+        for (let letter of Manager.vowels) {
             if (this.getAmount(letter) > other.getAmount(letter)) {
                 return false;
             }
         }
         return true;
+    }
+    isEmpty() {
+        return this.fitsInto(new Manager());
     }
     toString() {
         return "Mana Runes (A: " + this._a + ", " + "E: " + this._e + ", " + "I: " + this._i + ", " + "O: " + this._o + ", " + "U: " + this._u + ")";
@@ -1343,7 +1359,7 @@ let levels = [
         return newMap;
     },
     function () {
-        let newMap = new TileMap(20, 20);
+        let newMap = new TileMap(20, 15);
         game.entities = [
             new enemies.Rat,
             new enemies.Rat,
@@ -1411,6 +1427,7 @@ let levels = [
         newMap.insertPlayer(Game.player);
         main.changeMusic(null);
         main.displayEntities(true);
+        playerMenu.dialogueKey = "music";
         return newMap;
     }
 ];
@@ -1468,6 +1485,9 @@ class Battle {
     get log() {
         return this._log;
     }
+    topOfLog() {
+        return this._log[this._log.length - 1];
+    }
     totalCost() {
         let result = new Manager();
         for (let i = 0; i < this._skillQueue.length; i++) {
@@ -1501,11 +1521,16 @@ class Battle {
     }
     enqueue(s) {
         if (s != null) {
-            this._skillQueue.push(s);
-            if (!this.totalCost().fitsInto(this.player.mana)) {
-                this.skillQueue.pop();
+            if (s.cost.fitsInto(Game.player.mana)) {
+                this._skillQueue.push(s);
+                Game.player.mana.subtract(s.cost);
+                return true;
+            }
+            else {
+                this.logText("Not enough mana!");
             }
         }
+        return false;
     }
     logText(s) {
         this._log.push(s);
@@ -1518,7 +1543,7 @@ class Battle {
             this._skillQueue[i].execute(this);
         }
         let temp = this.totalCost();
-        this._player.mana.subtract(temp);
+        // Game.player.mana.subtract(temp);
         this._skillQueue = [];
         this.runStatusCallbacks("turnEnd");
         if (this._enemy.health <= 0) {
@@ -1552,13 +1577,18 @@ class Battle {
     }
     victory() {
         //TODO: more victory code goes here
-        this._player.mana.add(this.spoils());
-        collisionMenu.closeMenu();
+        collisionMenu.showVictory = true;
+        collisionMenu.spoils = this.spoils();
+        Game.player.mana.add(collisionMenu.spoils);
         Battle.active = false;
         console.log("battle won!");
     }
     gameover() {
         //TODO: game over code goes here
+        collisionMenu.showDefeat = true;
+        collisionMenu.spoils = this.spoils();
+        Game.player.mana.subtract(collisionMenu.spoils);
+        Battle.active = false;
         console.log("battle lost :(");
     }
     runStatusCallbacks(callback) {
@@ -1661,6 +1691,9 @@ class CollisionMenu {
         this.hpBar = null;
         this.activeSkill = 0;
         this.entity = this.colliding[this.colliding.length - 1];
+        this.showVictory = false;
+        this.showDefeat = false;
+        this.spoils = null;
     }
     //TODO: only showing the top entity of the last tile, pls fix
     getData() {
@@ -1711,6 +1744,7 @@ class CollisionMenu {
             li.classList.add("skill");
             if (i == this.activeSkill) {
                 li.classList.add("active");
+                game.battle.logText(this.getActiveSkill().desc);
             }
             skillList.appendChild(li);
             if (i != skills.length - 1) {
@@ -1725,10 +1759,20 @@ class CollisionMenu {
             li.appendChild(document.createTextNode("Empty :("));
             skillList.appendChild(li);
         }
-        document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
+        // document.getElementById("move-description").innerHTML = this.getActiveSkill().desc;
     }
     getActiveSkill() {
         return Game.player.skills[this.activeSkill];
+    }
+    updateLog(text) {
+        let t;
+        if (!text) {
+            t = game.battle.topOfLog();
+        }
+        else {
+            t = text;
+        }
+        document.getElementById("move-description").innerHTML = t;
     }
     setHealth() {
         let entity = this.colliding[this.colliding.length - 1];
@@ -1744,6 +1788,25 @@ class CollisionMenu {
             let turns = document.getElementById("turn-count");
             turns.innerHTML = game.battle.countdown;
             this.setHealth();
+            this.updateLog();
+            if (this.showVictory) {
+                document.getElementById("battle-victory").style.display = "flex";
+                if (this.spoils != null) {
+                    document.getElementById("spoils").innerHTML = "Spoils: " + this.spoils.toString();
+                }
+            }
+            else {
+                document.getElementById("battle-victory").style.display = "none";
+            }
+            if (this.showDefeat) {
+                document.getElementById("battle-defeat").style.display = "flex";
+                if (this.spoils != null) {
+                    document.getElementById("spoils").innerHTML = "Loss: " + this.spoils.toString();
+                }
+            }
+            else {
+                document.getElementById("battle-defeat").style.display = "none";
+            }
         }
     }
     display(data) {
@@ -1935,10 +1998,10 @@ class PlayerMenu {
             dialogueMenu.style.display = "none";
         }
         else {
+            let k = this.dialogueKey;
             if (dialogueMenu.style.display == "none") {
                 dialogueMenu.style.display = "inline";
             }
-            let k = this.dialogueKey;
             let dialogueList = dialogueXML.getChild(k).getChildren();
             if (this.dialogueIndex >= dialogueList.length) {
                 let actionKey = this.dialogueKey + "-f";
@@ -1962,7 +2025,6 @@ class PlayerMenu {
         this.completedActions.add(key);
         switch (key) {
             case "instructions-f":
-                this.tutorialOver = true;
                 break;
             case "door-f":
                 break;
@@ -2023,6 +2085,7 @@ let seed = function (sketch) {
     let showMana;
     let locationTest;
     let paused;
+    let playerDead;
     // Runs first.
     sketch.preload = function () {
         customFont = sketch.loadFont("./assets/fonts/fsex300-webfont.ttf");
@@ -2050,6 +2113,7 @@ let seed = function (sketch) {
         showCM = true;
         locationTest = false;
         paused = false;
+        playerDead = false;
         COLORS = {
             // player: sketch.color(0, 0, 0),
             player: sketch.color(255, 255, 255),
@@ -2075,6 +2139,10 @@ let seed = function (sketch) {
         collisionMenu.update();
         playerMenu.update();
         sketch.updateWordBank();
+        if (Game.player.mana.isEmpty()) {
+            sketch.end();
+            sketch.draw();
+        }
         // sketch.scrollStyle();
     };
     sketch.pause = function () {
@@ -2094,6 +2162,14 @@ let seed = function (sketch) {
             // walker = setInterval(sketch.walk, 1500);
             paused = false;
         }
+    };
+    sketch.end = function () {
+        let game = document.getElementById("game");
+        let endMenu = document.getElementById("end-menu");
+        music.pause();
+        game.classList.add("blur");
+        endMenu.style.display = "flex";
+        playerDead = true;
     };
     sketch.changeMusic = function (fileName) {
         if (fileName == null) {
@@ -2218,6 +2294,14 @@ let seed = function (sketch) {
         showEntities = bool;
     };
     sketch.keyPressed = function () {
+        if (playerDead) {
+            if (sketch.key == 'h') {
+                location.reload();
+            }
+            else {
+                return false;
+            }
+        }
         if (sketch.keyCode == 38) { //up arrow
             if (sketch.canWalk()) {
                 sketch.walk();
@@ -2260,9 +2344,19 @@ let seed = function (sketch) {
             if (playerMenu.dialogueKey != "") {
                 playerMenu.dialogueIndex += 1;
             }
+            else if (collisionMenu.showVictory || collisionMenu.showDefeat) {
+                collisionMenu.showVictory = false;
+                collisionMenu.showDefeat = false;
+                collisionMenu.closeMenu();
+            }
             else if (Battle.active) {
-                game.battle.enqueue(collisionMenu.getActiveSkill());
-                game.battle.endTurn();
+                if (game.battle.enqueue(collisionMenu.getActiveSkill())) {
+                    game.battle.endTurn();
+                }
+                else {
+                    collisionMenu.updateLog();
+                    return false;
+                }
             }
             else if (collisionMenu.visible) {
                 collisionMenu.closeMenu();
@@ -2272,20 +2366,20 @@ let seed = function (sketch) {
             game.changeLevel(levels[levels.length - 2]);
             sketch.pause();
         }
-        else if (sketch.key == "m") {
-            if (music.isPlaying()) {
+        else if (paused && sketch.key == "m") {
+            if (music.isLooping()) {
                 music.pause();
             }
             else {
                 music.loop();
             }
         }
-        else if (sketch.key == "h") {
+        else if (paused && sketch.key == "h") {
             // game.changeLevel(levels[0]);
             // sketch.pause();
             location.reload();
         }
-        else if (sketch.key == "s") {
+        else if (paused && sketch.key == "s") {
             sketch.pause();
             game.changeLevel(levels[levels.length - 1]);
         }

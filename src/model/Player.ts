@@ -21,6 +21,10 @@ class Player extends Character {
 		return this._mana;
 	}
 
+	set mana(mana: Manager) {
+		this._mana = mana;
+	}
+
 	get hunger(): number {
 		return this._hunger;
 	}

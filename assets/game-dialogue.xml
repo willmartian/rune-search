@@ -3,11 +3,18 @@
 <game-dialogue>
   <instructions>
     <d1>Hello, and welcome to Rune Search! I am Goat.</d1>
-    <d2>I love to eat letters! Use the &lt;, &gt;, and ^ keys to help me find them. (I can't see very well...)</d2>
+    <d2>I love to eat letters! Use the arrow keys to help me find them. (I can't see very well...)</d2>
     <d3>If YOU need to go eat something, press 'p' to pause the game.</d3>
-    <d3>Ready?</d3>
+    <d4>Oh and also, watch out for any weirdos lurking around in the letters. You never really know what is out there...</d4>
+    <d5>Y'all ready?</d5>
   </instructions>
   <door>
   	<d1>The door saw you didn't have a key and stomped off in a huff...</d1>
   </door>
+  <music>
+    <d1>Check out some traditional Goat music!</d1>
+    <d2>Passed down the Goat family for generations, of course.</d2>
+    <d3>All written by <![CDATA[<a href="https://soundcloud.com/maymoonsley" target="_blank">May Lawver.</a>]]></d3>
+  </music>
+
 </game-dialogue>
