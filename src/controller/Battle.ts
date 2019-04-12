@@ -38,6 +38,10 @@ class Battle {
 		return this._countdown;
 	}
 
+	set countdown(x: number) {
+		this._countdown = x;
+	}
+
 	get skillQueue(): Array<Skill> {
 		return this._skillQueue;
 	}

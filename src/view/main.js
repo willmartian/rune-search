@@ -141,6 +141,7 @@ let seed = function(sketch) {
 	}
 
 	sketch.walk = function() {
+		console.trace();
 		// game.headshift(Game.player, -1);
 		if (collisionMenu.colliding.length > 0) {
 			return;
