@@ -1919,7 +1919,6 @@ class PlayerMenu {
                 this.tutorialOver = true;
                 break;
             case "door-f":
-
                 break;
             default:
                 return;
@@ -2183,8 +2182,8 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 37) { //left arrow
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, true);
-                game.rotateDir(Game.player, true);
-                //sketch.walk();
+                //game.rotateDir(Game.player, true);
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
@@ -2195,8 +2194,8 @@ let seed = function (sketch) {
         else if (sketch.keyCode == 39) { //right arrow
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, false);
-                game.rotateDir(Game.player, false);
-                // sketch.walk();
+                //game.rotateDir(Game.player, false);
+                sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
