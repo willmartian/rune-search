@@ -272,7 +272,7 @@ let seed = function(sketch) {
 			game.changeLevel(levels[levels.length - 2]);
 			sketch.pause();
 		} else if (sketch.key == "m") {
-			if (music.isLooping()) {
+			if (music.isPlaying()) {
 				music.pause();
 			} else {
 				music.loop();

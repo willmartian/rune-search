@@ -18,6 +18,13 @@ class StatusEffect {
 		this._attackCallback = this.trivialFunction();
 	}
 
+	clone(): StatusEffect {
+		let clone = new StatusEffect(this._name, this._desc, this._countdown, this._kind);
+		clone._turnEndCallback = this._turnEndCallback;
+		clone._attackCallback = this._attackCallback;
+		return clone;
+	}
+
 	get countdown() {
 		return this._countdown;
 	}

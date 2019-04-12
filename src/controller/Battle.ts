@@ -95,7 +95,7 @@ class Battle {
 	enqueue(s: Skill): void {
 		if (s != null) {
 			this._skillQueue.push(s);
-			if (!this.totalCost.fitsInto(this.player.mana)) {
+			if (!this.totalCost().fitsInto(this.player.mana)) {
 				this.skillQueue.pop();
 			}
 		}
@@ -128,6 +128,7 @@ class Battle {
 	}
 
 	damage(x: number): void {
+		console.log(x);
 		this._enemy.health -= x;
 		this.runStatusCallbacks("attack");
 	}
@@ -166,7 +167,7 @@ class Battle {
 		}
 		let temp = [];
 		for (let i = 0; i < this._statuses.length; i++) {
-			if (this._statuses[i].countdown != 0) {
+			if (this._statuses[i].countdown > 0) {
 				temp.push(this._statuses[i]);
 			}
 		}

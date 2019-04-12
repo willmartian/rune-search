@@ -1046,7 +1046,7 @@ class Skill {
     }
     static makeStatusEffect(status) {
         return function (b) {
-            b.addStatus(status);
+            b.addStatus(status.clone());
         };
     }
     static makeRepeatedEffect(effect, repetitions) {
@@ -1079,6 +1079,12 @@ class StatusEffect {
         this._kind = k;
         this._turnEndCallback = this.trivialFunction();
         this._attackCallback = this.trivialFunction();
+    }
+    clone() {
+        let clone = new StatusEffect(this._name, this._desc, this._countdown, this._kind);
+        clone._turnEndCallback = this._turnEndCallback;
+        clone._attackCallback = this._attackCallback;
+        return clone;
     }
     get countdown() {
         return this._countdown;
@@ -1494,7 +1500,7 @@ class Battle {
     enqueue(s) {
         if (s != null) {
             this._skillQueue.push(s);
-            if (!this.totalCost.fitsInto(this.player.mana)) {
+            if (!this.totalCost().fitsInto(this.player.mana)) {
                 this.skillQueue.pop();
             }
         }
@@ -1523,6 +1529,7 @@ class Battle {
         }
     }
     damage(x) {
+        console.log(x);
         this._enemy.health -= x;
         this.runStatusCallbacks("attack");
     }
@@ -1556,7 +1563,7 @@ class Battle {
         }
         let temp = [];
         for (let i = 0; i < this._statuses.length; i++) {
-            if (this._statuses[i].countdown != 0) {
+            if (this._statuses[i].countdown > 0) {
                 temp.push(this._statuses[i]);
             }
         }
@@ -2262,7 +2269,7 @@ let seed = function (sketch) {
             sketch.pause();
         }
         else if (sketch.key == "m") {
-            if (music.isLooping()) {
+            if (music.isPlaying()) {
                 music.pause();
             }
             else {
