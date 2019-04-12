@@ -1416,7 +1416,8 @@ let levels = [
             new Sign("Modern_Living"),
             new Sign("Undeadication"),
             new Sign("Bookends"),
-            new Sign("Victory")
+            new Sign("Victory"),
+            new Sign("Shopkeep"),
         ];
         for (let e of game.entities) {
             e.addFunc(function () {
@@ -1843,7 +1844,7 @@ class CollisionMenu {
         else if (entity instanceof Item) {
             game.tileMap.removeEntity(entity);
         }
-        else if (entity instanceof Sign) {
+        else if (entity instanceof Sign || entity instanceof Shopkeep) {
             game.tileMap.removeEntity(entity);
             //makeEntityNotCollideableandVisible
         }
