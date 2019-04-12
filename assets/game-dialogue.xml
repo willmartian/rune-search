@@ -4,17 +4,20 @@
   <instructions>
     <d1>Hello, and welcome to Rune Search! I am Goat.</d1>
     <d2>I AM HUNGRYYYYYY!</d2>
-    <d3>I love to eat letters! Use the &lt; and &gt; keys to help me find them. (I can't see very well...)</d3>
-    <d4>Whenever I am not eating something I get pretty cranky... Don't let my Hunger level reach 10!</d4>
-    <d5>If YOU need to go eat something, press 'p' to pause the game.</d5>
-    <d6>Ready?</d6>
+    <d3>I love to eat letters! Use the arrow keys to help me find them. (I can't see very well...)</d3>
+    <d4>If YOU need to go eat something, press 'p' to pause the game.</d4>
+    <d5>Oh and also, watch out for any weirdos lurking around in the letters. You never really know what is out there...</d5>
+    <d6>Y'all ready?</d6>
   </instructions>
   <door>
   	<d1>WHAT ARE YOU DOOOOOINNGGG!??!</d1>
   	<d2>You can't just open a door without a key!!! You scared it away!</d2>
   	<d3>(Everyone knows that.......)</d3>
-  	
-
-
   </door>
+  <music>
+    <d1>Check out some traditional Goat music!</d1>
+    <d2>Passed down the Goat family for generations, of course.</d2>
+    <d3>All written by <![CDATA[<a href="https://soundcloud.com/maymoonsley" target="_blank">May Lawver.</a>]]></d3>
+  </music>
+
 </game-dialogue>

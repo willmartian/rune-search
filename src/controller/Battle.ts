@@ -54,6 +54,10 @@ class Battle {
 		return this._log;
 	}
 
+	topOfLog(): string {
+		return this._log[this._log.length - 1];
+	}
+
 	totalCost(): Manager {
 		let result = new Manager();
 		for (let i = 0; i < this._skillQueue.length; i++) {
@@ -92,10 +96,17 @@ class Battle {
 		this._countdown += x;
 	}
 
-	enqueue(s: Skill): void {
+	enqueue(s: Skill): boolean {
 		if (s != null) {
-			this._skillQueue.push(s);
+			if (s.cost.fitsInto(Game.player.mana)) {
+				this._skillQueue.push(s);
+				Game.player.mana.subtract(s.cost);
+				return true;
+			} else {
+				this.logText("Not enough mana!");
+			}
 		}
+		return false;
 	}
 
 	logText(s: string): void {
@@ -111,7 +122,7 @@ class Battle {
 			this._skillQueue[i].execute(this);
 		}
 		let temp: Manager = this.totalCost();
-		this._player.mana.subtract(temp);
+		// Game.player.mana.subtract(temp);
 		this._skillQueue = [];
 		this.runStatusCallbacks("turnEnd");
 		if (this._enemy.health <= 0) {
@@ -146,14 +157,19 @@ class Battle {
 
 	victory(): void {
 		//TODO: more victory code goes here
-		this._player.mana.add(this.spoils());
-		collisionMenu.closeMenu();
+		collisionMenu.showVictory = true;
+		collisionMenu.spoils = this.spoils();
+		Game.player.mana.add(collisionMenu.spoils);
 		Battle.active = false;
 		console.log("battle won!");
 	}
 
 	gameover(): void {
 		//TODO: game over code goes here
+		collisionMenu.showDefeat = true;
+		collisionMenu.spoils = this.spoils();
+		Game.player.mana.subtract(collisionMenu.spoils);
+		Battle.active = false;
 		console.log("battle lost :(");
 	}
 

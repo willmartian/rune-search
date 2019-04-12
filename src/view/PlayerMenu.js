@@ -72,13 +72,15 @@ class PlayerMenu {
 		if (this.dialogueKey == "") {
 			dialogueMenu.style.display = "none";
 		} else {
+			let k = this.dialogueKey;
+		
 			if (dialogueMenu.style.display == "none") {
 				dialogueMenu.style.display = "inline"
 			}
-			let k = this.dialogueKey;
 			let dialogueList = dialogueXML.getChild(k).getChildren();
 			if (this.dialogueIndex >= dialogueList.length) {
 				let actionKey = this.dialogueKey + "-f";
+				
 				this.dialogueActions(actionKey);
 				this.dialogueKey = "";
 				this.dialogueIndex = 0;
@@ -99,7 +101,6 @@ class PlayerMenu {
 		this.completedActions.add(key);
 		switch(key) {
 			case "instructions-f":
-					this.tutorialOver = true;
 				break;
 			case "door-f":
 				break;

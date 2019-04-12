@@ -93,7 +93,7 @@ let levels = [
 	},
 
 	function(): TileMap {
-		let newMap = new TileMap(20,20);
+		let newMap = new TileMap(20,15);
 		game.entities = [
 			new enemies.Rat,
 			new enemies.Rat,
@@ -164,6 +164,7 @@ let levels = [
 		newMap.insertPlayer(Game.player);
 		main.changeMusic(null);
 		main.displayEntities(true);
+		playerMenu.dialogueKey = "music";
 		return newMap;
 	}
 ]
