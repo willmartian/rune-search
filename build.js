@@ -740,7 +740,7 @@ class Player extends Character {
         super._health = 10;
         super._attackDamage = 1;
         // super._active = true;
-        this._mana = new Manager("aaaaa");
+        this._mana = new Manager("AAA");
         this._skills = [skills.slap];
         this._hunger = 2;
         this._maxHunger = 10;
@@ -783,11 +783,13 @@ class Player extends Character {
             return false;
         }
     }
-    revokeSkill(n) {
-        let s = skills[n];
+    revokeSkill(s) {
         let index = this._skills.indexOf(s);
         if (index != -1) {
             this._skills.splice(index, 1);
+        }
+        else {
+            console.log("unspliceable");
         }
     }
     playerCollision() { }
@@ -1062,7 +1064,7 @@ class Skill {
     }
     static makeStatusEffect(status) {
         return function (b) {
-            b.addStatus(status);
+            b.addStatus(status.clone());
         };
     }
     static makeRepeatedEffect(effect, repetitions) {
@@ -1081,7 +1083,7 @@ class Skill {
     }
     static revokeSkill(skillName) {
         return function (b) {
-            b.player.revokeSkill(skillName);
+            b.player.revokeSkill(skills[skillName]);
         };
     }
 }
@@ -1095,6 +1097,12 @@ class StatusEffect {
         this._kind = k;
         this._turnEndCallback = this.trivialFunction();
         this._attackCallback = this.trivialFunction();
+    }
+    clone() {
+        let clone = new StatusEffect(this._name, this._desc, this._countdown, this._kind);
+        clone._turnEndCallback = this._turnEndCallback;
+        clone._attackCallback = this._attackCallback;
+        return clone;
     }
     get countdown() {
         return this._countdown;
@@ -1134,14 +1142,14 @@ class StatusEffect {
     static fragileStatus(countdown) {
         let status = new StatusEffect("Fragile", "Enemy takes %countdown extra damage from all attacks.", countdown, "fragile");
         status.attackCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
         };
         return status;
     }
     static poisonStatus(countdown) {
         let status = new StatusEffect("Poison", "Enemy takes %countdown damage this turn, then loses 1 Poison.", countdown, "poison");
         status.turnEndCallback = function (b) {
-            b.damage(this._countdown);
+            b.damageBypass(this._countdown);
             this._countdown--;
         };
         return status;
@@ -1178,7 +1186,7 @@ class UsableOnceSkill extends Skill {
     }
     execute(b) {
         super.execute(b);
-        b.player.revokeSkill(this.camelCaseName);
+        b.player.revokeSkill(this);
     }
 }
 /// <reference path="../_references.ts" />
@@ -1272,7 +1280,7 @@ let levels = [
     function () {
         let newMap = new TileMap(15, 15);
         Game.player.addItem(new items.Key);
-        let door = new Door();
+        let door = new WipeDoor();
         door.name = "Start";
         game.entities = [
             Game.player,
@@ -1551,6 +1559,9 @@ class Battle {
         this._enemy.health -= x;
         this.runStatusCallbacks("attack");
     }
+    damageBypass(x) {
+        this._enemy.health -= x;
+    }
     heal(x) {
         this._enemy.health += x;
         if (this._enemy.health > this._startingHealth) {
@@ -1586,7 +1597,7 @@ class Battle {
         }
         let temp = [];
         for (let i = 0; i < this._statuses.length; i++) {
-            if (this._statuses[i].countdown != 0) {
+            if (this._statuses[i].countdown > 0) {
                 temp.push(this._statuses[i]);
             }
         }
@@ -1661,6 +1672,15 @@ class Sign extends Entity {
     }
     addFunc(func) {
         this._funcs.push(func);
+    }
+}
+/// <reference path="../_references.ts" />
+class WipeDoor extends Entity {
+    constructor() {
+        super("Door");
+    }
+    playerCollision() {
+        super.playerCollision();
     }
 }
 class CollisionMenu {
@@ -1844,6 +1864,10 @@ class CollisionMenu {
                 game.tileMap.removeEntity(entity);
                 game.tileMap.insertEntity(entity);
             }
+        }
+        else if (entity instanceof WipeDoor) {
+            Game.player = new Player(Game.player.name);
+            game.nextLevel();
         }
         main.draw();
         this.visible = false;

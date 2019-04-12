@@ -140,6 +140,10 @@ class Battle {
 		this.runStatusCallbacks("attack");
 	}
 
+	damageBypass(x: number): void {
+		this._enemy.health -= x;
+	}
+
 	heal(x: number): void {
 		this._enemy.health += x;
 		if (this._enemy.health > this._startingHealth) {
@@ -179,7 +183,7 @@ class Battle {
 		}
 		let temp = [];
 		for (let i = 0; i < this._statuses.length; i++) {
-			if (this._statuses[i].countdown != 0) {
+			if (this._statuses[i].countdown > 0) {
 				temp.push(this._statuses[i]);
 			}
 		}

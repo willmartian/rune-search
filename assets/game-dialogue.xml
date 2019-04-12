@@ -3,16 +3,13 @@
 <game-dialogue>
   <instructions>
     <d1>Hello, and welcome to Rune Search! I am Goat.</d1>
-    <d2>I AM HUNGRYYYYYY!</d2>
-    <d3>I love to eat letters! Use the arrow keys to help me find them. (I can't see very well...)</d3>
-    <d4>If YOU need to go eat something, press 'p' to pause the game.</d4>
-    <d5>Oh and also, watch out for any weirdos lurking around in the letters. You never really know what is out there...</d5>
-    <d6>Y'all ready?</d6>
+    <d2>I love to eat letters! Use the arrow keys to help me find them. (I can't see very well...)</d2>
+    <d3>If YOU need to go eat something, press 'p' to pause the game.</d3>
+    <d4>Oh and also, watch out for any weirdos lurking around in the letters. You never really know what is out there...</d4>
+    <d5>Y'all ready?</d5>
   </instructions>
   <door>
-  	<d1>WHAT ARE YOU DOOOOOINNGGG!??!</d1>
-  	<d2>You can't just open a door without a key!!! You scared it away!</d2>
-  	<d3>(Everyone knows that.......)</d3>
+  	<d1>The door saw you didn't have a key and stomped off in a huff...</d1>
   </door>
   <music>
     <d1>Check out some traditional Goat music!</d1>
