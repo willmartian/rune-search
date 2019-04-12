@@ -84,8 +84,60 @@ class TileMap {
 		return locations;
 	}
 
+//inseerts the player at a random blank space
+// draws player horizontally
+	insertPlayer(entity: Entity) {
+		let pos: number[] = this.randomPosDir();
+		let x: number = pos[0], y: number = pos[1];
+		let path: number[][] = [];
+		let i: number;
+		let xStep = 1;
+		let yStep = 0;
+		//Does entity name fit?
+		for (i = 0; i < entity.name.length; i++) {
+			if (x < this.width && x > 0 && y < this.height && y > 0) {
+				let tile: Tile = this._tiles[x][y];
+				if (tile.entities.length == 1) { //||
+						// tile.getTopLetter() == entity.name.charAt(i)) {
+					tile.addLetter(entity.name.charAt(i));
+					path.push([x,y]);
+					x += xStep;
+					y += yStep;	
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+
+		//If so, add entity to tile.
+		if (i == entity.name.length) {
+			let currLocation = [];
+			for (let location of path) {
+				currLocation.push(location);
+				let x: number = location[0];
+				let y: number = location[1];
+				this._tiles[x][y].addEntity(entity);
+			}
+			entity.location = currLocation;
+			this._entities.push(entity);
+			return true;
+		} else {
+			for (let location of path) {
+				let x: number = location[0];
+				let y: number = location[1];
+				this._tiles[x][y].removeTopLetter();
+			}
+			return this.insertPlayer(entity);
+		}
+	}
+
+
+
+
 	insertEntityAt(entity: Entity, x: number, y: number, xStep: number, yStep: number) {
-		
+	
 		let path: number[][] = [];
 		let i: number;
 		//Does entity name fit?
@@ -134,7 +186,7 @@ class TileMap {
 		let x: number = posDir[0], y: number = posDir[1], 
 		xStep: number = posDir[2], yStep: number = posDir[3];
 		
-		let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+		let result = this.insertEntityAt(entity, x, y, xStep, yStep);
 
 		if (result == false) {
 			return this.insertEntity(entity);
@@ -144,50 +196,50 @@ class TileMap {
 
 	}
 
-	insertEntityAtLocation(entity: Entity, x: number, y: number, xStep: number, yStep: number): boolean {
-
-		let path: number[][] = [];
-		let i: number;
-
-		//Does entity name fit?
-		for (i = 0; i < entity.name.length; i++) {
-			if (x < this.width && x >= 0 && y < this.height && y >= 0) {
-				let tile: Tile = this._tiles[x][y];
-				if (tile.entities.length == 1 ||
-						tile.getTopLetter() == entity.name.charAt(i)) {
-					tile.addLetter(entity.name.charAt(i));
-					path.push([x,y]);
-					x += xStep;
-					y += yStep;	
-				} else {
-					break;
-				}
-			} else {
-				break;
-			}
-		}
-
-		//If so, add entity to tile.
-		if (i == entity.name.length) {
-			let currLocation = [];
-			for (let location of path) {
-				currLocation.push(location);
-				let x: number = location[0];
-				let y: number = location[1];
-				this._tiles[x][y].addEntity(entity);
-			}
-			entity.location = currLocation;
-			this._entities.push(entity);
-			return true;
-		} else {
-			for (let location of path) {
-				let x: number = location[0];
-				let y: number = location[1];
-				this._tiles[x][y].removeTopLetter();
-			}
-			return false;
-		}
-	}
+	// insertEntityAtLocation(entity: Entity, x: number, y: number, xStep: number, yStep: number): boolean {
+	// 
+	// 	let path: number[][] = [];
+	// 	let i: number;
+	// 
+	// 	//Does entity name fit?
+	// 	for (i = 0; i < entity.name.length; i++) {
+	// 		if (x < this.width && x >= 0 && y < this.height && y >= 0) {
+	// 			let tile: Tile = this._tiles[x][y];
+	// 			if (tile.entities.length == 1 ||
+	// 					tile.getTopLetter() == entity.name.charAt(i)) {
+	// 				tile.addLetter(entity.name.charAt(i));
+	// 				path.push([x,y]);
+	// 				x += xStep;
+	// 				y += yStep;	
+	// 			} else {
+	// 				break;
+	// 			}
+	// 		} else {
+	// 			break;
+	// 		}
+	// 	}
+	// 
+	// 	//If so, add entity to tile.
+	// 	if (i == entity.name.length) {
+	// 		let currLocation = [];
+	// 		for (let location of path) {
+	// 			currLocation.push(location);
+	// 			let x: number = location[0];
+	// 			let y: number = location[1];
+	// 			this._tiles[x][y].addEntity(entity);
+	// 		}
+	// 		entity.location = currLocation;
+	// 		this._entities.push(entity);
+	// 		return true;
+	// 	} else {
+	// 		for (let location of path) {
+	// 			let x: number = location[0];
+	// 			let y: number = location[1];
+	// 			this._tiles[x][y].removeTopLetter();
+	// 		}
+	// 		return false;
+	// 	}
+	// }
 
 	removeEntity(entity: Entity): Entity {
 		//TODO
