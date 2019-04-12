@@ -30,13 +30,13 @@ let levels = [
 		let rat_key = new enemies.Rat;
 		rat_key.giveItem(new items.Key); 
 		game.entities = [
-			Game.player,
 			new enemies.Rat,
 			rat_key,
 			new items.Key,
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		main.changeMusic("Exploratory_Final.mp3");
 		main.displayEntities(false);
 		return newMap;
@@ -45,7 +45,6 @@ let levels = [
 	function(): TileMap {
 		let newMap = new TileMap(30,15);
 		game.entities = [
-			Game.player,
 			new enemies.Wizard,
 			new enemies.Goblin,
 			new enemies.Goblin,
@@ -56,13 +55,13 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		return newMap;
 	},
 
 	function(): TileMap {
 		let newMap = new TileMap(30,15);
 		game.entities = [
-			Game.player,
 			new enemies.Rat,
 			new enemies.Rat,
 			new enemies.Robot,
@@ -74,6 +73,7 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		main.changeMusic("Modern_Living.mp3");
 		return newMap;
 	},
@@ -82,18 +82,18 @@ let levels = [
 		let newMap = new TileMap(10,10);
 		Game.player.addItem(new items.Key);
 		game.entities = [
-			Game.player,
 			new Shopkeep(),
 			new Door(),
 		];
+		
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		return newMap;
 	},
 
 	function(): TileMap {
 		let newMap = new TileMap(20,20);
 		game.entities = [
-			Game.player,
 			new enemies.Rat,
 			new enemies.Rat,
 			new enemies.Zombie,
@@ -104,6 +104,7 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		main.changeMusic("Undeadication.mp3");
 		return newMap;
 	},
@@ -111,7 +112,6 @@ let levels = [
 	function(): TileMap {
 		let newMap = new TileMap(30,15);
 		game.entities = [
-			Game.player,
 			new enemies.Rat,
 			new enemies.Rat,
 			new enemies.Dinosaur,
@@ -122,6 +122,7 @@ let levels = [
 			new Door()
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		main.changeMusic("Bookends.mp3");
 		return newMap;
 	},
@@ -129,7 +130,6 @@ let levels = [
 	function(): TileMap {
 		let newMap = new TileMap(30,15);
 		game.entities = [
-			Game.player,
 			new Sign("Will"),
 			new Sign("May"),
 			new Sign("Rebekah"),
@@ -138,6 +138,7 @@ let levels = [
 			new Sign("VGDev")
 		];
 		newMap.insertEntities(game.entities);
+		newMap.insertPlayer(Game.player);
 		main.changeMusic("Victory.mp3");
 		main.displayEntities(true);
 		return newMap;

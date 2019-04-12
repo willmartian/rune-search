@@ -361,6 +361,54 @@ class TileMap {
         }
         return locations;
     }
+    insertPlayer(entity) {
+        let pos = this.randomPosDir();
+        let x = pos[0], y = pos[1];
+        let path = [];
+        let i;
+        let xStep = 1;
+        let yStep = 0;
+        //Does entity name fit?
+        for (i = 0; i < entity.name.length; i++) {
+            if (x < this.width && x > 0 && y < this.height && y > 0) {
+                let tile = this._tiles[x][y];
+                if (tile.entities.length == 1) { //||
+                    // tile.getTopLetter() == entity.name.charAt(i)) {
+                    tile.addLetter(entity.name.charAt(i));
+                    path.push([x, y]);
+                    x += xStep;
+                    y += yStep;
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        //If so, add entity to tile.
+        if (i == entity.name.length) {
+            let currLocation = [];
+            for (let location of path) {
+                currLocation.push(location);
+                let x = location[0];
+                let y = location[1];
+                this._tiles[x][y].addEntity(entity);
+            }
+            entity.location = currLocation;
+            this._entities.push(entity);
+            return true;
+        }
+        else {
+            for (let location of path) {
+                let x = location[0];
+                let y = location[1];
+                this._tiles[x][y].removeTopLetter();
+            }
+            return this.insertPlayer(entity);
+        }
+    }
     insertEntityAt(entity, x, y, xStep, yStep) {
         let path = [];
         let i;
@@ -408,7 +456,7 @@ class TileMap {
     insertEntity(entity) {
         let posDir = this.randomPosDir();
         let x = posDir[0], y = posDir[1], xStep = posDir[2], yStep = posDir[3];
-        let result = this.insertEntityAtLocation(entity, x, y, xStep, yStep);
+        let result = this.insertEntityAt(entity, x, y, xStep, yStep);
         if (result == false) {
             return this.insertEntity(entity);
         }
@@ -416,50 +464,50 @@ class TileMap {
             return result;
         }
     }
-    insertEntityAtLocation(entity, x, y, xStep, yStep) {
-        let path = [];
-        let i;
-        //Does entity name fit?
-        for (i = 0; i < entity.name.length; i++) {
-            if (x < this.width && x >= 0 && y < this.height && y >= 0) {
-                let tile = this._tiles[x][y];
-                if (tile.entities.length == 1 ||
-                    tile.getTopLetter() == entity.name.charAt(i)) {
-                    tile.addLetter(entity.name.charAt(i));
-                    path.push([x, y]);
-                    x += xStep;
-                    y += yStep;
-                }
-                else {
-                    break;
-                }
-            }
-            else {
-                break;
-            }
-        }
-        //If so, add entity to tile.
-        if (i == entity.name.length) {
-            let currLocation = [];
-            for (let location of path) {
-                currLocation.push(location);
-                let x = location[0];
-                let y = location[1];
-                this._tiles[x][y].addEntity(entity);
-            }
-            entity.location = currLocation;
-            this._entities.push(entity);
-            return true;
-        }
-        else {
-            for (let location of path) {
-                let x = location[0];
-                let y = location[1];
-                this._tiles[x][y].removeTopLetter();
-            }
-            return false;
-        }
-    }
+    // insertEntityAtLocation(entity: Entity, x: number, y: number, xStep: number, yStep: number): boolean {
+    // 
+    // 	let path: number[][] = [];
+    // 	let i: number;
+    // 
+    // 	//Does entity name fit?
+    // 	for (i = 0; i < entity.name.length; i++) {
+    // 		if (x < this.width && x >= 0 && y < this.height && y >= 0) {
+    // 			let tile: Tile = this._tiles[x][y];
+    // 			if (tile.entities.length == 1 ||
+    // 					tile.getTopLetter() == entity.name.charAt(i)) {
+    // 				tile.addLetter(entity.name.charAt(i));
+    // 				path.push([x,y]);
+    // 				x += xStep;
+    // 				y += yStep;	
+    // 			} else {
+    // 				break;
+    // 			}
+    // 		} else {
+    // 			break;
+    // 		}
+    // 	}
+    // 
+    // 	//If so, add entity to tile.
+    // 	if (i == entity.name.length) {
+    // 		let currLocation = [];
+    // 		for (let location of path) {
+    // 			currLocation.push(location);
+    // 			let x: number = location[0];
+    // 			let y: number = location[1];
+    // 			this._tiles[x][y].addEntity(entity);
+    // 		}
+    // 		entity.location = currLocation;
+    // 		this._entities.push(entity);
+    // 		return true;
+    // 	} else {
+    // 		for (let location of path) {
+    // 			let x: number = location[0];
+    // 			let y: number = location[1];
+    // 			this._tiles[x][y].removeTopLetter();
+    // 		}
+    // 		return false;
+    // 	}
+    // }
     removeEntity(entity) {
         //TODO
         let tiles = this.getEntityTiles(entity);
@@ -1202,13 +1250,13 @@ let levels = [
         let rat_key = new enemies.Rat;
         rat_key.giveItem(new items.Key);
         game.entities = [
-            Game.player,
             new enemies.Rat,
             rat_key,
             new items.Key,
             new Door()
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         main.changeMusic("Exploratory_Final.mp3");
         main.displayEntities(false);
         return newMap;
@@ -1216,7 +1264,6 @@ let levels = [
     function () {
         let newMap = new TileMap(30, 15);
         game.entities = [
-            Game.player,
             new enemies.Wizard,
             new enemies.Goblin,
             new enemies.Goblin,
@@ -1227,12 +1274,12 @@ let levels = [
             new Door()
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         return newMap;
     },
     function () {
         let newMap = new TileMap(30, 15);
         game.entities = [
-            Game.player,
             new enemies.Rat,
             new enemies.Rat,
             new enemies.Robot,
@@ -1244,6 +1291,7 @@ let levels = [
             new Door()
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         main.changeMusic("Modern_Living.mp3");
         return newMap;
     },
@@ -1251,17 +1299,16 @@ let levels = [
         let newMap = new TileMap(10, 10);
         Game.player.addItem(new items.Key);
         game.entities = [
-            Game.player,
             new Shopkeep(),
             new Door(),
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         return newMap;
     },
     function () {
         let newMap = new TileMap(20, 20);
         game.entities = [
-            Game.player,
             new enemies.Rat,
             new enemies.Rat,
             new enemies.Zombie,
@@ -1272,13 +1319,13 @@ let levels = [
             new Door()
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         main.changeMusic("Undeadication.mp3");
         return newMap;
     },
     function () {
         let newMap = new TileMap(30, 15);
         game.entities = [
-            Game.player,
             new enemies.Rat,
             new enemies.Rat,
             new enemies.Dinosaur,
@@ -1289,13 +1336,13 @@ let levels = [
             new Door()
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         main.changeMusic("Bookends.mp3");
         return newMap;
     },
     function () {
         let newMap = new TileMap(30, 15);
         game.entities = [
-            Game.player,
             new Sign("Will"),
             new Sign("May"),
             new Sign("Rebekah"),
@@ -1304,6 +1351,7 @@ let levels = [
             new Sign("VGDev")
         ];
         newMap.insertEntities(game.entities);
+        newMap.insertPlayer(Game.player);
         main.changeMusic("Victory.mp3");
         main.displayEntities(true);
         return newMap;
@@ -2078,7 +2126,7 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, true);
                 game.rotateDir(Game.player, true);
-                sketch.walk();
+                // sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
@@ -2090,7 +2138,7 @@ let seed = function (sketch) {
             if (sketch.canWalk()) {
                 game.rotateDir(Game.player, false);
                 game.rotateDir(Game.player, false);
-                sketch.walk();
+                // sketch.walk();
             }
             else if (collisionMenu.visible
                 && collisionMenu.entity instanceof Character
