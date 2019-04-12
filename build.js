@@ -2235,6 +2235,7 @@ let seed = function (sketch) {
             Game.player.hunger += 1;
             sketch.draw();
         }
+        Battle.active = false;
         // Game.player.hunger += 1;
     };
     sketch.canWalk = function () {
