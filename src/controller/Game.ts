@@ -9,6 +9,7 @@ class Game {
 	private _currentLevel: number;
 	private _dead: Entity[];
 	private _battle: Battle;
+	private _timeScores: number[][];
 
 	constructor() {
 		this._selected = [];
@@ -21,6 +22,7 @@ class Game {
 		];
 		this._tileMap.insertEntities(this._entities);	
 		this._currentLevel = -1;
+		this._timeScores = [];
 	}
 
 	//Only adding one entity to colliding, TODO
@@ -95,6 +97,8 @@ class Game {
 		let newMap: TileMap = level.call(this);
 		this._tileMap = newMap;
 		Game.player.hunger = 1;
+		this._timeScores.push(playerMenu.time);
+		playerMenu.time = [0,0,0];
 		main.draw();
 		// if (level == levels[0]) {
 		main.resize();

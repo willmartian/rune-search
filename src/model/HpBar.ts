@@ -7,9 +7,9 @@ class HpBar {
 
   constructor(max: number){
     this.currentHealth = max; //hp is full when bar is created
-    this.maxHealth = max;
+    // this.maxHealth = max;
     // this.barString = "██████████";
-    this.barString = "<3 <3 <3 <3 <3 "
+    this.barString = "<3 ".repeat(this.currentHealth);
 
   }
 
@@ -17,32 +17,24 @@ class HpBar {
 //update will take in cur which is the new current hp hpBar should be updated
 //with
   update(cur: number): void {
-    if(cur != this.currentHealth){
-      this.currentHealth = cur;
-      var tmp: number = this.currentHealth * 10/this.maxHealth;
-      var i: number = 0;
-      this.barString = "";
+    // if(cur != this.currentHealth){
+    //   this.currentHealth = cur;
+    //   var tmp: number = this.currentHealth * 10/this.maxHealth;
+    //   var i: number = 0;
+    //   this.barString = "";
 
-      //remaking barString
-      // let left = true;
-      while(i < this.maxBar){
-         if(i < tmp) {
-             var re = /░/;
-            // if (left) {
-              // this.barString = this.barString + "█";
-              this.barString = this.barString + "<3 ";
-            // } else {
-              // this.barString = this.barString + "]";
-            // }
-            // left = !left;
-         } else {
-           // this.barString = this.barString + "░";
-            this.barString = this.barString + "   ";
+    //   //remaking barString
+    //   while(i < this.maxBar){
+    //      if(i < tmp) {
+    //           this.barString = this.barString + "<3 ";
+    //      } else {
+    //         this.barString = this.barString + "   ";
+    //      }
+    //      i = i+1;
+    //   }
+    // }
+    this.barString = "<3 ".repeat(cur);
 
-         }
-         i = i+1;
-      }
-    }
   }
 
   get bar(): string{

@@ -1,7 +1,6 @@
 /// <reference path="../_references.ts" />
 
 class Player extends Character {
-	protected _party: Character[];
 	protected _mana: Manager;
 	protected _skills: Skill[];
 	protected _hunger: number;
@@ -11,10 +10,9 @@ class Player extends Character {
 		super(name);
 		super._health = 10;
 		super._attackDamage = 1;
-		super._active = true;
-		this._party = [];
+		// super._active = true;
 		this._mana = new Manager();
-		this._skills = [skills.slap, skills.aegis];
+		this._skills = [skills.slap];
 		this._hunger = 2;
 		this._maxHunger = 10;
 	}

@@ -132,6 +132,25 @@ class CollisionMenu {
 			// }
 		} else if (entity instanceof Item) {
 			game.tileMap.removeEntity(entity);
+		} else if (entity instanceof Sign) {
+			game.tileMap.removeEntity(entity);
+			//makeEntityNotCollideableandVisible
+		} else if (entity instanceof Door) {
+			let i;
+			for (i = 0; i < Game.player.inventory.length; i++) {
+				if (Game.player.inventory[i].name == "Key") {
+					Game.player.removeItem(Game.player.inventory[i]);
+					game.nextLevel();
+					// super.playerCollision();
+					// return;
+					break;
+				}
+			}
+			if (i == Game.player.inventory.length) {
+				playerMenu.dialogueKey = "door";
+				// game.tileMap.removeEntity(entity);
+				// game.tileMap.insertEntity(entity);
+			}
 		}
 		main.draw();
 		this.visible = false;
