@@ -143,6 +143,7 @@ class Battle {
 		//TODO: more victory code goes here
 		this._player.mana.add(this.spoils());
 		collisionMenu.closeMenu();
+		Battle.active = false;
 		console.log("battle won!");
 	}
 
